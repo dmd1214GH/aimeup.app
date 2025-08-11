@@ -1,5 +1,0 @@
-
-
-> @aimeup/account@0.1.0 typecheck /Users/dougdanoff/code/aimeup/packages/account
-> tsc -p tsconfig.json
-

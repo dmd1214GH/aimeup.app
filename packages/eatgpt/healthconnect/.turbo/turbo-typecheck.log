@@ -1,5 +1,0 @@
-
-
-> @aimeup/healthconnect@0.1.0 typecheck /Users/dougdanoff/code/aimeup/packages/eatgpt/healthconnect
-> tsc -p tsconfig.json
-
