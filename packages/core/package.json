@@ -1,0 +1,10 @@
+{
+  "name": "@aimeup/core",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "echo build packages/core/package.json",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json"
+  }
+}

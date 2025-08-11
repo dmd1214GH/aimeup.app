@@ -1,0 +1,5 @@
+@import "../../packages/core-ui/src/styles/tokens.css";
+@plugin "tailwindcss-animate";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

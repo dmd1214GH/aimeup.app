@@ -1,0 +1,10 @@
+{
+  "name": "@aimeup/healthconnect",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "echo build packages/eatgpt/healthconnect/package.json",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json"
+  }
+}

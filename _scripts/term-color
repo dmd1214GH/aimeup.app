@@ -1,0 +1,81 @@
+#!/usr/bin/env zsh
+# Usage: term-color COLOR_NAME
+# Example: term-color red, term-color lightblue
+
+set -euo pipefail
+color="${1:-}"
+
+typeset -A COLORS=(
+  black       "0,0,0"
+  white       "65535,65535,65535"
+  red         "65535,0,0"
+  green       "0,65535,0"
+  blue        "0,0,65535"
+  yellow      "65535,65535,0"
+  cyan        "0,65535,65535"
+  magenta     "65535,0,65535"
+  orange      "65535,42405,0"
+  purple      "32768,0,32768"
+  gray        "32768,32768,32768"
+  darkgray    "43690,43690,43690"
+  pink        "65535,49152,51914"
+  gold        "65535,55255,0"
+  brown       "42405,10794,10794"
+  lightred       "65535,45000,45000"
+  lightgreen     "45000,65535,45000"
+  lightblue      "45000,45000,65535"
+  lightyellow    "65535,65535,45000"
+  lightcyan      "45000,65535,65535"
+  lightmagenta   "65535,45000,65535"
+  lightorange    "65535,55000,40000"
+  lightpurple    "50000,40000,50000"
+  lightgray      "55000,55000,55000"
+  lightpink      "65535,55000,56000"
+  lightgold      "65535,60000,40000"
+  lightbrown     "52000,40000,35000"
+)
+
+if [[ -z "$color" || -z "${COLORS[$color]:-}" ]]; then
+  echo "Usage: term-color COLOR_NAME"
+  echo "Available colors: ${(@k)COLORS}"
+  exit 1
+fi
+
+IFS=',' read -r r g b <<< "${COLORS[$color]}"
+
+# Convert to 0-255 range for luminance calculation
+r8=$(( r / 257 ))
+g8=$(( g / 257 ))
+b8=$(( b / 257 ))
+
+# Calculate relative luminance (simple brightness approximation)
+brightness=$(( (299 * r8 + 587 * g8 + 114 * b8) / 1000 ))
+
+# Pick text color: black if bright background, white if dark
+if (( brightness > 128 )); then
+  text_color="{0, 0, 0}"
+else
+  text_color="{65535, 65535, 65535}"
+fi
+
+# Window size (characters)
+rows=50
+cols=140
+font_name="Menlo"
+font_size=12
+
+osascript <<OSA
+tell application "Terminal"
+  if windows is {} then reopen
+  tell selected tab of front window
+    set background color of current settings to {$r, $g, $b}
+    set normal text color of current settings to $text_color
+  end tell
+  set number of rows of front window to $rows
+  set number of columns of front window to $cols
+  tell current settings of front window
+    set font name to "$font_name"
+    set font size to $font_size
+  end tell
+end tell
+OSA

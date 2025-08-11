@@ -1,0 +1,26 @@
+{
+  "name": "@aimeup/eatgpt-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "echo build apps/eatgpt-web/package.json",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json",
+    "dev": "vite"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^5.0.0",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "tailwindcss": "^4.1.11",
+    "vite": "^7.1.1"
+  },
+  "dependencies": {
+    "class-variance-authority": "^0.7.1",
+    "lucide-react": "^0.539.0",
+    "tailwind-merge": "^3.3.1",
+    "tailwindcss-animate": "^1.0.7"
+  }
+}

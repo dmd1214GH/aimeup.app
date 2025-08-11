@@ -1,0 +1,13 @@
+{
+  "name": "@aimeup/eatgpt-native",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "echo build apps/eatgpt-native/package.json",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "react": "18.3.1"
+  }
+}

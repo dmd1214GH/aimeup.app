@@ -1,0 +1,10 @@
+{
+  "name": "@aimeup/openai",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "echo build packages/openai/package.json",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json"
+  }
+}

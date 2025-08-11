@@ -1,0 +1,21 @@
+# dependencies & tooling
+node_modules/
+.pnp.*
+.pnpm-debug.log*
+.npmrc
+
+# build artifacts
+dist/
+build/
+coverage/
+.turbo/
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+
+# env (keep examples)
+.env
+.env.*
+!.env.example
