@@ -1,0 +1,5 @@
+
+
+> @aimeup/eatgpt-native@0.1.0 typecheck /Users/dougdanoff/code/aimeup/apps/eatgpt-native
+> tsc -p tsconfig.json
+

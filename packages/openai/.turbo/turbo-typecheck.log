@@ -1,0 +1,5 @@
+
+
+> @aimeup/openai@0.1.0 typecheck /Users/dougdanoff/code/aimeup/packages/openai
+> tsc -p tsconfig.json
+

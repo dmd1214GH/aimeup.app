@@ -1,0 +1,5 @@
+
+
+> @aimeup/ui@0.1.0 typecheck /Users/dougdanoff/code/aimeup/packages/ui
+> tsc -p tsconfig.json
+

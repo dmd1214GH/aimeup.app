@@ -1,0 +1,5 @@
+
+
+> @aimeup/chat@0.1.0 typecheck /Users/dougdanoff/code/aimeup/packages/chat
+> tsc -p tsconfig.json
+

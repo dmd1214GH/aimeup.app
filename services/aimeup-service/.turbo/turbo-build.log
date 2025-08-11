@@ -1,0 +1,6 @@
+
+
+> @aimeup/aimeup-service@0.1.0 build /Users/dougdanoff/code/aimeup/services/aimeup-service
+> echo build services/aimeup-service/package.json
+
+build services/aimeup-service/package.json

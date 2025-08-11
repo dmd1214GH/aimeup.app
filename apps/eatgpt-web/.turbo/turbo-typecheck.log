@@ -1,0 +1,5 @@
+
+
+> @aimeup/eatgpt-web@0.1.0 typecheck /Users/dougdanoff/code/aimeup/apps/eatgpt-web
+> tsc -p tsconfig.json
+

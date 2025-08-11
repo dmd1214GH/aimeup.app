@@ -1,0 +1,8 @@
+{
+  "expo": {
+    "name": "EatGPT",
+    "slug": "eatgpt",
+    "scheme": "eatgpt",
+    "web": { "bundler": "metro" }
+  }
+}

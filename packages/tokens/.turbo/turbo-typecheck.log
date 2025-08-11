@@ -1,0 +1,5 @@
+
+
+> @aimeup/tokens@0.1.0 typecheck /Users/dougdanoff/code/aimeup/packages/tokens
+> tsc -p tsconfig.json
+
