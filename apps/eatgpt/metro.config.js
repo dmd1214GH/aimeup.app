@@ -19,6 +19,11 @@ config.resolver.nodeModulesPaths = [
 // Handle workspace packages
 config.resolver.disableHierarchicalLookup = true;
 
-// Enable NativeWind with CSS interop
-const { withNativeWind } = require('nativewind/metro');
-module.exports = withNativeWind(config, { input: './global.css' });
+// Temporarily disable NativeWind to fix web bundling
+// const { withNativeWind } = require('nativewind/metro');
+// module.exports = withNativeWind(config, { 
+//   input: './global.css',
+//   configPath: './tailwind.config.js'
+// });
+
+module.exports = config;

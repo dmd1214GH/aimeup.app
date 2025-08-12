@@ -1,4 +1,5 @@
 
+
 > @eatgpt/app@0.0.0 hygiene /Users/dougdanoff/code/aimeup/apps/eatgpt
 > eslint . --ext .ts,.tsx || true
 
@@ -7,16 +8,15 @@ Oops! Something went wrong! :(
 
 ESLint: 8.57.1
 
-Error: .eslintrc.cjs » ../../configs/eslint/react.cjs:
-	Environment key "react-native/react-native" is unknown
+ESLint couldn't find the plugin "eslint-plugin-react".
 
-    at /Users/dougdanoff/code/aimeup/node_modules/.pnpm/@eslint+eslintrc@2.1.4/node_modules/@eslint/eslintrc/dist/eslintrc.cjs:2079:23
-    at Array.forEach (<anonymous>)
-    at ConfigValidator.validateEnvironment (/Users/dougdanoff/code/aimeup/node_modules/.pnpm/@eslint+eslintrc@2.1.4/node_modules/@eslint/eslintrc/dist/eslintrc.cjs:2073:34)
-    at ConfigValidator.validateConfigArray (/Users/dougdanoff/code/aimeup/node_modules/.pnpm/@eslint+eslintrc@2.1.4/node_modules/@eslint/eslintrc/dist/eslintrc.cjs:2223:18)
-    at CascadingConfigArrayFactory._finalizeConfigArray (/Users/dougdanoff/code/aimeup/node_modules/.pnpm/@eslint+eslintrc@2.1.4/node_modules/@eslint/eslintrc/dist/eslintrc.cjs:3985:23)
-    at CascadingConfigArrayFactory.getConfigArrayForFile (/Users/dougdanoff/code/aimeup/node_modules/.pnpm/@eslint+eslintrc@2.1.4/node_modules/@eslint/eslintrc/dist/eslintrc.cjs:3791:21)
-    at FileEnumerator._iterateFilesRecursive (/Users/dougdanoff/code/aimeup/node_modules/.pnpm/eslint@8.57.1/node_modules/eslint/lib/cli-engine/file-enumerator.js:450:49)
-    at _iterateFilesRecursive.next (<anonymous>)
-    at FileEnumerator.iterateFiles (/Users/dougdanoff/code/aimeup/node_modules/.pnpm/eslint@8.57.1/node_modules/eslint/lib/cli-engine/file-enumerator.js:299:49)
-    at iterateFiles.next (<anonymous>)
+(The package "eslint-plugin-react" was not found when loaded as a Node module from the directory "/Users/dougdanoff/code/aimeup/apps/eatgpt".)
+
+It's likely that the plugin isn't installed correctly. Try reinstalling by running the following:
+
+    npm install eslint-plugin-react@latest --save-dev
+
+The plugin "eslint-plugin-react" was referenced from the config file in ".eslintrc.cjs » ../../configs/eslint/react.cjs".
+
+If you still can't figure out the problem, please stop by https://eslint.org/chat/help to chat with the team.
+

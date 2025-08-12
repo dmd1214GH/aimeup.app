@@ -5,4 +5,5 @@ build
 .env*
 pnpm-lock.yaml
 _reference/
+.turbo
 

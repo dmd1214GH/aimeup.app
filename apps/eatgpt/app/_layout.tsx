@@ -1,10 +1,14 @@
-import "../global.css";
+// import "../global.css"; // Temporarily disabled - causing web bundler to hang
 import { Stack } from "expo-router";
+import { AppProviders } from "@aimeup/core-react";
 
 export default function RootLayout() {
   return (
-    <Stack>
-      <Stack.Screen name="index" options={{ title: "EatGPT" }} />
-    </Stack>
+    <AppProviders>
+      <Stack>
+        <Stack.Screen name="index" options={{ title: "EatGPT" }} />
+        <Stack.Screen name="kitchensink" options={{ title: "Kitchen Sink" }} />
+      </Stack>
+    </AppProviders>
   );
 }

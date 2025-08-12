@@ -1,15 +1,9 @@
 
+
 > @eatgpt/app@0.0.0 test /Users/dougdanoff/code/aimeup/apps/eatgpt
-> jest
+> jest --passWithNoTests
 
-PASS EatGPT App - React Native Environment __tests__/index.test.tsx
-  EatGPT App
-    ✓ basic test suite runs successfully (1 ms)
-    ✓ can perform async operations (11 ms)
-    ✓ can work with objects and arrays
-
-Test Suites: 1 passed, 1 total
-Tests:       3 passed, 3 total
-Snapshots:   0 total
-Time:        0.243 s, estimated 1 s
-Ran all test suites.
+[1m[2mDetermining test suites to run...[22m[22m[999D[K[1mNo tests found, exiting with code 0[22m
+[999D[K
+[K[1A
+[K[1A[999D[K

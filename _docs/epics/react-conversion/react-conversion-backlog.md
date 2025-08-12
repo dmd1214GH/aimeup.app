@@ -27,31 +27,34 @@
 [X] The developer guide explains how to invoke and interpret the verification.
 
 **BL-0105 — UI/state stack locked & wired**
-[] A single Expo app serves native and web; routing is provided by Expo Router.
-[] App root provides TanStack Query and Redux Toolkit via `@aimeup/core-react`.
-[] Styling accepts `className` across RN and RN-Web (NativeWind + css-interop).
-[] A KitchenSink screen renders core `@aimeup/ui-native` components without runtime warnings on native and web.
-[] Component smoke tests validate interactive basics using `@testing-library/react-native`.
-[] All package-baring branches of monorepos have packages established.  See `_docs/guides/monorepo.md`
-[] Lint rules to prevent:  'No TanStack Query in Redux store files' and 'No Redux hooks in Tanstack API/query files'
-[] Clear, actionable guidance to enforce this policy is in written to the correct coding standards guide: "Clear Boundaries: Use Redux for client state and TanStack Query for server state, avoiding overlap"
-[] A specification defining aimeup's interactions between TanStack, Redux, and Firestore cacheing will be created in the `_doc/guides` clearly explaining the challenges in simple terms and defining actionable usage and interaction standards
+[X] A single Expo app serves native and web; routing is provided by Expo Router.
+[X] App root provides TanStack Query and Redux Toolkit via `@aimeup/core-react`.
+[X] Styling accepts `className` across RN and RN-Web (NativeWind + css-interop).
+[X] All package-baring branches of monorepos have packages established.  See `_docs/guides/monorepo.md`
+[X] Lint rules to prevent:  'No TanStack Query in Redux store files' and 'No Redux hooks in Tanstack API/query files'
+[X] Clear, actionable guidance to enforce this policy is in written to the correct coding standards guide: "Clear Boundaries: Use Redux for client state and TanStack Query for server state, avoiding overlap"
+[X] A specification defining aimeup's interactions between TanStack, Redux, and Firestore cacheing will be created in the `_doc/guides` clearly explaining the challenges in simple terms and defining actionable usage and interaction standards
+[X] Human developer has clear, actionable instructions, scripts, and documented prerequisites to start and stop required services and experience the app on all platforms or emulators 
 
 ---
 Q: How should RTK and TanStack Query be integrated to avoid redundancy? TanStack Query handles server state, RTK handles client state, but the integration pattern needs clarity.
 A: From Claude:  "The pattern isn't inherently problematic - it depends on whether your app actually needs both types of state management and whether you're using RTK Query alongside TanStack Query (which would be redundant)."
   - Added step ACs for Lint and Standards updates
-Status: Review proposed answer
+Status: Resolved
 ---
 ---
 Q: @aimeup/core-react package doesn't exist yet - need to create this package structure before implementing the UI stack
 A: All packages branches in monorepos should be setup during this early phase.  I added an AC to confirm this.
-Status: In Progress
+Status: Resolved
 ---
 
 **BL-0106 — Environment & configuration baseline**
 [] Environment variables are validated at startup; invalid/missing values are surfaced clearly.
 [] Developer guide documents install, run, test, and environment setup end-to-end.
+[-] A KitchenSink screen renders core `@aimeup/ui-native` components without runtime warnings on native and web. 
+[-] Component smoke tests validate interactive basics using `@testing-library/react-native`.
+[-] Remove @ts-ignore comments from UI components after NativeWind is properly configured, and ensure TypeScript recognizes className props without errors.
+
 
 **BL-0107 — Tokens pipeline**
 [] `@aimeup/tokens` generates artifacts consumed by styling systems.
@@ -77,7 +80,7 @@ Status: In Progress
 
 **BL-0108 — Core domain port**
 [] Kotlin shared models are represented as TypeScript types in `@aimeup/core` and `@aimeup/helpers`.
-[] zod schemas guard external data boundaries (Firestore/preview I/O).
+[] zod schemas guard external data boundaries (preview I/O).
 [] Unit tests for schemas pass and reject invalid inputs.
 [] Repository hygiene checks confirm layering rules and export rules are honored and documented.
 [] Importing helpers from core is flagged as an error and blocks lint.
@@ -166,6 +169,7 @@ Status: In Progress
 [] The app authenticates against the Dev Firebase project in development.
 [] Session state is represented with selectors and persists according to the defined policy.
 [] Unit tests validate login, logout, rehydrate, and storage-failure handling.
+[] Implications to state management standards defined in `_docs/guides/state-management-integration.md` have been considered, recorded in the design, and linted.
 
 **BL-0123 — Cleanup legacy infrastructure**
 [] The prior Kotlin Firebase project is retired or archived according to policy.

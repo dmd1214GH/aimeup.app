@@ -2,20 +2,4 @@
 > @aimeup/helpers@0.0.0 test /Users/dougdanoff/code/aimeup/packages/helpers
 > jest --passWithNoTests
 
-PASS Helpers Package __tests__/utility.test.ts
-  utility functions
-    debounce
-      ✓ should delay function execution (3 ms)
-      ✓ should only execute once for multiple rapid calls (1 ms)
-    throttle
-      ✓ should limit function execution rate (1 ms)
-    changeDetector
-      ✓ should detect changes in objects
-      ✓ should detect changes in arrays
-      ✓ should detect changes in primitive values (1 ms)
-
-Test Suites: 1 passed, 1 total
-Tests:       6 passed, 6 total
-Snapshots:   0 total
-Time:        0.726 s
-Ran all test suites.
+No tests found, exiting with code 0

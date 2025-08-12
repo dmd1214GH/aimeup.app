@@ -4,7 +4,7 @@
 - **Name**: AimeUp (formerly EatGPT)
 - **Type**: React Native + Web monorepo using Expo 53
 - **Stack**: React 19, RN 0.79, RN-Web 0.20, NativeWind 4, Tailwind v4
-- **Package Manager**: pnpm@10.14.0
+- **Package Manager**: pnpm@10.14.0 (requires shamefully-hoist=true for React Native)
 - **Node Version**: 22.18.x
 
 ## Commands
@@ -33,6 +33,21 @@
 - Use `expo start --web` for web development (no separate web app)
 - CI/Emulators/Functions out of scope for current conversion
 - Focus on core React Native + Web functionality
+- **CRITICAL**: `.npmrc` must contain `shamefully-hoist=true` for React Native dependencies
+
+## Running the App
+- **Native Development**: `cd apps/eatgpt && npx expo start`
+  - iOS Simulator: Press `i` or scan QR with Camera app
+  - Android Emulator: Press `a` or scan QR with Expo Go
+  - Physical Device: Install Expo Go app and scan QR
+- **Web Development**: `cd apps/eatgpt && npx expo start --web`
+  - Access at http://localhost:8081
+
+## UI Component Demo
+- **Kitchen Sink Screen**: Navigate to `/kitchensink` in the app
+  - Demonstrates all @aimeup/ui-native components
+  - Shows Redux state management integration
+  - Tests Button variants, Input components, Card types
 
 ## Project phase and work standards
 - use the epic development guide here in `_docs/prompts/claude-epic-prompt.md`

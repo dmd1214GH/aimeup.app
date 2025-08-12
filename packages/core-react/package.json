@@ -14,6 +14,7 @@
     "@aimeup/core": "workspace:*",
     "@reduxjs/toolkit": "^2.0.0",
     "@tanstack/react-query": "^5.0.0",
+    "immer": "10.1.1",
     "react": "19.0.0",
     "react-redux": "^9.0.0"
   },
