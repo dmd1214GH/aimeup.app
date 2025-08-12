@@ -33,3 +33,7 @@
 - Use `expo start --web` for web development (no separate web app)
 - CI/Emulators/Functions out of scope for current conversion
 - Focus on core React Native + Web functionality
+
+## Project phase and work standards
+- use the epic development guide here in `_docs/prompts/claude-epic-prompt.md`
+- we will be working on this epic: `_docs/epics/react-conversion/react-conversion-backlog.md`

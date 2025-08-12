@@ -1,6 +1,10 @@
-# Kotlin → React/TypeScript Conversion Plan
-See react_conversion_design.md for design details
+# _docs/epics/react-conversion    -    react-conversion-backlog.md
 
+## References
+- _docs/epics/react-conversion/react_conversion_design.md
+- _docs/guides/monorepos.md
+- _docs/prompts/claude-epic-prompt.md
+- _docs/guides/steps-of-doneness.md
 
 ## Stories
 
@@ -28,13 +32,20 @@ See react_conversion_design.md for design details
 [] Styling accepts `className` across RN and RN-Web (NativeWind + css-interop).
 [] A KitchenSink screen renders core `@aimeup/ui-native` components without runtime warnings on native and web.
 [] Component smoke tests validate interactive basics using `@testing-library/react-native`.
+[] All package-baring branches of monorepos have packages established.  See `_docs/guides/monorepo.md`
+[] Lint rules to prevent:  'No TanStack Query in Redux store files' and 'No Redux hooks in Tanstack API/query files'
+[] Clear, actionable guidance to enforce this policy is in written to the correct coding standards guide: "Clear Boundaries: Use Redux for client state and TanStack Query for server state, avoiding overlap"
+[] A specification defining aimeup's interactions between TanStack, Redux, and Firestore cacheing will be created in the `_doc/guides` clearly explaining the challenges in simple terms and defining actionable usage and interaction standards
 
 ---
 Q: How should RTK and TanStack Query be integrated to avoid redundancy? TanStack Query handles server state, RTK handles client state, but the integration pattern needs clarity.
-Status: In Progress
+A: From Claude:  "The pattern isn't inherently problematic - it depends on whether your app actually needs both types of state management and whether you're using RTK Query alongside TanStack Query (which would be redundant)."
+  - Added step ACs for Lint and Standards updates
+Status: Review proposed answer
 ---
 ---
 Q: @aimeup/core-react package doesn't exist yet - need to create this package structure before implementing the UI stack
+A: All packages branches in monorepos should be setup during this early phase.  I added an AC to confirm this.
 Status: In Progress
 ---
 

@@ -4,4 +4,4 @@ These steps implicitly apply to every user story that touches code.  DO NOT [X] 
 [] aime.unittest script runs without errors
 [] standard docs (in the guides folder) are updated if anything was changed by the story
 [] update each BL-XXXX acceptance criteria to replace [] with either [X] if completed or [-] if not completed. Do not update the Doneness entries.
-[] Changes committed to github and pushed to `origin main` after hygiene & tests pass and status is updated
+[] Changes committed to github and pushed to `origin main` after hygiene & tests pass, developer accepts during showcase, all other required steps are complete
