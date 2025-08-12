@@ -1,0 +1,4 @@
+
+> @eatgpt/app@0.0.0 typecheck /Users/dougdanoff/code/aimeup/apps/eatgpt
+> tsc --noEmit
+

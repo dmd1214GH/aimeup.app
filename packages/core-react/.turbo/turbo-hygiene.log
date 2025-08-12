@@ -1,0 +1,4 @@
+
+> @aimeup/core-react@0.0.0 hygiene /Users/dougdanoff/code/aimeup/packages/core-react
+> eslint . --ext .ts,.tsx || true
+

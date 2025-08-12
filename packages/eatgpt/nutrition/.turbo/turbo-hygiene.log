@@ -1,0 +1,4 @@
+
+> @eatgpt/nutrition@0.0.0 hygiene /Users/dougdanoff/code/aimeup/packages/eatgpt/nutrition
+> eslint . --ext .ts,.tsx || true
+

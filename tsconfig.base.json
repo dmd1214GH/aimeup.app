@@ -7,11 +7,22 @@
     "skipLibCheck": true,
     "resolveJsonModule": true,
     "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "@aimeup/*": ["packages/*/src"],
-      "@eatgpt/*": ["packages/*/src"]
+      "@aimeup/core": ["packages/core"],
+      "@aimeup/core/*": ["packages/core/*"],
+      "@aimeup/helpers/*": ["packages/helpers/*"],
+      "@aimeup/core-react": ["packages/core-react"],
+      "@aimeup/ui-native": ["packages/ui-native"],
+      "@aimeup/tokens": ["packages/tokens"],
+      "@aimeup/chat": ["packages/chat"],
+      "@aimeup/account": ["packages/account"],
+      "@eatgpt/nutrition": ["packages/eatgpt/nutrition"],
+      "@eatgpt/healthconnect": ["packages/eatgpt/healthconnect"],
+      "@eatgpt/app": ["apps/eatgpt"],
+      "@aimeup/service": ["services/aimeup-service"]
     }
   }
 }

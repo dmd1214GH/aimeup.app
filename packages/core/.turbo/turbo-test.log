@@ -1,0 +1,16 @@
+
+> @aimeup/core@0.0.0 test /Users/dougdanoff/code/aimeup/packages/core
+> jest --passWithNoTests
+
+PASS Core Package __tests__/aiapi.test.ts
+  AIRequest type
+    ✓ should accept valid request structure (1 ms)
+    ✓ should work with minimal required fields
+  AIResponse type
+    ✓ should accept valid response structure
+
+Test Suites: 1 passed, 1 total
+Tests:       3 passed, 3 total
+Snapshots:   0 total
+Time:        0.683 s
+Ran all test suites.

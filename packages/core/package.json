@@ -1,0 +1,30 @@
+{
+  "name": "@aimeup/core",
+  "version": "0.0.0",
+  "private": true,
+  "main": "index.ts",
+  "exports": {
+    "./aiapi": "./aiapi/index.ts",
+    "./chatapi": "./chatapi/index.ts", 
+    "./menuapi": "./menuapi/index.ts",
+    "./securityapi": "./securityapi/index.ts"
+  },
+  "scripts": {
+    "build": "echo 'No build needed for core types'",
+    "hygiene": "eslint . --ext .ts,.tsx || true",
+    "typecheck": "tsc --noEmit",
+    "test": "jest --passWithNoTests",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "jest": "^29.5.0",
+    "typescript": "^5.0.0"
+  }
+}

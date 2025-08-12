@@ -1,0 +1,4 @@
+
+> @aimeup/account@0.0.0 hygiene /Users/dougdanoff/code/aimeup/packages/account
+> eslint . --ext .ts,.tsx || true
+

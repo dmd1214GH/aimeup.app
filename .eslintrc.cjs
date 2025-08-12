@@ -1,13 +1,28 @@
 module.exports = {
-  root: true,
-  parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint', 'import'],
-  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended'],
-  env: { node: true, es2022: true },
+  extends: ['./configs/eslint/base.cjs'],
+  ignorePatterns: [
+    'node_modules/',
+    'dist/',
+    '.expo/',
+    'build/',
+    '*.config.js',
+    '*.config.ts'
+  ],
   rules: {
-    'no-restricted-imports': ['error', {
-      paths: [{ name: '@aimeup/core', message: 'Use subpath import, e.g., @aimeup/core/aiapi' }]
-    }]
-  },
-  ignorePatterns: ['dist', 'build', 'node_modules']
+    'no-restricted-imports': [
+      'error',
+      {
+        paths: [
+          { 
+            name: '@aimeup/core', 
+            message: 'Use subpath import like @aimeup/core/aiapi' 
+          },
+          {
+            name: '@aimeup/helpers',
+            message: 'Use subpath import like @aimeup/helpers/files'
+          }
+        ]
+      }
+    ]
+  }
 };

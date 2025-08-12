@@ -1,0 +1,5 @@
+
+> @aimeup/ui-native@0.0.0 test /Users/dougdanoff/code/aimeup/packages/ui-native
+> jest --passWithNoTests
+
+No tests found, exiting with code 0

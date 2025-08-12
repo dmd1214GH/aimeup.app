@@ -1,0 +1,5 @@
+
+> @aimeup/service@0.0.0 test /Users/dougdanoff/code/aimeup/services/aimeup-service
+> jest --passWithNoTests
+
+No tests found, exiting with code 0

@@ -1,0 +1,4 @@
+
+> @aimeup/ui-native@0.0.0 typecheck /Users/dougdanoff/code/aimeup/packages/ui-native
+> tsc --noEmit
+

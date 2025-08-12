@@ -1,0 +1,46 @@
+{
+  "name": "@eatgpt/app",
+  "version": "0.0.0",
+  "private": true,
+  "main": "index.ts",
+  "scripts": {
+    "build": "echo 'Expo app build ready'",
+    "dev": "expo start",
+    "android": "expo start --android", 
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "hygiene": "eslint . --ext .ts,.tsx || true",
+    "typecheck": "tsc --noEmit",
+    "test": "jest",
+    "clean": "rm -rf .expo dist"
+  },
+  "dependencies": {
+    "@aimeup/core-react": "workspace:*",
+    "@aimeup/ui-native": "workspace:*",
+    "@aimeup/chat": "workspace:*",
+    "@aimeup/account": "workspace:*",
+    "@eatgpt/nutrition": "workspace:*",
+    "@eatgpt/healthconnect": "workspace:*",
+    "expo": "~53.0.20",
+    "expo-router": "~4.0.11",
+    "expo-status-bar": "~2.2.3",
+    "nativewind": "^4.0.36",
+    "react": "19.0.0",
+    "react-native": "0.79.5",
+    "react-native-web": "~0.21.0",
+    "tailwindcss": "^3.4.0",
+    "pino": "^9.0.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.2",
+    "@testing-library/react-native": "^12.0.0",
+    "@types/jest": "^29.5.0",
+    "@types/react": "~19.0.10",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "jest": "^29.5.0",
+    "jest-expo": "^51.0.0",
+    "typescript": "~5.8.3"
+  }
+}

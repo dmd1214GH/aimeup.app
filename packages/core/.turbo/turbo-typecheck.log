@@ -1,0 +1,4 @@
+
+> @aimeup/core@0.0.0 typecheck /Users/dougdanoff/code/aimeup/packages/core
+> tsc --noEmit
+

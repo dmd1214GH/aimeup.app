@@ -1,0 +1,6 @@
+
+> @aimeup/tokens@0.0.0 build /Users/dougdanoff/code/aimeup/packages/tokens
+> node scripts/build-tokens.js
+
+Building design tokens...
+✅ Design tokens built successfully

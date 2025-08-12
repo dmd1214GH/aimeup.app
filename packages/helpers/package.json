@@ -1,0 +1,31 @@
+{
+  "name": "@aimeup/helpers",
+  "version": "0.0.0",
+  "private": true,
+  "main": "index.ts",
+  "exports": {
+    "./files": "./files/index.ts",
+    "./chatable": "./chatable/index.ts",
+    "./account": "./account/index.ts", 
+    "./utility": "./utility/index.ts",
+    "./openai": "./openai/index.ts"
+  },
+  "scripts": {
+    "build": "echo 'No build needed for helpers'",
+    "hygiene": "eslint . --ext .ts,.tsx || true",
+    "typecheck": "tsc --noEmit",
+    "test": "jest --passWithNoTests",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@aimeup/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "jest": "^29.5.0",
+    "typescript": "^5.0.0"
+  }
+}
