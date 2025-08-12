@@ -19,4 +19,5 @@ Run hygiene before committing:
 ./_scripts/aime.hygiene
 git add .
 git commit -m "your message"
+git push origin main
 ```

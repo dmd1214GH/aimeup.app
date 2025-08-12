@@ -4,3 +4,5 @@ dist
 build
 .env*
 pnpm-lock.yaml
+_reference/
+
