@@ -12,6 +12,9 @@ export default function KitchenSinkScreen() {
   const dispatch = useDispatch()
   const { composerOpen, theme } = useSelector((state: RootState) => state.ui)
   
+  // Log Redux state changes
+  console.log('Redux State:', { composerOpen, theme })
+  
   const handleLoadingDemo = () => {
     setLoading(true)
     setTimeout(() => setLoading(false), 2000)
@@ -139,6 +142,13 @@ export default function KitchenSinkScreen() {
             <Text className="text-gray-600">
               Theme: {theme}
             </Text>
+            
+            {/* Visual indicator of state changes */}
+            <View className="mt-2 p-2 bg-blue-50 rounded">
+              <Text className="text-xs text-blue-800">
+                💡 Tap buttons above and watch the state change!
+              </Text>
+            </View>
             <Button
               title={composerOpen ? 'Close Composer' : 'Open Composer'}
               onPress={() => dispatch(setComposerOpen(!composerOpen))}

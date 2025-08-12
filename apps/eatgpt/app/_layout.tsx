@@ -1,4 +1,4 @@
-// import "../global.css"; // Temporarily disabled - causing web bundler to hang
+import "../global.css";
 import { Stack } from "expo-router";
 import { AppProviders } from "@aimeup/core-react";
 

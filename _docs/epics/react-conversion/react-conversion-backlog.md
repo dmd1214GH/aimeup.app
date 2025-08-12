@@ -54,6 +54,7 @@ Status: Resolved
 [-] A KitchenSink screen renders core `@aimeup/ui-native` components without runtime warnings on native and web. 
 [-] Component smoke tests validate interactive basics using `@testing-library/react-native`.
 [-] Remove @ts-ignore comments from UI components after NativeWind is properly configured, and ensure TypeScript recognizes className props without errors.
+[-] Validate the state management additions from BL-0105 when UI controls are working
 
 
 **BL-0107 — Tokens pipeline**
