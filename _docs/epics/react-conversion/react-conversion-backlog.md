@@ -29,6 +29,15 @@ See react_conversion_design.md for design details
 [] A KitchenSink screen renders core `@aimeup/ui-native` components without runtime warnings on native and web.
 [] Component smoke tests validate interactive basics using `@testing-library/react-native`.
 
+---
+Q: How should RTK and TanStack Query be integrated to avoid redundancy? TanStack Query handles server state, RTK handles client state, but the integration pattern needs clarity.
+Status: In Progress
+---
+---
+Q: @aimeup/core-react package doesn't exist yet - need to create this package structure before implementing the UI stack
+Status: In Progress
+---
+
 **BL-0106 — Environment & configuration baseline**
 [] Environment variables are validated at startup; invalid/missing values are surfaced clearly.
 [] Developer guide documents install, run, test, and environment setup end-to-end.
@@ -38,10 +47,20 @@ See react_conversion_design.md for design details
 [] Generated tokens are reproducible and versioned.
 [] A sample screen demonstrates token-driven styling with consistent rendering on RN and RN-Web.
 
+---
+Q: Tokens pipeline depends on design token tooling not yet specified. Need to define the token format and build process before UI work can proceed.
+Status: In Progress
+---
+
 **BL-0115 — UI KitchenSink (RN & RN-Web)**
 [] The KitchenSink screen showcases Button/Input/Card variants in `@aimeup/ui-native`.
 [] The screen loads without runtime warnings on native and on RN-Web.
 [] Component smoke tests confirm visible state changes and basic interactions.
+
+---
+Q: KitchenSink references @aimeup/ui-native components that don't exist yet - this creates a circular dependency with BL-0105. Need to create basic components first.
+Status: In Progress
+---
 
 ### Phase 2 — Android → OpenAI shell (PreauthMode, no Firebase)
 
@@ -52,7 +71,7 @@ See react_conversion_design.md for design details
 [] Repository hygiene checks confirm layering rules and export rules are honored and documented.
 [] Importing helpers from core is flagged as an error and blocks lint.
 [] Importing domain/UI/app/service packages from helpers is flagged as an error and blocks lint.
-[] A workspace dependency audit reports “helpers deps: OK” when helpers declare only allowed dependencies.
+[] A workspace dependency audit reports "helpers deps: OK" when helpers declare only allowed dependencies.
 [] The audit fails with a clear message if helpers declare disallowed workspace dependencies.
 [] The developer guide explains how to invoke and interpret the audit.
 [] `@aimeup/core` exposes only documented subpaths; root import resolution fails by design.
@@ -60,9 +79,19 @@ See react_conversion_design.md for design details
 [] Minimal import/compile checks confirm type and runtime resolution for published subpaths.
 [] The guardrails are documented in the monorepo guide.
 
+---
+Q: Core domain port needs Kotlin source analysis first - we can't port models without seeing the originals. Need to examine _reference/EatGPT/ for model structure.
+Status: In Progress
+---
+
 **BL-0110 — OpenAI contracts (in core)**
 [] Shared contracts for chat request/response exist in `@aimeup/core/aiapi` and validate preview I/O at runtime.
 [] Type/shape compatibility for preview flows is enforced via shared schemas.
+
+---
+Q: OpenAI contracts should potentially come before BL-0119 (Android shell) since the shell needs to use these contracts. Need to define the contract interface that the shell will consume.
+Status: In Progress
+---
 
 **BL-0119 — Android OpenAI shell (new)**
 [] The app presents a minimal temporary UI that permits one round-trip OpenAI exchange for PreauthMode purposes.
@@ -70,6 +99,10 @@ See react_conversion_design.md for design details
 [] PreauthMode credentials are local/dev-scoped and excluded from version control.
 [] A local build demonstrates a successful PreauthMode chat round-trip on an emulator or device.
 
+---
+Q: "minimal temporary UI" is vague - needs more specific acceptance criteria. What exactly should the UI look like and contain for PreauthMode?
+Status: In Progress
+---
 
 ### Phase 3 — Android PreauthMode-only parity
 
