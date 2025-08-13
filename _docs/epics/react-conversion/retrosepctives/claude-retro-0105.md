@@ -129,3 +129,157 @@ very well then.  This will be the next story.  Please review carefully and consi
   - "Expo 53 NativeWind 4 babel plugin error"
   - "Metro bundler hangs CSS import Expo monorepo"
   - "react-native-css-interop Expo 53 compatibility"
+
+
+
+
+
+
+
+
+
+RESOLUTION, From Claude Sonnet 4:
+
+This is a common issue with NativeWind v4 + Expo SDK 53 in monorepos. Let me search for the latest solutions and configuration patterns.NativeWind v4 Expo SDK 53 className not working monorepo10 resultsreact native - After setup nativewind does not work with expo - Stack Overflowstackoverflow.comInstallationnativewind.devExpo SDK 53 - Expo Changelogexpo.devNativeWind V4, Expo-router: Tailwind ClassName styles not being automatically applied at auto-refresh/hot-reload · Issue #1182 · nativewind/nativewindgithub.comNewest 'nativewind' Questions - Stack Overflowstackoverflow.comreact native - NativeWind v4+ not applying className styles to Expo components - Stack Overflowstackoverflow.comExpo Nativewind Monorepo Issues - Unable to style packages · Issue #734 · nativewind/nativewindgithub.comNativeWind Styling Not Working in NX Monorepo with Expo · Issue #1374 · nativewind/nativewindgithub.comreact native - NativeWind Styling Not Working in NX Monorepo with Expo - Stack Overflowstackoverflow.comNativeWind V4 Not working with ReactNative, TypeScript and Expo | by Prajwal H G | Mediummedium.comExpo SDK 53 NativeWind 4 babel plugin error BABEL is not valid10 resultsreact native - Babel "plugins" is not a valid plugin property? - Stack Overflowstackoverflow.comMetro/Babel: .plugins is not a valid Plugin property when using nativewind/babel in Expo SDK 53 Issue #36761 · expo/expogithub.comBabel Parsing Error: ".plugins is not a valid Plugin property" with nativewind/babel in plugins (Expo 52, Windows, Node 20) · Issue #36133 · expo/expogithub.comInstall Expo Router - Expo Documentationexpo.devFixing the Expo Router for macOS and React Native BABEL.plugins Property Errormedium.comTroubleshooting - Expo Documentationexpo.devbabel-preset-expo - npmnpmjs.commetro.config.js - Expo Documentationexpo.devBabel Error: .plugins is not a valid Plugin property When Upgrading to Expo SDK 52stackoverflow.comNativeWind V4 Not working with ReactNative, TypeScript and Expo | by Prajwal H G | Mediummedium.comMetro bundler hangs CSS import Expo monorepo NativeWind v410 resultsexpo export hangs when using css import from nativewind · Issue #28816 · expo/expogithub.commetro.config.js - Expo Documentationexpo.devMetro bundler - Expo Documentationexpo.devBuild Hangs in V4 · Issue #610 · nativewind/nativewindgithub.comUsing with Monoreposnativewind.devNativeWind V4 Not working with ReactNative, TypeScript and Expo | by Prajwal H G | Mediummedium.comNativeWind Styling Not Working in NX Monorepo with Expo · Issue #1374 · nativewind/nativewindgithub.comv4: expo export / EAS build not working · Issue #591 · nativewind/nativewindgithub.comtailwind css - react native and nativewind/tailwindcss Unable to resolve module ./global.css - Stack Overflowstackoverflow.comExpo and metro bundler: external module cannot resolve react import - Stack Overflowstackoverflow.comBased on my research, I can see you're encountering several well-documented issues with NativeWind v4 + Expo SDK 53 in monorepos. Here's a comprehensive solution based on the latest working configurations:
+The Root Issues & Solutions
+1. Babel Plugin Error: "BABEL is not a valid plugin"
+This is a known issue with Expo SDK 53 where nativewind/babel in the plugins array causes parsing errors Metro/Babel: .plugins is not a valid Plugin property when using nativewind/babel in Expo SDK 53 Issue #36761 · expo/expo +2. The solution is to move nativewind/babel to the presets array:
+❌ Current (broken):
+javascript// babel.config.js
+module.exports = function (api) {
+  api.cache(true);
+  return {
+    presets: ['babel-preset-expo'],
+    plugins: ['nativewind/babel'], // ❌ This causes the error
+  };
+};
+✅ Fixed:
+javascript// babel.config.js
+module.exports = function (api) {
+  api.cache(true);
+  return {
+    presets: [
+      ['babel-preset-expo', { jsxImportSource: 'nativewind' }],
+      'nativewind/babel', // ✅ Move to presets
+    ],
+    plugins: [
+      // Other plugins like 'react-native-reanimated/plugin'
+    ],
+  };
+};
+2. Metro Bundler Hanging at 98-99%
+This happens when Metro tries to process CSS imports before NativeWind generates the necessary files Metro bundler - Expo Documentation. The solution is to:
+
+Remove the direct CSS import from your entry file temporarily
+Use the correct metro.config.js for monorepos:
+
+javascript// metro.config.js
+const path = require('path');
+const { getDefaultConfig } = require('expo/metro-config');
+const { withNativeWind } = require('nativewind/metro');
+
+const projectRoot = __dirname;
+const workspaceRoot = path.resolve(projectRoot, '../..'); // Adjust for your monorepo structure
+
+const config = getDefaultConfig(projectRoot);
+
+// Monorepo configuration
+config.watchFolders = [workspaceRoot];
+config.resolver.nodeModulesPaths = [
+  path.resolve(projectRoot, 'node_modules'),
+  path.resolve(workspaceRoot, 'node_modules'),
+];
+
+// Required for monorepos
+config.resolver.disableHierarchicalLookup = true;
+
+module.exports = withNativeWind(config, {
+  input: './global.css'
+});
+3. TypeScript className Issues
+Create a proper type declaration file:
+typescript// types/nativewind.d.ts
+/// <reference types="nativewind/types" />
+
+import 'react-native';
+
+declare module 'react-native' {
+  interface ViewProps {
+    className?: string;
+  }
+  interface TextProps {
+    className?: string;
+  }
+  interface ImageProps {
+    className?: string;
+  }
+  interface ScrollViewProps {
+    className?: string;
+  }
+  // Add other components as needed
+}
+4. Monorepo-Specific Package Configuration
+For monorepos, ensure your content paths in tailwind.config.js include all relevant directories Expo Nativewind Monorepo Issues - Unable to style packages · Issue #734 · nativewind/nativewind:
+javascript// tailwind.config.js
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    // Current app
+    './App.{js,jsx,ts,tsx}',
+    './app/**/*.{js,jsx,ts,tsx}',
+    './components/**/*.{js,jsx,ts,tsx}',
+    './screens/**/*.{js,jsx,ts,tsx}',
+    
+    // Monorepo packages (adjust paths as needed)
+    '../../packages/ui/src/**/*.{js,jsx,ts,tsx}',
+    '../../packages/shared/src/**/*.{js,jsx,ts,tsx}',
+  ],
+  presets: [require('nativewind/preset')],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+};
+5. Package.json Dependencies
+Ensure you have the correct versions:
+json{
+  "dependencies": {
+    "expo": "~53.0.20",
+    "react": "19.0.0",
+    "react-native": "0.79.5",
+    "nativewind": "^4.1.23",
+    "react-native-reanimated": "~3.17.4",
+    "react-native-safe-area-context": "5.4.0"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.17",
+    "@babel/core": "^7.24.0"
+  }
+}
+Step-by-Step Recovery Process
+
+Update babel.config.js with the fixed configuration above
+Update metro.config.js for monorepo support
+Remove any direct CSS imports from your entry files
+Clear all caches:
+bashrm -rf node_modules/.cache
+rm -rf .expo
+pnpm install
+npx expo start -c
+
+Add TypeScript declarations if using TypeScript
+Test with a simple component:
+
+tsximport { View, Text } from 'react-native';
+
+export default function TestComponent() {
+  return (
+    <View className="flex-1 items-center justify-center bg-blue-500">
+      <Text className="text-white text-xl font-bold">
+        NativeWind Working!
+      </Text>
+    </View>
+  );
+}
+If styles still don't appear, try clearing cache again with npx expo start -c as this often resolves remaining issues react native - After setup nativewind does not work with expo - Stack Overflow.
+The key insight is that NativeWind v4 changed how it integrates with Expo SDK 53, requiring the babel plugin to be in presets rather than plugins, and Metro configuration needs special handling for monorepos.

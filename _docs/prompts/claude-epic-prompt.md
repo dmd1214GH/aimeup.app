@@ -83,7 +83,7 @@ Status: In Progress
   - `[-]` = Cannot be completed (with explanation)
 - Document any decisions or trade-offs made
 - Ensure code follows project standards and guidelines
-- follow all steps of doneness (**except for cheking in code**. Do this after showcase approval.)
+- follow all steps of doneness (**except for checking in code**. Do this after showcase approval.)
 
 **Progress tracking example:**
 ```markdown

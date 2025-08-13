@@ -35,6 +35,10 @@
 [X] Clear, actionable guidance to enforce this policy is in written to the correct coding standards guide: "Clear Boundaries: Use Redux for client state and TanStack Query for server state, avoiding overlap"
 [X] A specification defining aimeup's interactions between TanStack, Redux, and Firestore cacheing will be created in the `_doc/guides` clearly explaining the challenges in simple terms and defining actionable usage and interaction standards
 [X] Human developer has clear, actionable instructions, scripts, and documented prerequisites to start and stop required services and experience the app on all platforms or emulators 
+[X] A KitchenSink screen renders core `@aimeup/ui-native` components without runtime warnings on native and web. 
+[X] Component smoke tests validate interactive basics using `@testing-library/react-native`.
+[X] Validate the state management additions from BL-0105 when UI controls are working
+
 
 ---
 Q: How should RTK and TanStack Query be integrated to avoid redundancy? TanStack Query handles server state, RTK handles client state, but the integration pattern needs clarity.
@@ -51,10 +55,7 @@ Status: Resolved
 **BL-0106 — Environment & configuration baseline**
 [] Environment variables are validated at startup; invalid/missing values are surfaced clearly.
 [] Developer guide documents install, run, test, and environment setup end-to-end.
-[-] A KitchenSink screen renders core `@aimeup/ui-native` components without runtime warnings on native and web. 
-[-] Component smoke tests validate interactive basics using `@testing-library/react-native`.
-[-] Remove @ts-ignore comments from UI components after NativeWind is properly configured, and ensure TypeScript recognizes className props without errors.
-[-] Validate the state management additions from BL-0105 when UI controls are working
+[] Remove @ts-ignore comments from UI components after NativeWind is properly configured, and ensure TypeScript recognizes className props without errors.
 
 
 **BL-0107 — Tokens pipeline**

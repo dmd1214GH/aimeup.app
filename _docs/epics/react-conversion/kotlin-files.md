@@ -52,17 +52,12 @@ packages/
 
 #### `packages/core/chatapi/`
 [] shared/chatapi/ChatMessageActionBase.kt → core/chatapi/chat-message-action-base.ts
-[] shared/chatapi/ChatSessionContext.kt → core/chatapi/chat-session-context.ts
 [] shared/chatapi/ChatSystemBlock.kt → core/chatapi/chat-system-block.ts
 [] shared/chatapi/IChatable.kt → core/chatapi/chatable.interface.ts
 [] shared/chatapi/IChatMessage.kt → core/chatapi/chat-message.interface.ts
 [] shared/chatapi/IChatService.kt → core/chatapi/chat-service.interface.ts
-[] shared/chatapi/UITopBar.kt → core/chatapi/ui-top-bar.ts
-[] shared/chatapi/UiTopMenuOption.kt → core/chatapi/ui-top-menu-option.ts
 
 #### `packages/core/menuapi/`
-[] shared/menuapi/AppMenuItem.kt → core/menuapi/app-menu-item.ts
-[] shared/menuapi/MenuContext.kt → core/menuapi/menu-context.ts
 
 #### `packages/core/securityapi/`
 [] shared/securityapi/IUser.kt → core/securityapi/user.interface.ts
@@ -107,6 +102,7 @@ packages/
 [] chat/service/LocalChatStorage.kt → chat/services/local-chat-storage.ts
 [] chat/viewmodel/ChatViewModel.kt → chat/hooks/use-chat.ts
 [] chat/viewmodel/ChatViewModelFactory.kt → chat/hooks/use-chat-factory.ts
+[] shared/menuapi/MenuContext.kt → **merge with** helpers/apps/session-context.ts???
 
 ### **EatGPT-Specific (`packages/eatgpt/`)**
 
@@ -139,21 +135,23 @@ packages/
 [] chat/ui/ChatMessageList.kt → ui-native/components/chat/chat-message-list.tsx
 [] chat/ui/ChatScreen.kt → ui-native/components/chat/chat-screen.tsx
 [] chat/ui/ChatStickyDateHeader.kt → ui-native/components/chat/chat-sticky-date-header.tsx
-[] nutritionProfile/ui/MealHistoryScreen.kt → ui-native/components/nutrition/meal-history-screen.tsx
-[] nutritionProfile/ui/NutritionProfileMenu.kt → ui-native/components/nutrition/nutrition-profile-menu.tsx
 
 ### **App-Specific (`apps/eatgpt/`)**
 [] app/chat/AppChatable.kt → apps/eatgpt/app/chatable.ts
-[] app/EatGPTMenus.kt → apps/eatgpt/app/eatgpt-menus.ts
-[] app/MainActivity.kt → apps/eatgpt/app/main-activity.tsx
-[] app/MainApp.kt → apps/eatgpt/app/main-app.tsx
-[] app/theme/Color.kt → apps/eatgpt/app/theme/colors.ts
-[] app/theme/Theme.kt → apps/eatgpt/app/theme/theme.ts
-[] app/theme/Type.kt → apps/eatgpt/app/theme/typography.ts
 
-### **Test Files (Not Migrated)**
+
+
+
+### will not convert
+#### **Styles and themes will be setup freshly**
+[] app/theme/Color.kt → ❌ **Delete** 
+[] app/theme/Theme.kt → ❌ **Delete** 
+[] app/theme/Type.kt → ❌ **Delete** 
+
+#### **Test Files (Not Migrated)**
 [] app/src/androidTest/java/com/example/eatgpt/ExampleInstrumentedTest.kt → ❌ **Delete** (Android-specific)
 [] app/src/test/java/com/example/eatgpt/ExampleUnitTest.kt → ❌ **Delete** (Android-specific)
+
 
 ## Migration Priority
 
