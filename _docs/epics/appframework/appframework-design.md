@@ -57,6 +57,7 @@ Fully-functional RN/RN-Web app that can be executed on all target platforms both
 - Kitchen sink for all shared components
 - Demonstrates integration patterns
 - Tests shell functionality
+- Not a production-level shippable app.
 
 
 *Kotlin file conversions*

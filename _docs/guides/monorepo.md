@@ -11,21 +11,22 @@
   /_scripts          # developer facing scripts (mac, zsh for now)
   /apps
     /eatgpt          (@eatgpt/app)            # Single endpoint for RN and RN-web
+    /testharness     (@aimeup/testharness)    # For testing aimeup on RN and RN-web
   /services
     /aimeup-service  (@aimeup/service)        # Firebase Cloud Functions (OpenAI proxy)
   /packages
     /core            (--no root export--)     # side-effect free type and api defs
-      /aiapi         (@aimeup/core/aiapi)
-      /chatapi       (@aimeup/core/chatapi)
-      /menuapi       (@aimeup/core/menuapi)
-      /securityapi   (@aimeup/core/securityapi)
+      /aiapi         (@aimeup/core/aiapi)    # subfolder export, not separate package
+      /chatapi       (@aimeup/core/chatapi)  # subfolder export, not separate package
+      /menuapi       (@aimeup/core/menuapi)  # subfolder export, not separate package
+      /securityapi   (@aimeup/core/securityapi) # subfolder export, not separate package
       /... others expected
     /helpers         (--no root export--)     # pragmatic utilities grab-bag
-      /files         (@aimeup/helpers/files)    # file interaction 
-      /chatable      (@aimeup/helpers/chatable) # Chat plugin requirements
-      /account       (@aimeup/helpers/account)  # Firebase security client
-      /utility       (@aimeup/helpers/utility)  # changeDetector, etc
-      /openai        (@aimeup/helpers/openai)   #proxy client
+      /files         (@aimeup/helpers/files)    # subfolder export, not separate package
+      /chatable      (@aimeup/helpers/chatable) # subfolder export, not separate package
+      /account       (@aimeup/helpers/account)  # subfolder export, not separate package
+      /utility       (@aimeup/helpers/utility)  # subfolder export, not separate package
+      /openai        (@aimeup/helpers/openai)   # subfolder export, not separate package
       /... others expected
     /core-react      (@aimeup/core-react)     # React context providers
     /ui-native       (@aimeup/ui-native)      # reusable RN ui components
@@ -77,6 +78,11 @@
 ## Dependency Management Rules
 - **No root exports** for Level 0 and Level 1 packages with multiple subdomains
 - Use subpath imports (e.g., `@aimeup/core/aiapi` not `@aimeup/core`)
+- **Subfolder vs Package Distinction:**
+  - **Packages** have their own package.json and can be imported
+  - **Subfolders** are just organized exports within packages
+  - `@aimeup/core/aiapi` is a subfolder export, not a separate package
+  - `@aimeup/ui-native` is a separate package
 - Prevent circular dependencies between packages
 - Level 0 and Level 1 packages cannot import from higher-level packages
 - ESLint validation enforces dependency constraints
@@ -151,3 +157,38 @@ ESLint validation to ensure level 0 and level 1 libraries do not import from pac
 - Package.json exports must match directory structure
 - CI/CD pipelines can validate structural compliance
 - Regular audits ensure architectural integrity
+
+## Package Level Mapping
+
+**Note:** Subfolders like `core/aiapi` are NOT separate packages - they are organized exports within the `@aimeup/core` package.
+
+### Level 0 - Core Code
+- `@aimeup/core` - Core domain types and API contracts
+  - `@aimeup/core/aiapi` - AI service interfaces (subfolder export)
+  - `@aimeup/core/chatapi` - Chat system contracts (subfolder export)
+  - `@aimeup/core/menuapi` - Menu system contracts (subfolder export)
+  - `@aimeup/core/securityapi` - Security contracts (subfolder export)
+- `@aimeup/tokens` - Design tokens and theme system
+- `@aimeup/core-react` - React context providers and state management
+
+### Level 1 - Helpers, Libraries, Utilities
+- `@aimeup/helpers` - Utility functions and services
+  - `@aimeup/helpers/files` - File interaction utilities (subfolder export)
+  - `@aimeup/helpers/chatable` - Chat plugin requirements (subfolder export)
+  - `@aimeup/helpers/account` - Firebase security client (subfolder export)
+  - `@aimeup/helpers/utility` - General utilities (changeDetector, etc.) (subfolder export)
+  - `@aimeup/helpers/openai` - OpenAI proxy client (subfolder export)
+  - `@aimeup/helpers/appframework` - App shell, context, and menu framework (subfolder export)
+
+### Level 2 - Packages, Tools
+- `@aimeup/ui-native` - Reusable React Native UI components
+- `@aimeup/account` - Authentication and user profile domain
+- `@aimeup/chat` - Chat functionality and domain logic
+- `@aimeup/eatgpt` - EatGPT-specific implementations
+  - `@eatgpt/nutrition` - Nutrition domain (renamed from nutritionProfile)
+  - `@eatgpt/healthconnect` - HealthConnect integration (Android only)
+
+### Level 3 - Application Endpoint
+- `@eatgpt/app` - EatGPT React Native application
+- `@aimeup/service` - Firebase Cloud Functions service
+- `@aimeup/testharness` - Testharness for demonstration and testing, not for deployment
