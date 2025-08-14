@@ -51,19 +51,19 @@ export function Button({
   return (
     <Pressable
       onPress={disabled || loading ? undefined : onPress}
-      // @ts-ignore - className prop for NativeWind
+      // @ts-ignore - NativeWind className prop. Types are defined but not always resolved in monorepo
       className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${disabledClasses} ${className}`}
     >
       {loading && (
         <ActivityIndicator 
           size="small" 
           color={variant === 'outline' ? '#374151' : '#ffffff'} 
-          // @ts-ignore - className prop for NativeWind
+          // @ts-ignore - NativeWind className prop
           className="mr-2"
           testID="activity-indicator"
         />
       )}
-      {/* @ts-ignore - className prop for NativeWind */}
+      {/* @ts-ignore - NativeWind className prop */}
       <Text className={`${textVariantClasses[variant]} ${textSizeClasses[size]}`}>
         {title}
       </Text>

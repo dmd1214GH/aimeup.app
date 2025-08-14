@@ -1,5 +1,0 @@
-
-> @aimeup/core@0.0.0 test /Users/dougdanoff/code/aimeup/packages/core
-> jest --passWithNoTests
-
-No tests found, exiting with code 0

@@ -11,7 +11,6 @@
   /_scripts          # developer facing scripts (mac, zsh for now)
   /apps
     /eatgpt          (@eatgpt/app)            # Single endpoint for RN and RN-web
-    /testharness     (@aimeup/testharness)    # For testing aimeup on RN and RN-web
   /services
     /aimeup-service  (@aimeup/service)        # Firebase Cloud Functions (OpenAI proxy)
   /packages

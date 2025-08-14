@@ -24,7 +24,7 @@ export function Card({
   
   return (
     <View 
-      // @ts-ignore - className prop for NativeWind
+      // @ts-ignore - NativeWind className prop. Types are defined but not always resolved in monorepo
       className={`${baseClasses} ${variantClasses[variant]} ${className}`}
       testID={testID}
     >

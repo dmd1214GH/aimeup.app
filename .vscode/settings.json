@@ -14,5 +14,13 @@
     "**/dist": true,
     "**/build": true,
     "**/.turbo": true
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "yzhang.markdown-all-in-one",
+    "editor.wordWrap": "on"
+  },
+  "editor.formatOnSave": true,
+  "files.associations": {
+    "*.mdx": "markdown"
   }
 }

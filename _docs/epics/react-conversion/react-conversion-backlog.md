@@ -53,9 +53,9 @@ Status: Resolved
 ---
 
 **BL-0106 — Environment & configuration baseline**
-[] Environment variables are validated at startup; invalid/missing values are surfaced clearly.
-[] Developer guide documents install, run, test, and environment setup end-to-end.
-[] Remove @ts-ignore comments from UI components after NativeWind is properly configured, and ensure TypeScript recognizes className props without errors.
+[X] Environment variables are validated at startup; invalid/missing values are surfaced clearly.
+[X] Developer guide documents install, run, test, and environment setup end-to-end.
+[X] Remove @ts-ignore comments from UI components after NativeWind is properly configured, and ensure TypeScript recognizes className props without errors.
 
 
 **BL-0107 — Tokens pipeline**

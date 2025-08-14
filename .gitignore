@@ -6,4 +6,7 @@ build
 pnpm-lock.yaml
 _reference/
 .turbo
+**/.turbo
+.temp
+*.bak.*
 

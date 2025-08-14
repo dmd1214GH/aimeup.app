@@ -31,10 +31,10 @@ export function Input({
   `.trim()
   
   return (
-    // @ts-ignore - className prop for NativeWind
+    // @ts-ignore - NativeWind className prop. Types are defined but not always resolved in monorepo
     <View className={className}>
       {label && (
-        // @ts-ignore - className prop for NativeWind
+        // @ts-ignore - NativeWind className prop
         <Text className="text-sm font-medium text-gray-700 mb-1">
           {label}
         </Text>
@@ -46,12 +46,12 @@ export function Input({
         secureTextEntry={secureTextEntry}
         multiline={multiline}
         numberOfLines={numberOfLines}
-        // @ts-ignore - className prop for NativeWind
+        // @ts-ignore - NativeWind className prop
         className={inputClasses}
         placeholderTextColor="#9CA3AF"
       />
       {error && (
-        // @ts-ignore - className prop for NativeWind
+        // @ts-ignore - NativeWind className prop
         <Text className="text-sm text-red-600 mt-1">
           {error}
         </Text>

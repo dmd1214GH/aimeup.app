@@ -21,8 +21,10 @@
   "dependencies": {
     "@aimeup/account": "workspace:*",
     "@aimeup/chat": "workspace:*",
+    "@aimeup/config": "workspace:*",
     "@aimeup/core-react": "workspace:*",
     "@aimeup/ui-native": "workspace:*",
+    "dotenv": "^16.4.5",
     "@babel/runtime": "7.28.2",
     "@eatgpt/healthconnect": "workspace:*",
     "@eatgpt/nutrition": "workspace:*",

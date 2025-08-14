@@ -1,5 +1,8 @@
 {
   "extends": "../../configs/tsconfig/tsconfig.lib.json",
-  "include": ["**/*.ts", "**/*.tsx", "nativewind-env.d.ts"],
-  "exclude": ["node_modules", "dist", "**/*.test.*", "**/*.spec.*"]
+  "include": ["**/*.ts", "**/*.tsx", "nativewind-env.d.ts", "types/**/*.d.ts"],
+  "exclude": ["node_modules", "dist", "**/*.test.*", "**/*.spec.*"],
+  "compilerOptions": {
+    "types": ["./types/nativewind"]
+  }
 }

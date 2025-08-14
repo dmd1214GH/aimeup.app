@@ -4,13 +4,16 @@
   "packageManager": "pnpm@10.14.0",
   "engines": { "node": "22.18.x" },
   "scripts": {
-    "build": "turbo run build",
+    "build": "turbo run build && pnpm run cache:prune",
     "dev": "turbo run dev --parallel",
     "hygiene": "turbo run hygiene",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "check": "turbo run hygiene typecheck test",
-    "clean": "turbo run clean && rm -rf node_modules",
+    "clean": "turbo run clean && rm -rf node_modules && pnpm clean:logs",
+    "clean:cache": "rm -rf .temp/turbo-cache",
+    "clean:logs": "find . -type d -name '.turbo' -exec rm -rf {} + 2>/dev/null || true",
+    "cache:prune": "[ -d .temp/turbo-cache ] && [ $(find .temp/turbo-cache -type d -name '[0-9a-f]*' | wc -l) -gt 50 ] && find .temp/turbo-cache -type d -name '[0-9a-f]*' | head -n -50 | xargs rm -rf || true",
     "ci:install": "pnpm install --frozen-lockfile"
   },
   "devDependencies": {

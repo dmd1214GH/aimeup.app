@@ -14,6 +14,22 @@ export default function HomePage() {
           color="#841584"
         />
       </View>
+      
+      <View style={styles.buttonContainer}>
+        <Button
+          title="Test Environment Variables"
+          onPress={() => router.push('/env-test')}
+          color="#22c55e"
+        />
+      </View>
+      
+      <View style={styles.buttonContainer}>
+        <Button
+          title="Environment Error Demo"
+          onPress={() => router.push('/env-error-demo')}
+          color="#ef4444"
+        />
+      </View>
     </View>
   );
 }
