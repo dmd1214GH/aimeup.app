@@ -36,6 +36,25 @@ typeset -A COLORS=(
   lightbrown     "52000,40000,35000"
   darkgray       "11565,11565,11565"
   darkblue       "7710,8481,10023"
+  softerblue     "25700,38293,60909"
+  terminalclassic "0,37779,65535"
+  darkmodefriendly "16448,40092,65535"
+  purple2     "32896,0,32896"
+  darkorange "65535,35980,0"
+  charcoal       "8224,8224,8224"
+  midnightblue   "6425,6425,28784"
+  slate          "11565,14649,18761"
+  darkgreen      "0,25700,0"
+  deepgray       "13107,13107,13107"
+  dracula        "10280,10794,13878"
+  solarizeddark  "0,11051,13878"
+  gruvboxdark    "10280,10280,10280"
+  nord           "11822,13878,15420"
+  balanced       "15420,15420,15420"
+  balanced2      "18504,18504,18504"
+  lighter        "21588,21588,21588"
+  mediumgray     "24672,24672,24672"
+  lightslate     "27756,27756,27756"
 )
 
 if [[ -z "$color" || -z "${COLORS[$color]:-}" ]]; then
@@ -55,7 +74,8 @@ b8=$(( b / 257 ))
 brightness=$(( (299 * r8 + 587 * g8 + 114 * b8) / 1000 ))
 
 # Pick text color: black if bright background, white if dark
-if (( brightness > 128 )); then
+# Lowered threshold from 128 to 100 to prefer white text more often
+if (( brightness > 100 )); then
   text_color="{0, 0, 0}"
 else
   text_color="{65535, 65535, 65535}"

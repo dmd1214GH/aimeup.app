@@ -38,38 +38,40 @@ pnpm typecheck
 pnpm lint
 ```
 
+### Timeout Standards
+All automated tests must enforce reasonable timeouts to prevent runaway processes:
+
+**Unit Tests (Jest)**
+- Individual test: 5 seconds
+- Test suite: 60 seconds
+- Total run: 5 minutes
+
+**E2E Tests (Playwright/Maestro)**
+- Individual test: 30 seconds  
+- Test suite: 2 minutes
+- Total run: 5 minutes
+- Browser/app launch: 30 seconds
+
+**Implementation Examples:**
+```bash
+# Playwright with timeouts
+npx playwright test --timeout=30000 --max-failures=3 --workers=1
+
+# Jest with timeouts
+jest --testTimeout=5000 --maxWorkers=2
+
+# Custom script with timeout
+timeout 300 pnpm test:e2e:web || exit 1
+```
+
+**Circuit Breaker Rules:**
+- If a test fails 3 times with the same error, stop and investigate
+- If any process runs >5 minutes without output, terminate
+- If port conflicts occur repeatedly, abort and check environment
+
 
 ## Test Types & Tools
 This section describes the types of automated tests to be implemented, as well as scope and strategy decisions:
-
-### Test Types Out-of-scope
-#### (OOS) Component Tests
-- **Purpose**: Test React Native components with mocked dependencies
-- **Tools**: 
-  - Jest - Test runner and mocking framework for React Native components
-  - @testing-library/react-native - React Native-specific testing utilities that focus on user interactions
-- **Coverage**: Component rendering, user interactions, props handling
-- **Execution**: `pnpm test:components`
-- **Current Status**: ❌ Blocked - RN 0.79 + Jest compatibility issues prevent component testing.  Will substitute with accelerated E2E testing capability.
-
-#### (OOS) Integration Tests
-- **Purpose**: Test interactions between multiple components/services
-- **Tools**: 
-  - Jest - Orchestrates tests and provides mocking for external dependencies
-  - React Testing Library - Enables testing component interactions and state changes
-- **Coverage**: API integrations, state management, data flow
-- **Execution**: `pnpm test:integration`
-- **Current Status**: ❌ Blocked - RN 0.79 + Jest compatibility issues prevent component testing.  Will substitute with accelerated E2E testing capability.
-
-#### (OOS) CI/CD Pipeline
-- **Purpose**: Automated test execution and quality gates
-- **Tools**: 
-  - GitHub Actions - Automated workflow execution
-  - Turbo - Build caching and pipeline orchestration
-  - pnpm - Package management and script execution
-- **Coverage**: Automated testing, build verification, deployment gates
-- **Execution**: Triggered on pull requests and commits
-- **Current Status**: ❌ Out of scope - No CI for this conversion phase. Testing will be developer-initiated using local commands.
 
 
 ### Unit Tests (Jest)
@@ -159,7 +161,13 @@ appId: com.eatgpt.app
 - assertVisible:
     id: "dashboard"
 ```
-- **Coverage Standards**: All critical user flows must have E2E tests, minimum 70% user journey coverage
+- **Coverage Standards**: 
+  - All critical user flows should have E2E tests. Should mirror Playwright.
+  - For MVP:
+    - Android: Android Studio Emulator
+    - iOS: iOS Simulator  TO BE ADDED LATER
+
+
 
 ### Web End-to-End Tests (Playwright)
 - **Purpose**: Test complete user workflows in React Native Web app
@@ -188,7 +196,52 @@ test.describe('User Authentication', () => {
   });
 });
 ```
-- **Coverage Standards**: All critical user flows must have E2E tests, minimum 70% user journey coverage
+- **Coverage Standards**: 
+  - All critical user flows should have E2E tests. Should mirror Maestro.
+  - For MVP, Chromium only (covers Chrome/Edge) on a MacBook air
+
+
+
+
+
+### Smoke Tests
+- **Purpose**: Quick sanity checks of UI components after builds without running full E2E test suites
+- **Tools**: 
+  - Maestro (Mobile) - Subset of critical mobile user flows
+  - Playwright (Web) - Subset of critical web user flows
+- **Coverage**: Core app functionality, critical user journeys, basic component rendering
+- **Execution**: 
+```bash
+pnpm test:smoke:mobile
+pnpm test:smoke:web
+```
+- **Current Status**: 🚧 Not Started - Will be implemented as subset of E2E tests
+- **Location**: `__tests__/smoke/` directories in app packages
+- **Naming Standards**: `*.smoke.flow.yaml` (Maestro), `*.smoke.spec.ts` (Playwright). Examples: `app-launch.smoke.flow.yaml`, `basic-navigation.smoke.spec.ts`
+- **Sample Tests**: 
+```yaml
+# Maestro smoke test - App launches and shows main screen
+appId: com.eatgpt.app
+---
+- launchApp
+- assertVisible:
+    id: "main-screen"
+- assertVisible:
+    id: "navigation-menu"
+```
+```typescript
+// Playwright smoke test - Basic web navigation works
+import { test, expect } from '@playwright/test';
+
+test.describe('Smoke Tests - Basic Navigation', () => {
+  test('should load main page and show navigation', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.locator('[data-testid="main-content"]')).toBeVisible();
+    await expect(page.locator('[data-testid="nav-menu"]')).toBeVisible();
+  });
+});
+```
+- **Coverage Standards**: Must test app launch, basic navigation, and core UI rendering. Should complete in under 2 minutes total. Focus on "does the app work at all?" rather than comprehensive testing.
 
 ### Accessibility Tests
 - **Purpose**: Ensure app meets accessibility standards
@@ -217,34 +270,49 @@ test.describe('Keyboard Navigation', () => {
   });
 });
 ```
-- **Coverage Standards**: All public-facing screens must pass accessibility tests, WCAG 2.1 AA compliance target
+- **Coverage Standards**: E2E tests are only added to the smoktest as needed.  Current inclusion:
+  - Open the app, click on each high level button in the current testing solution
 
 
-## Test Execution
 
-### Local Development
-- Running tests during development
-- Watch mode and auto-rerun
-- Debugging failed tests
 
-## Test Data & Environment
-- Test data setup and management
-- Environment configuration for testing
-- Mocking strategies and fixtures
 
-## Troubleshooting
-- Common test failures and solutions
-- Jest configuration issues
-- React Native testing challenges
-- Performance optimization tips
+## Out-of-scope / Future
 
-## Best Practices
-- Test naming conventions
-- Test organization and structure
-- Mocking guidelines
-- Performance considerations
+These elements are not considered for inclusion at this time:
+- UI Component tests in Jest
+- Integration tests in Jest
+- Automated CI tests
+- Exhaustive browser and platform testing with PlayWright
+- Thorough native device testing on Maestro
+- Automatically capturing screenshots during E2E testing
 
-## Future Improvements
-- Planned testing enhancements
-- Tool upgrades and migrations
-- Coverage expansion goals 
+  
+
+### (Out-of-scope) Component Tests
+- **Purpose**: Test React Native components with mocked dependencies
+- **Tools**: 
+  - Jest - Test runner and mocking framework for React Native components
+  - @testing-library/react-native - React Native-specific testing utilities that focus on user interactions
+- **Coverage**: Component rendering, user interactions, props handling
+- **Execution**: `pnpm test:components`
+- **Current Status**: ❌ Blocked - RN 0.79 + Jest compatibility issues prevent component testing.  Will substitute with accelerated E2E testing capability.
+
+### (Out-of-scope) Integration Tests
+- **Purpose**: Test interactions between multiple components/services
+- **Tools**: 
+  - Jest - Orchestrates tests and provides mocking for external dependencies
+  - React Testing Library - Enables testing component interactions and state changes
+- **Coverage**: API integrations, state management, data flow
+- **Execution**: `pnpm test:integration`
+- **Current Status**: ❌ Blocked - RN 0.79 + Jest compatibility issues prevent component testing.  Will substitute with accelerated E2E testing capability.
+
+### (Out-of-scope) CI/CD Pipeline
+- **Purpose**: Automated test execution and quality gates
+- **Tools**: 
+  - GitHub Actions - Automated workflow execution
+  - Turbo - Build caching and pipeline orchestration
+  - pnpm - Package management and script execution
+- **Coverage**: Automated testing, build verification, deployment gates
+- **Execution**: Triggered on pull requests and commits
+- **Current Status**: ❌ Out of scope - No CI for this conversion phase. Testing will be developer-initiated using local commands.

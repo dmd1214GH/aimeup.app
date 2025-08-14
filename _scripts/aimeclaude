@@ -12,7 +12,7 @@ source "$REPO_PATH/_scripts/aimeup-env.sh"
 cd "$REPO_PATH"
 
 # Set terminal color
-term-color darkgray
+term-color mediumgray
 
 # Show git status
 echo "==================================== Git Status ===================================="
@@ -24,15 +24,13 @@ npx ccusage@latest monthly
 
 # Warning about permissions
 echo -e "\n==================================== Starting Claude ===================================="
-
+pwd
+which claude
 echo -e "\n⚠️  WARNING: --dangerously-skip-permissions is enabled"
 echo "Claude will have access to execute commands and read files in this directory"
 echo "Press Enter to continue or Ctrl+C to abort..."
+
 read -r
 
 # Start Claude
-echo -e "\n🚀 Starting Claude..."
-echo $PATH
-which claude
-
 claude --dangerously-skip-permissions

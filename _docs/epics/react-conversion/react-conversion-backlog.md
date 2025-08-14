@@ -84,23 +84,48 @@ A: Components were created as part of BL-0105. KitchenSink is fully functional a
 Status: Resolved
 ---
 
-**BL-0130 — RN E2E with Maestro**   STOP NOT READY DO NOT DO
-[] Maestro e2e tests run as a part of our automated testing process to validate the RN app 
-[] Front end and component testing currently configured to run jest, and now running only manually, have been converted to run as automated tests
 
-[] `_docs/guides/automated-testing.md` is the entry point for understanding aimeup's automated testing capabilities and standards.
-[] `automated-testing.md`'s introductory section summarizing our automated testing capabilities
-[] `automated-testing.md` has an an introductory section summarizing our automated testing capabilities
+**BL-0131 — Web E2E testing with Playwright**
+[] Work in this story requires thorough understanding of `_docs/guides/automated-testing.md`
+[] Playwright is installed and available to use for Web E2E testing in our monorepo
+[] Existing, Jest-based, non-functional, component smoke tests (defined here: `packages/ui-native/__tests__/smoke.test.ts`) is cleanly removed from monorepo (no references)
+[] A new Playwright "smoke-test" checks that the current web app opens the home page (4 buttons) can navigate to each sub-page using the buttons without encountering errors
+[] A second Playwright "fullpoc-test" performs a deeper test (determined my developer based on test value), which checks expected results based on specific conditions
+[] Developer can run `pnpm test:smoke:web` to sanity check their code before pushing: Executes the new `smoke-test` defined by this story.  Prepare for additional smoke tests. 
+[] Developer can run `pnpm test:e2e:web` to fully regression-test their code: Executes the new `fullpoc-test` defined by this story.  Prepare for additional e2e tests.
+[] Tests should use Chrome by default, but developers should be able to run the tests against WebKit/Safari or Firefox if they choose.  Success is only required on Chrome/MacBook.
+[] The `pnpm test:smoke:web` is included in a consistent way inside _scripts/aimequal: sequential to others, fail fast, log output, return reliable success/failure result
+[] Developers can use `_docs/guides/automated-testing.md` to learn 1. How to run the tests 2. Examples for writing playwright scripts 3. A brief description of the smoketest (in the smoketest section)
+[] All tests run in the Dev Environment.  Prep and Cleanup are not required at this time.
+[] Starting and stopping required servers should be automated at some level, at a minimum in `_scripts/aimequal`
+[] `pnpm test:smoke:web` runs successfully on Chrome/MacBook Air
+[] `pnpm test:e2e:web` runs successfully on Chrome/MacBook Air
+[] `_docs/guides/environment-setup.md` mentions requirements for Chrome, Safari (optional), and Firefox (optional).
+[] Remember steps-of-doneness
 
-[] `automated-testing.md` has an `Overview` section listing and briefly describing all the different types of automated tests currently executed as part of automated quality checks (e.g. jest, lint, maestro, playwrite)
 
- has been created or updated with instructions, guidance, and examples for how and when to script new tests
 
-**BL-0131 — RN-Web E2E with Playwright**   STOP NOT READY DO NOT DO
-[] Playwright runs as a part of our automated testing process to validate the RN app 
-[] Front end and component testing configured to run jest, and now running manually, have been converted to run as automated tests
-[] Automated testing guide has been created or updated with instructions, guidance, and examples for how and when to script new tests
-[] After Playwrght and Maestro have incorporated the jest component test]the old tests should be removed
+  **BL-0130 — RN E2E testing with Maestro**
+  [] Work in this story requires thorough understanding of `_docs/guides/automated-testing.md`
+  [] Maestro is installed and available to use for Native E2E testing in our monorepo
+  [] Existing, Jest-based, non-functional, component smoke tests have already been removed by BL-0131 (dependency)
+  [] A new Maestro "smoke-test" executes the identical test to the one established by BL-0131 without encountering errors
+  [] A second Maestro "fullpoc-test" executes the identical test to the one established by BL-0131 without encountering errors
+  [] Developer can run `pnpm test:smoke:mobile` to sanity check their code before pushing: Executes the new `smoke-test` defined by this story. Prepare for additional smoke tests.
+  [] Developer can run `pnpm test:e2e:mobile` to fully regression-test their code: Executes the new `fullpoc-test` defined by this story. Prepare for additional e2e tests.
+  [] Both tests should be exact mirrors to their PlayWright peers
+  [] Tests should run on Android Emulator by default, but developers should be able to run on iOS Simulator if available. Success is only required on Android Emulator.
+  [] The `pnpm test:smoke:mobile` is included in a consistent way inside _scripts/aimequal: sequential to others, fail fast, log output, return reliable success/failure result
+  [] Developers can use `_docs/guides/automated-testing.md` to learn 1. How to run the tests 2. Examples for writing Maestro flows 3. A brief description of the smoketest (in the smoketest section)
+  [] All tests run in the Dev Environment. Prep and Cleanup are not required at this time.
+  [] Starting the Metro bundler and launching the app on emulator/simulator should be automated at some level, at a minimum in `_scripts/aimequal`
+  [] `pnpm test:smoke:mobile` runs successfully on Android Emulator
+  [] `pnpm test:e2e:mobile` runs successfully on Android Emulator
+  [] Maestro artifacts (recordings, logs) are added to .gitignore
+  [] `_docs/guides/environment-setup.md` mentions requirements for Android Emulator and iOS Simulator (optional).
+  [] Remember steps-of-doneness
+
+
 
 
 
