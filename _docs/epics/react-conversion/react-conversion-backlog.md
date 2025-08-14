@@ -74,13 +74,14 @@ Status: Resolved
 ---
 
 **BL-0115 — UI KitchenSink (RN & RN-Web)**
-[] The KitchenSink screen showcases Button/Input/Card variants in `@aimeup/ui-native`.
-[] The screen loads without runtime warnings on native and on RN-Web.
-[] Component smoke tests confirm visible state changes and basic interactions.
+[X] The KitchenSink screen showcases Button/Input/Card variants in `@aimeup/ui-native`.
+[X] The screen loads without runtime warnings on native and on RN-Web.
+[X] Component smoke tests confirm visible state changes and basic interactions.
 
 ---
 Q: KitchenSink references @aimeup/ui-native components that don't exist yet - this creates a circular dependency with BL-0105. Need to create basic components first.
-Status: In Progress
+A: Components were created as part of BL-0105. KitchenSink is fully functional at /kitchensink route.
+Status: Resolved
 ---
 
 ### Phase 2 — Android → OpenAI shell (PreauthMode, no Firebase)
