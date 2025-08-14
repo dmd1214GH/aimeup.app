@@ -1,2 +1,2 @@
-// Design tokens will be implemented here
-export const placeholder = 'tokens package';
+export * from './src/tokens'
+export { tokens as default } from './src/tokens'

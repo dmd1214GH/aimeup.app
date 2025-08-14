@@ -8,6 +8,7 @@ export default function RootLayout() {
       <Stack>
         <Stack.Screen name="index" options={{ title: "EatGPT" }} />
         <Stack.Screen name="kitchensink" options={{ title: "Kitchen Sink" }} />
+        <Stack.Screen name="tokens-debug" options={{ title: "Tokens Debug" }} />
         <Stack.Screen name="env-test" options={{ title: "Environment Test" }} />
         <Stack.Screen name="env-error-demo" options={{ title: "Env Error Demo" }} />
       </Stack>

@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+const tokens = require('@aimeup/tokens/tailwind')
+
 module.exports = {
   // Specify which files Tailwind should scan for className usage
   // This determines which Tailwind utilities get included in the build
@@ -19,7 +21,8 @@ module.exports = {
   
   theme: {
     extend: {
-      // Custom theme extensions can go here
+      // Use design tokens from @aimeup/tokens
+      ...tokens
     },
   },
   

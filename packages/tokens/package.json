@@ -3,6 +3,13 @@
   "version": "0.0.0",
   "private": true,
   "main": "index.ts",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./tailwind": "./dist/tailwind.js",
+    "./react-native": "./dist/react-native.js",
+    "./json": "./dist/tokens.json"
+  },
   "scripts": {
     "build": "node scripts/build-tokens.js",
     "hygiene": "eslint . --ext .ts,.tsx || true",
@@ -12,10 +19,12 @@
   },
   "devDependencies": {
     "@types/jest": "^29.5.0",
+    "@types/node": "^20.0.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",
     "eslint": "^8.0.0",
     "jest": "^29.5.0",
+    "ts-node": "^10.9.0",
     "typescript": "^5.0.0"
   }
 }

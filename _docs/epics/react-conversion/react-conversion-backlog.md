@@ -59,13 +59,18 @@ Status: Resolved
 
 
 **BL-0107 — Tokens pipeline**
-[] `@aimeup/tokens` generates artifacts consumed by styling systems.
-[] Generated tokens are reproducible and versioned.
-[] A sample screen demonstrates token-driven styling with consistent rendering on RN and RN-Web.
+[X] `@aimeup/tokens` generates artifacts consumed by styling systems.
+[X] Generated tokens are reproducible and versioned.
+[X] A sample screen demonstrates token-driven styling with consistent rendering on RN and RN-Web.
 
 ---
 Q: Tokens pipeline depends on design token tooling not yet specified. Need to define the token format and build process before UI work can proceed.
-Status: In Progress
+A: Implemented a custom token pipeline that:
+1. Defines tokens in TypeScript/JSON format
+2. Generates Tailwind config extensions for web
+3. Generates typed React Native style constants
+4. Provides runtime access to token values
+Status: Resolved
 ---
 
 **BL-0115 — UI KitchenSink (RN & RN-Web)**

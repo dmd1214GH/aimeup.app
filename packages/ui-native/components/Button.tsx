@@ -23,9 +23,9 @@ export function Button({
   const baseClasses = 'flex-row items-center justify-center rounded-lg'
   
   const variantClasses = {
-    primary: 'bg-blue-600 active:bg-blue-700',
-    secondary: 'bg-gray-600 active:bg-gray-700',
-    outline: 'border border-gray-300 bg-transparent active:bg-gray-50',
+    primary: 'bg-primary-600 active:bg-primary-700',
+    secondary: 'bg-secondary-600 active:bg-secondary-700',
+    outline: 'border border-neutral-300 bg-transparent active:bg-neutral-50',
   }
   
   const sizeClasses = {
@@ -37,7 +37,7 @@ export function Button({
   const textVariantClasses = {
     primary: 'text-white font-semibold',
     secondary: 'text-white font-semibold',
-    outline: 'text-gray-900 font-semibold',
+    outline: 'text-neutral-900 font-semibold',
   }
   
   const textSizeClasses = {

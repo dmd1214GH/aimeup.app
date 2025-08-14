@@ -17,6 +17,14 @@ export default function HomePage() {
       
       <View style={styles.buttonContainer}>
         <Button
+          title="Tokens Debug Guide"
+          onPress={() => router.push('/tokens-debug')}
+          color="#3b82f6"
+        />
+      </View>
+      
+      <View style={styles.buttonContainer}>
+        <Button
           title="Test Environment Variables"
           onPress={() => router.push('/env-test')}
           color="#22c55e"
