@@ -10,3 +10,8 @@ _reference/
 .temp
 *.bak.*
 
+# Playwright artifacts
+test-results/
+playwright-report/
+playwright/.cache/
+

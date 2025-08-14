@@ -1,1 +1,6 @@
-module.exports = { extends: ['../../configs/eslint/base.cjs'] };
+module.exports = { 
+  extends: ['../../configs/eslint/base.cjs'],
+  env: {
+    jest: true
+  }
+};

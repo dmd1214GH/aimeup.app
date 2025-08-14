@@ -7,6 +7,21 @@
 - iOS Simulator (Mac only) or Android Emulator (optional)
 - Expo Go app on physical device (optional)
 
+### Browser Requirements (for Web Development & Testing)
+- **Chrome**: Required for Playwright E2E testing on MacBook Air
+- **Safari**: Optional, for cross-browser testing (macOS only)
+- **Firefox**: Optional, for cross-browser testing
+
+### E2E Testing Requirements
+#### Web (Playwright)
+- Chrome/Chromium browser (automatically installed with `npx playwright install chromium`)
+- Optional: WebKit/Safari (`npx playwright install webkit`)
+- Optional: Firefox (`npx playwright install firefox`)
+
+#### Mobile (Maestro - Coming in BL-0130)
+- Android Studio Emulator (required for Android testing)
+- iOS Simulator (optional, macOS only)
+
 ## Initial Setup
 
 ### 1. Clone and Install
@@ -107,8 +122,16 @@ pnpm start:web   # Start web dev server
 pnpm start:clean # Start with cache cleared
 pnpm ios         # Start iOS simulator
 pnpm android     # Start Android emulator
-pnpm web         # Start web server
+pnpm web         # Start web server (opens browser)
+pnpm web:ci      # Start web server (no browser auto-open)
 pnpm stop        # Stop dev server
+
+# E2E Testing Commands
+pnpm test:smoke:web      # Run smoke tests (Chrome)
+pnpm test:e2e:web        # Run full POC tests (Chrome)
+pnpm test:e2e:web:all    # Run all E2E tests (Chrome)
+pnpm test:e2e:web:webkit # Run tests in Safari (optional)
+pnpm test:e2e:web:firefox # Run tests in Firefox (optional)
 ```
 
 ## Troubleshooting

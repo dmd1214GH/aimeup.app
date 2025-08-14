@@ -86,22 +86,22 @@ Status: Resolved
 
 
 **BL-0131 — Web E2E testing with Playwright**
-[] Work in this story requires thorough understanding of `_docs/guides/automated-testing.md`
-[] Playwright is installed and available to use for Web E2E testing in our monorepo
-[] Existing, Jest-based, non-functional, component smoke tests (defined here: `packages/ui-native/__tests__/smoke.test.ts`) is cleanly removed from monorepo (no references)
-[] A new Playwright "smoke-test" checks that the current web app opens the home page (4 buttons) can navigate to each sub-page using the buttons without encountering errors
-[] A second Playwright "fullpoc-test" performs a deeper test (determined my developer based on test value), which checks expected results based on specific conditions
-[] Developer can run `pnpm test:smoke:web` to sanity check their code before pushing: Executes the new `smoke-test` defined by this story.  Prepare for additional smoke tests. 
-[] Developer can run `pnpm test:e2e:web` to fully regression-test their code: Executes the new `fullpoc-test` defined by this story.  Prepare for additional e2e tests.
-[] Tests should use Chrome by default, but developers should be able to run the tests against WebKit/Safari or Firefox if they choose.  Success is only required on Chrome/MacBook.
-[] The `pnpm test:smoke:web` is included in a consistent way inside _scripts/aimequal: sequential to others, fail fast, log output, return reliable success/failure result
-[] Developers can use `_docs/guides/automated-testing.md` to learn 1. How to run the tests 2. Examples for writing playwright scripts 3. A brief description of the smoketest (in the smoketest section)
-[] All tests run in the Dev Environment.  Prep and Cleanup are not required at this time.
-[] Starting and stopping required servers should be automated at some level, at a minimum in `_scripts/aimequal`
-[] `pnpm test:smoke:web` runs successfully on Chrome/MacBook Air
-[] `pnpm test:e2e:web` runs successfully on Chrome/MacBook Air
-[] `_docs/guides/environment-setup.md` mentions requirements for Chrome, Safari (optional), and Firefox (optional).
-[] Remember steps-of-doneness
+[X] Work in this story requires thorough understanding of `_docs/guides/automated-testing.md`
+[X] Playwright is installed and available to use for Web E2E testing in our monorepo
+[X] Existing, Jest-based, non-functional, component smoke tests (defined here: `packages/ui-native/__tests__/smoke.test.ts`) is cleanly removed from monorepo (no references)
+[X] A new Playwright "smoke-test" checks that the current web app opens the home page (4 buttons) can navigate to each sub-page using the buttons without encountering errors
+[X] A second Playwright "fullpoc-test" performs a deeper test (determined my developer based on test value), which checks expected results based on specific conditions
+[X] Developer can run `pnpm test:smoke:web` to sanity check their code before pushing: Executes the new `smoke-test` defined by this story.  Prepare for additional smoke tests. 
+[X] Developer can run `pnpm test:e2e:web` to fully regression-test their code: Executes the new `fullpoc-test` defined by this story.  Prepare for additional e2e tests.
+[X] Tests should use Chrome by default, but developers should be able to run the tests against WebKit/Safari or Firefox if they choose.  Success is only required on Chrome/MacBook.
+[X] The `pnpm test:smoke:web` is included in a consistent way inside _scripts/aimequal: sequential to others, fail fast, log output, return reliable success/failure result
+[X] Developers can use `_docs/guides/automated-testing.md` to learn 1. How to run the tests 2. Examples for writing playwright scripts 3. A brief description of the smoketest (in the smoketest section)
+[X] All tests run in the Dev Environment.  Prep and Cleanup are not required at this time.
+[X] Starting and stopping required servers should be automated at some level, at a minimum in `_scripts/aimequal`
+[X] `pnpm test:smoke:web` runs successfully on Chrome/MacBook Air
+[X] `pnpm test:e2e:web` runs successfully on Chrome/MacBook Air
+[X] `_docs/guides/environment-setup.md` mentions requirements for Chrome, Safari (optional), and Firefox (optional).
+[X] Remember steps-of-doneness
 
 
 

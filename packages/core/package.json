@@ -11,7 +11,7 @@
   },
   "scripts": {
     "build": "echo 'No build needed for core types'",
-    "hygiene": "eslint . --ext .ts,.tsx || true",
+    "hygiene": "eslint . --ext .ts,.tsx,.js,.jsx --ignore-pattern node_modules --max-warnings 0 || true",
     "typecheck": "tsc --noEmit",
     "test": "jest --passWithNoTests",
     "clean": "rm -rf dist"

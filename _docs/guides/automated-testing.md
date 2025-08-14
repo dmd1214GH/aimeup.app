@@ -176,11 +176,30 @@ appId: com.eatgpt.app
 - **Coverage**: Critical user journeys, web-specific functionality
 - **Execution**: 
 ```bash
+# IMPORTANT: All Playwright commands must be run from the app directory
+cd $REPO_PATH/apps/eatgpt
+
+# Run smoke test only
+pnpm test:smoke:web
+
+# Run full POC test only  
 pnpm test:e2e:web
+
+# Run all E2E tests
+pnpm test:e2e:web:all
+
+# Run on different browsers (optional)
+npx playwright test smoke.spec.ts --project=webkit     # Safari
+npx playwright test smoke.spec.ts --project=firefox    # Firefox
+
+# Run tests with visible browser (headed mode)
+npx playwright test smoke.spec.ts --headed             # All browsers visible
+npx playwright test smoke.spec.ts --project=firefox --headed  # Firefox visible
+SLOW_MO=500 npx playwright test smoke.spec.ts --headed # Slow motion for debugging
 ```
-- **Current Status**: 🚧 Not Started - Tools identified but not yet configured or implemented
-- **Location**: `__tests__/e2e/` directories in app packages
-- **Naming Standards**: `*.spec.ts` files, test suites named by user journey (e.g., `user-authentication.spec.ts`, `nutrition-tracking.spec.ts`, `chat-conversation.spec.ts`)
+- **Current Status**: ✅ Implemented - Smoke and POC tests configured for Chrome
+- **Location**: `apps/eatgpt/__tests__/e2e/` directory
+- **Naming Standards**: `*.spec.ts` files, test suites named by purpose (e.g., `smoke.spec.ts`, `fullpoc.spec.ts`)
 - **Sample Test**: 
 ```typescript
 // apps/eatgpt/__tests__/e2e/user-authentication.spec.ts
@@ -212,12 +231,16 @@ test.describe('User Authentication', () => {
 - **Coverage**: Core app functionality, critical user journeys, basic component rendering
 - **Execution**: 
 ```bash
-pnpm test:smoke:mobile
-pnpm test:smoke:web
+pnpm test:smoke:mobile  # Coming in BL-0130
+pnpm test:smoke:web     # Available now
 ```
-- **Current Status**: 🚧 Not Started - Will be implemented as subset of E2E tests
-- **Location**: `__tests__/smoke/` directories in app packages
-- **Naming Standards**: `*.smoke.flow.yaml` (Maestro), `*.smoke.spec.ts` (Playwright). Examples: `app-launch.smoke.flow.yaml`, `basic-navigation.smoke.spec.ts`
+- **Current Status**: 
+  - Web: ✅ Implemented - Navigation tests for all 4 main pages
+  - Mobile: 🚧 Not Started - Coming in BL-0130
+- **Location**: 
+  - Web: `apps/eatgpt/__tests__/e2e/smoke.spec.ts`
+  - Mobile: Will be in `__tests__/e2e/` directories
+- **Naming Standards**: `smoke.spec.ts` (Playwright), `smoke.flow.yaml` (Maestro)
 - **Sample Tests**: 
 ```yaml
 # Maestro smoke test - App launches and shows main screen
@@ -232,7 +255,7 @@ appId: com.eatgpt.app
 ```typescript
 // Playwright smoke test - Basic web navigation works
 import { test, expect } from '@playwright/test';
-
+****
 test.describe('Smoke Tests - Basic Navigation', () => {
   test('should load main page and show navigation', async ({ page }) => {
     await page.goto('/');
