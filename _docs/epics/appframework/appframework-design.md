@@ -9,15 +9,17 @@ References:
 
 ### aimeup-core (EXTEND aimeup/core with /menuapi)
 Contribute ubiquitously available data classes in the ultra-light core package
+```
 /aimeup
   /packages
     /core            (--no root export--)     # Existing
       /menuapi       (@aimeup/core/menuapi)  # Existing
         + app-menu-item.ts (from <kotlin> shared/menuapi/AppMenuItem.kt)
-
+```
 
 ### @aimeup/appframework (NEW package)
 Establish a new "Level 1" package in monorepo to store the medium-weight framework logic.  This package should have minimal dependencies.
+```
 /aimeup
   /packages
     /appframework    (--no root export--)         # new TS & RN/RNweb package
@@ -32,26 +34,28 @@ Establish a new "Level 1" package in monorepo to store the medium-weight framewo
       /shell         (@aimeup/appframework/shell)  # subfolder export, not separate package
         + appshell.tsx (from <kotlin> app/MainApp.kt, <kotlin> MainActivity.kt)
         + metro.config.js (from <clone> apps/eatgpt/metro.config.js)
-
+```
 
 ### @aimeup/testharness (NEW RN/RN-web app)
 Establish a new "Level 3" target endpoint for testing and demonstrating application framework functionality
+```
 /aimeup
   /apps
     /testharness     (@aimeup/testharness)    # For testing aimeup on RN and RN-web
       + testharness-menus.ts (from <kotlin> app/EatGPTMenus.kt)
       + kitchensink.tsx (from <clone> apps/eatgpt/app/kitchensink.tsx)
       + App.tsx (from <kotlin> MainActivity.kt, <clone> apps/eatgpt/app/App.tsx)
-
+```
 
 ### @eatgpt/nutrition (EXTEND @eatgpt/nutrition package)
+```
 /aimeup
   /packages
     /eatgpt
       /nutrition     (@eatgpt/nutrition)      # seed with stubs to support menu testing
         + nutrition-menu.ts (from <kotlin> nutritionProfile/ui/NutritionProfileMenu.kt)
         + eaten-screen.tsx (from <kotlin> nutritionProfile/ui/MealHistoryScreen.kt)
-
+```
 
 ### Cleanup
 - relocated tailwind.config.js, global.css

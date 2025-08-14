@@ -1,3 +1,23 @@
 #!/usr/bin/env zsh
 set -euo pipefail
-exec "$(dirname "$0")/dev.sh"
+
+# Repo root - determine the path of the executing script (probably from $PATH) and set as REPO_PATH
+REPO_PATH="$(cd "$(dirname "$0")/.." && pwd)"
+export REPO_PATH
+
+# Load project env (aliases, PATH, NODE_OPTIONS, .env.local)
+source "$REPO_PATH/_scripts/aimeup-env.sh"
+
+# Change to monorepo directory
+cd "$REPO_PATH"
+
+# Set terminal color
+term-color lightgray
+
+
+echo -e "\n==================================== Terminal ===================================="
+# Drop you into the guides root with env ready
+echo "[aimeup] Environment loaded. You're at: $REPO_PATH"
+echo "[aimeup] Quick cmds: 'web' (dev server), 'ui' (build UI), 'pn' (pnpm)"
+exec $SHELL -i
+

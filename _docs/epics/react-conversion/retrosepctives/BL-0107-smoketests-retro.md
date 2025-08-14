@@ -14,8 +14,6 @@
   The components likely work fine (since the screen loads), but the tests don't actually verify that.
 
 
-  
-
 > I suppose we should try to resolve the smoketest blocker.  Please provide a write up of the issue so I can 
   research
 

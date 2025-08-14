@@ -8,6 +8,7 @@ color="${1:-}"
 typeset -A COLORS=(
   black       "0,0,0"
   white       "65535,65535,65535"
+  offwhite    "62965,62965,62965"
   red         "65535,0,0"
   green       "0,65535,0"
   blue        "0,0,65535"
@@ -33,6 +34,8 @@ typeset -A COLORS=(
   lightpink      "65535,55000,56000"
   lightgold      "65535,60000,40000"
   lightbrown     "52000,40000,35000"
+  darkgray       "11565,11565,11565"
+  darkblue       "7710,8481,10023"
 )
 
 if [[ -z "$color" || -z "${COLORS[$color]:-}" ]]; then

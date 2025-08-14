@@ -84,6 +84,26 @@ A: Components were created as part of BL-0105. KitchenSink is fully functional a
 Status: Resolved
 ---
 
+**BL-0130 — RN E2E with Maestro**   STOP NOT READY DO NOT DO
+[] Maestro e2e tests run as a part of our automated testing process to validate the RN app 
+[] Front end and component testing currently configured to run jest, and now running only manually, have been converted to run as automated tests
+
+[] `_docs/guides/automated-testing.md` is the entry point for understanding aimeup's automated testing capabilities and standards.
+[] `automated-testing.md`'s introductory section summarizing our automated testing capabilities
+[] `automated-testing.md` has an an introductory section summarizing our automated testing capabilities
+
+[] `automated-testing.md` has an `Overview` section listing and briefly describing all the different types of automated tests currently executed as part of automated quality checks (e.g. jest, lint, maestro, playwrite)
+
+ has been created or updated with instructions, guidance, and examples for how and when to script new tests
+
+**BL-0131 — RN-Web E2E with Playwright**   STOP NOT READY DO NOT DO
+[] Playwright runs as a part of our automated testing process to validate the RN app 
+[] Front end and component testing configured to run jest, and now running manually, have been converted to run as automated tests
+[] Automated testing guide has been created or updated with instructions, guidance, and examples for how and when to script new tests
+[] After Playwrght and Maestro have incorporated the jest component test]the old tests should be removed
+
+
+
 ### Phase 2 — Android → OpenAI shell (PreauthMode, no Firebase)
 
 **BL-0108 — Core domain port**
