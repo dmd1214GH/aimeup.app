@@ -104,26 +104,42 @@ Status: Resolved
 [X] Remember steps-of-doneness
 
 
+DO NOT AUTOMATE DEVELOPMENT BEYOND THIS POINT
 
-  **BL-0130 — RN E2E testing with Maestro**
-  [] Work in this story requires thorough understanding of `_docs/guides/automated-testing.md`
-  [] Maestro is installed and available to use for Native E2E testing in our monorepo
-  [] Existing, Jest-based, non-functional, component smoke tests have already been removed by BL-0131 (dependency)
-  [] A new Maestro "smoke-test" executes the identical test to the one established by BL-0131 without encountering errors
-  [] A second Maestro "fullpoc-test" executes the identical test to the one established by BL-0131 without encountering errors
-  [] Developer can run `pnpm test:smoke:mobile` to sanity check their code before pushing: Executes the new `smoke-test` defined by this story. Prepare for additional smoke tests.
-  [] Developer can run `pnpm test:e2e:mobile` to fully regression-test their code: Executes the new `fullpoc-test` defined by this story. Prepare for additional e2e tests.
-  [] Both tests should be exact mirrors to their PlayWright peers
-  [] Tests should run on Android Emulator by default, but developers should be able to run on iOS Simulator if available. Success is only required on Android Emulator.
-  [] The `pnpm test:smoke:mobile` is included in a consistent way inside _scripts/aimequal: sequential to others, fail fast, log output, return reliable success/failure result
-  [] Developers can use `_docs/guides/automated-testing.md` to learn 1. How to run the tests 2. Examples for writing Maestro flows 3. A brief description of the smoketest (in the smoketest section)
-  [] All tests run in the Dev Environment. Prep and Cleanup are not required at this time.
-  [] Starting the Metro bundler and launching the app on emulator/simulator should be automated at some level, at a minimum in `_scripts/aimequal`
-  [] `pnpm test:smoke:mobile` runs successfully on Android Emulator
-  [] `pnpm test:e2e:mobile` runs successfully on Android Emulator
-  [] Maestro artifacts (recordings, logs) are added to .gitignore
-  [] `_docs/guides/environment-setup.md` mentions requirements for Android Emulator and iOS Simulator (optional).
-  [] Remember steps-of-doneness
+
+**BL-0133 - Prettier and TypeCheck**
+[] Existing script `pnpm run typecheck` runs as a standard part of `_scripts/aimequal` to check formatting of our files.  Fail on all warnings and errors.
+[] Existing script `pnpm run typecheck` runs as a standard part of `_scripts/aimequal` to confirm type-safety across our TypeScript code.  Fail on all warnings and errors.
+[] ~138 files currently failing prettier are either brought into compliance, or the tests are adjusted through collaboration with human partner.  Consider using `npx prettier --write .`
+[] `_docs/guides/automated-testing.md` is updated to reflect these capabilities and standards.  Mirror the explanations of ESLint (Test types overview, Test Types and Tools sections)
+[] A monorepo root level Jest test `monorepo-structure.test.ts` validates that the structural-level folders defined in `_docs/guides/monorepo.md` exist
+[] A monorepo root level Jest test `monorepo-structure-creep.test.ts` validates that the the monorepo does not contain additional structural-level folders that are not defined in `_docs/guides/monorepo.md`
+[] Any inconsistencies between monorepo.md, the monorepo-structure tests, and the actual folder structure must be resolved before achieving a successful aimequal check
+[] Obsolete scripts should be removed from '_scripts/':  `aime.hygiene`, `aime.hygiene`, and `aime.verify`
+[] All processes that may be impacted by the formatting changes, including those outside of our current automated testing scope, should continue working.
+
+
+
+
+**BL-0130 — RN E2E testing with Maestro**
+[] Work in this story requires thorough understanding of `_docs/guides/automated-testing.md`
+[] Maestro is installed and available to use for Native E2E testing in our monorepo
+[] Existing, Jest-based, non-functional, component smoke tests have already been removed by BL-0131 (dependency)
+[] A new Maestro "smoke-test" executes the identical test to the one established by BL-0131 without encountering errors
+[] A second Maestro "fullpoc-test" executes the identical test to the one established by BL-0131 without encountering errors
+[] Developer can run `pnpm test:smoke:mobile` to sanity check their code before pushing: Executes the new `smoke-test` defined by this story. Prepare for additional smoke tests.
+[] Developer can run `pnpm test:e2e:mobile` to fully regression-test their code: Executes the new `fullpoc-test` defined by this story. Prepare for additional e2e tests.
+[] Both tests should be exact mirrors to their PlayWright peers
+[] Tests should run on Android Emulator by default, but developers should be able to run on iOS Simulator if available. Success is only required on Android Emulator.
+[] The `pnpm test:smoke:mobile` is included in a consistent way inside _scripts/aimequal: sequential to others, fail fast, log output, return reliable success/failure result
+[] Developers can use `_docs/guides/automated-testing.md` to learn 1. How to run the tests 2. Examples for writing Maestro flows 3. A brief description of the smoketest (in the smoketest section)
+[] All tests run in the Dev Environment. Prep and Cleanup are not required at this time.
+[] Starting the Metro bundler and launching the app on emulator/simulator should be automated at some level, at a minimum in `_scripts/aimequal`
+[] `pnpm test:smoke:mobile` runs successfully on Android Emulator
+[] `pnpm test:e2e:mobile` runs successfully on Android Emulator
+[] Maestro artifacts (recordings, logs) are added to .gitignore
+[] `_docs/guides/environment-setup.md` mentions requirements for Android Emulator and iOS Simulator (optional).
+[] Remember steps-of-doneness
 
 
 

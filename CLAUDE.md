@@ -35,6 +35,11 @@
 - Focus on core React Native + Web functionality
 - **CRITICAL**: `.npmrc` must contain `shamefully-hoist=true` for React Native dependencies
 
+## Backlog Item Delivery: Code & Test Constraints
+- **CRITICAL**: Adhere to `/_docs/guides/agent-item-delivery.md` when working on official backlog items
+- Rules are more relaxed when not working on backlog items
+- Confirm the mode if unclear
+
 ## Running the App
 - **Native Development**: `cd apps/eatgpt && npx expo start`
   - iOS Simulator: Press `i` or scan QR with Camera app
@@ -49,6 +54,3 @@
   - Shows Redux state management integration
   - Tests Button variants, Input components, Card types
 
-## Project phase and work standards
-- use the epic development guide here in `_docs/prompts/claude-epic-prompt.md`
-- we will be working on this epic: `_docs/epics/react-conversion/react-conversion-backlog.md`
