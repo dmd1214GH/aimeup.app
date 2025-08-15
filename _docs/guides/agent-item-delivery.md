@@ -45,22 +45,20 @@ We are going to groom a backlog item according to `Backlog Item Delivery` mode d
 
 ### Groom Phase Exit
 
-```
 Do you have any remaining requirement questions which we should apply to the ACs, assumptions, or design docs to make things more clear or explicit?  We need to prepare for doing this work without the context you just gained.
 
-Grooming phase exit criteria include the following. Do you agree we have met these?
-- Collaborated resolution on the item's clarity, scope, and size.
-- All assets referenced exist or are marked "to be created"
-- All file paths and folder names are explicit
-- Success/failure criteria are measurable
-- Relevant pre-existing conditions are documented as assumptions
-- Agent creates or adds Grooming Status section:
-  - ## Grooming Status
-  - Status: <> Grooming, Ready for Tasking, Blocked, etc. (informal)
-  - ### Questions
-  - ### What was changed in grooming
+> Grooming phase exit criteria include the following. Do you agree we have met these?
+> - Collaborated resolution on the item's clarity, scope, and size.
+> - All assets referenced exist or are marked "to be created"
+> - All file paths and folder names are explicit
+> - Success/failure criteria are measurable
+> - Relevant pre-existing conditions are documented as assumptions
+> - Agent creates or adds Grooming Status section:
+>   - ## Grooming Status
+>   - Status: <> Grooming, Ready for Tasking, Blocked, etc. (informal)
+>   - ### Questions
+>   - ### What was changed in grooming
 
-```
 
 **\*NOTE**: Check-in code and **reset context** between Design and Tasking to clear possible pre-readiness confusion.\*
 
