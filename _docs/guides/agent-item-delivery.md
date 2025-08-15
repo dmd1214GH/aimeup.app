@@ -45,7 +45,7 @@ We are going to groom a backlog item according to `Backlog Item Delivery` mode d
 
 ### Groom Phase Exit
 
-```text
+<pre style="white-space: pre-wrap;">
 Do you have any remaining requirement questions which we should apply to the ACs, assumptions, or design docs to make things more clear or explicit?  We need to prepare for doing this work without the context you just gained.
 
 Grooming phase exit criteria include the following. Do you agree we have met these?
@@ -60,7 +60,7 @@ Grooming phase exit criteria include the following. Do you agree we have met the
   - ### Questions
   - ### What was changed in grooming
 
-```
+</pre>
 
 **\*NOTE**: Check-in code and **reset context** between Design and Tasking to clear possible pre-readiness confusion.\*
 
