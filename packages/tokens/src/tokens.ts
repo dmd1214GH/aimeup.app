@@ -240,13 +240,13 @@ export const tokens = {
       elevation: 0,
     },
   },
-} as const
-export type Tokens = typeof tokens
-export type ColorToken = keyof typeof tokens.colors
-export type SpacingToken = keyof typeof tokens.spacing
-export type FontSizeToken = keyof typeof tokens.fontSize
-export type FontWeightToken = keyof typeof tokens.fontWeight
-export type BorderRadiusToken = keyof typeof tokens.borderRadius
-export type BorderWidthToken = keyof typeof tokens.borderWidth
-export type OpacityToken = keyof typeof tokens.opacity
-export type ShadowToken = keyof typeof tokens.shadows
+} as const;
+export type Tokens = typeof tokens;
+export type ColorToken = keyof typeof tokens.colors;
+export type SpacingToken = keyof typeof tokens.spacing;
+export type FontSizeToken = keyof typeof tokens.fontSize;
+export type FontWeightToken = keyof typeof tokens.fontWeight;
+export type BorderRadiusToken = keyof typeof tokens.borderRadius;
+export type BorderWidthToken = keyof typeof tokens.borderWidth;
+export type OpacityToken = keyof typeof tokens.opacity;
+export type ShadowToken = keyof typeof tokens.shadows;

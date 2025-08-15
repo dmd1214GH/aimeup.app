@@ -1,22 +1,24 @@
 # Development Workflow
 
 ## Build & Test
+
 ```bash
 pnpm run build     # Build all packages
 pnpm run check     # Hygiene + typecheck + test
 ```
 
 ## Scripts
+
 ```bash
-./_scripts/aime.hygiene     # ESLint + TypeScript + Prettier
-./_scripts/aime.unittest    # Run all tests
-./_scripts/aime.verify      # Verify repo structure
+./_scripts/aimequal     # Run all quality checks (tests, hygiene, prettier, typecheck, E2E)
 ```
 
 ## Commit
-Run hygiene before committing:
+
+Run quality checks before committing:
+
 ```bash
-./_scripts/aime.hygiene
+./_scripts/aimequal
 git add .
 git commit -m "your message"
 git push origin main

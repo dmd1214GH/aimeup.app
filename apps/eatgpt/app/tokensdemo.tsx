@@ -1,15 +1,13 @@
-import React from 'react'
-import { ScrollView, View, Text, Pressable } from 'react-native'
-import { tokens } from '@aimeup/tokens'
+import React from 'react';
+import { ScrollView, View, Text, Pressable } from 'react-native';
+import { tokens } from '@aimeup/tokens';
 
 export default function TokensDemoScreen() {
   return (
     <ScrollView className="flex-1 bg-white">
       <View className="p-4">
         {/* Header */}
-        <Text className="text-3xl font-bold text-neutral-900 mb-6">
-          Design Tokens Demo
-        </Text>
+        <Text className="text-3xl font-bold text-neutral-900 mb-6">Design Tokens Demo</Text>
         <Text className="text-base text-neutral-600 mb-8">
           This screen demonstrates the use of design tokens from @aimeup/tokens
         </Text>
@@ -17,7 +15,7 @@ export default function TokensDemoScreen() {
         {/* Color Palette */}
         <View className="mb-8">
           <Text className="text-xl font-semibold mb-4">Color Palette</Text>
-          
+
           {/* Primary Colors */}
           <Text className="text-sm font-medium text-neutral-600 mb-2">Primary</Text>
           <View className="flex-row flex-wrap gap-2 mb-4">
@@ -267,5 +265,5 @@ style={{
         </View>
       </View>
     </ScrollView>
-  )
+  );
 }

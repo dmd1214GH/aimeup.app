@@ -3,6 +3,7 @@
 ## 1. Conversion Overview
 
 ### 1.1 Goals of the Conversion
+
 - Unify codebase so **Web, Android, and iOS** share the **same UI and business logic** wherever possible.
 - Keep **feature parity** between Android app and Web app (matching UX for now).
 - Prepare for easy support of Web an iOS.
@@ -18,46 +19,63 @@
 ### 1.2 Conversion Strategies
 
 #### Piecemeal
+
 - Stand up the new development repo and convert code into it one piece at a time
 - Fix known issues as we go: e.g. Firebase AI proxy, shared firebase instances
 - Incorporate automated testing as we go
 - Approach changes and package selection carefully so we don't need to repeat or churn
 
 #### Conversion Phases
+
 We will order the initiative to standup the android app with these phases:
+
 1. Standup environment
-  - Install tools
-  - Setup repos
-  - Setup environmental dependencies
-  - Port foundational code
+
+- Install tools
+- Setup repos
+- Setup environmental dependencies
+- Port foundational code
+
 2. Android to OpenAI shell
-  - Enable PreauthMode mode
-    - Avoid firebase dependencies
-    - OpenAI keys installed to avoid firebase ai proxy
-    - Non-parity.  Just minimal UI to achieve an initial chat
+
+- Enable PreauthMode mode
+  - Avoid firebase dependencies
+  - OpenAI keys installed to avoid firebase ai proxy
+  - Non-parity. Just minimal UI to achieve an initial chat
+
 3. Android PreauthMode-Only Parity
-  - Restore UI parity with Kotlin PreauthMode mode
-    - Avoid firebase dependency (local openai keys)
-    - Maximize learnings with react conversion
+
+- Restore UI parity with Kotlin PreauthMode mode
+  - Avoid firebase dependency (local openai keys)
+  - Maximize learnings with react conversion
+
 4. Web PreauthMode parity spike
-  - Stand up (or attempt to) the RN-Web in PreauthMode mode
-    - Discover what is possible in a confined timeframe
+
+- Stand up (or attempt to) the RN-Web in PreauthMode mode
+  - Discover what is possible in a confined timeframe
+
 5. iOS PreauthMode parity spike
    - Stand up (or attempt to) the RN-Web in PreauthMode mode
      - Discover what is possible in a confined timeframe
 6. Android Full Parity
-  - Port firebase authentication
-  - Port Healthconnect 
+
+- Port firebase authentication
+- Port Healthconnect
+
 7. Web parity spike
-  - Stand up (or attempt to) the RN-Web in PreauthMode mode
-    - Tactical assessment of full parity behavior on web
+
+- Stand up (or attempt to) the RN-Web in PreauthMode mode
+  - Tactical assessment of full parity behavior on web
+
 8. iOS PreauthMode parity spike
-  - Stand up (or attempt to) the RN-Web in PreauthMode mode
-    - Tactical assessment of full parity behavior on web
+
+- Stand up (or attempt to) the RN-Web in PreauthMode mode
+  - Tactical assessment of full parity behavior on web
 
 ---
 
 ## 2. Current State - OLD KOTLIN CODE BEING RETIRED
+
 - Kotlin/Jetpack Compose Android app.
 - Modular code (`chat`, `account`, `nutritionProfile`, `healthconnect`, `openai`, `shared`).
 - Firebase Auth, Firestore, Health Connect, OpenAI integration.
@@ -68,85 +86,100 @@ We will order the initiative to standup the android app with these phases:
 - Manual configuration and steps required to deploy changes to Firebase and Playstore
 - Kotlin code stored in github under project named dmd1214GH/EatGPT
 - Firebase is stored in a project: EatGPT
-- Code namespace root:  com.eatgpt...
+- Code namespace root: com.eatgpt...
 
 ---
 
 ## 3. Target State
 
 ### 3.1 Post conversion state
+
 **Endpoints & tech**
+
 - Android app (Expo dev client) - feature parity with kotlin
 - Web (local preview via RN-Web with Expo Router).
 - Firebase (all components)
-**Environments**
+  **Environments**
 - `sandbox`, `dev`
 
 ### 3.2 MVP release - Not available at the end of this conversion
+
 **Endpoints & tech**
+
 - Android app → **Play Internal Testing** (EAS).
 - Web **if RN-Web is viable**
 - iOS **hopefully**.
-**Environments**
+  **Environments**
 - `sandbox`, `dev`, `test`, `acceptance`
 
-
 ### 3.3 Ultimate target state - **this section states aspirational goals only, not a plan**
+
 **Endpoints & tech**
+
 - Android + iOS (React Native), Web (RN-Web or mixed with DOM where justified).
 - Firebase Functions (streaming where needed), Firestore/Auth, hosting/CDN.
-**Environments**
+  **Environments**
 - `sandbox`, `dev`, `test`, `acceptance`, `production`.
 
-
 ### 3.4 Target monorepo folder structure
-**See aimeup/_docs/guides/monorepo.md** 
+
+**See aimeup/\_docs/guides/monorepo.md**
 
 ## 4. Environment vision
 
-### 4.1 *sandbox* Environment
+### 4.1 _sandbox_ Environment
+
 Supports local development
-- *Android:* Emulator, Hardwired Phone
-- *iOS:* Emulator, Hardwired Phone  <=  Not in scope for initial conversion
-- *Web:* http://localhost:xxxx/eatgpt
-- *Firebase:* EatGPT.sandbox / Android, iOS, Web
 
-### 4.2 *dev* Environment
+- _Android:_ Emulator, Hardwired Phone
+- _iOS:_ Emulator, Hardwired Phone <= Not in scope for initial conversion
+- _Web:_ http://localhost:xxxx/eatgpt
+- _Firebase:_ EatGPT.sandbox / Android, iOS, Web
+
+### 4.2 _dev_ Environment
+
 Supports Playstore internal testing, and manually configured IOS connectivity
-- *Android:* Playstore (EatGPT/Internal Testing)
-- *iOS:* Emulator, Hardwired Phone  << Not in scope for the conversion
-- *Web:* http://dev.aimeup.app/eatgpt
-- *Firebase:* EatGPT.dev / Android, iOS, Web
 
-### 4.3 *test* Environment -- NOT IN SCOPE FOR INITIAL CONVERSION
+- _Android:_ Playstore (EatGPT/Internal Testing)
+- _iOS:_ Emulator, Hardwired Phone << Not in scope for the conversion
+- _Web:_ http://dev.aimeup.app/eatgpt
+- _Firebase:_ EatGPT.dev / Android, iOS, Web
+
+### 4.3 _test_ Environment -- NOT IN SCOPE FOR INITIAL CONVERSION
+
 Supports playstore closed testing
-- *Android:* Playstore (EatGPT/Closed Testing)
-- *iOS:* Appstore (EatGPT/Internal Testing)
-- *Web:* http://test.aimeup.app/eatgpt
-- *Firebase:* EatGPT.test / Android, iOS, Web
 
-### 4.4 *acceptance* Environment -- NOT IN SCOPE FOR INITIAL CONVERSION
+- _Android:_ Playstore (EatGPT/Closed Testing)
+- _iOS:_ Appstore (EatGPT/Internal Testing)
+- _Web:_ http://test.aimeup.app/eatgpt
+- _Firebase:_ EatGPT.test / Android, iOS, Web
+
+### 4.4 _acceptance_ Environment -- NOT IN SCOPE FOR INITIAL CONVERSION
+
 Supports playstore open testing
-- *Android:* Playstore (EatGPT/Open Testing)
-- *iOS:* Appstore (EatGPT/External Testing)
-- *Web:* http://acceptance.aimeup.app/eatgpt
-- *Firebase:* EatGPT.acceptance / Android, iOS, Web
 
-### 4.5 *production* Environment -- NOT IN SCOPE FOR INITIAL CONVERSION
+- _Android:_ Playstore (EatGPT/Open Testing)
+- _iOS:_ Appstore (EatGPT/External Testing)
+- _Web:_ http://acceptance.aimeup.app/eatgpt
+- _Firebase:_ EatGPT.acceptance / Android, iOS, Web
+
+### 4.5 _production_ Environment -- NOT IN SCOPE FOR INITIAL CONVERSION
+
 Supports playstore production
-- *Android:* Playstore (EatGPT/production)
-- *iOS:* Appstore (EatGPT/production)
-- *Web:* http://aimeup.app/eatgpt
-- *Firebase:* EatGPT.production / Android, iOS, Web
+
+- _Android:_ Playstore (EatGPT/production)
+- _iOS:_ Appstore (EatGPT/production)
+- _Web:_ http://aimeup.app/eatgpt
+- _Firebase:_ EatGPT.production / Android, iOS, Web
 
 ---
 
-
 ## 5. Conversion plan
+
 Plan moved to ReactConversionPlan.md
 
-
 ## 6. Tools & Tech Choices
+
 - **Core**:
   - TypeScript
   - WebStorm IDE
@@ -168,7 +201,7 @@ Plan moved to ReactConversionPlan.md
   - Turborepo for caching/pipelines
   - Node version pin (.nvmrc)
   - Metro (RN's bundler/dev server. Used by Expo)
-- **Remote services**: 
+- **Remote services**:
   - Firebase Auth
   - Firestore
   - Hosting (for web)
@@ -192,24 +225,25 @@ Plan moved to ReactConversionPlan.md
   - TanStack Query (state management from server)
   - Redux Toolkit (RTK) (state management across app)
   - zod for json schemas + runtime validation (data validation)
-  - .env.* + env.ts validation (config)
+  - .env.\* + env.ts validation (config)
 
 **Tools OUT OF SCOPE**
+
 - Firebase
   - Firebase Emulator Suite for Firestore/Auth tests
-  - firebase-functions + logger (leveled logging to Google Cloud).  Move to backlog to follow conversion.
+  - firebase-functions + logger (leveled logging to Google Cloud). Move to backlog to follow conversion.
 - Manual production promotion << Future
 - No CI for this conversion
   - GitHub Actions (matrix builds)
   - pnpm/Turbo cache
   - This conversion will introduce developer initiated hygeine+unit tests to ensure quality between builds.
-- No React Web app.  We will try a react navitve web app instead
+- No React Web app. We will try a react navitve web app instead
   - shadcn/ui (Radix) v4
   - Ladle (light weight UI component dev)
   - Vite (alias react-native → react-native-web; css-interop for className) Not needed because Metro/Expo
 - Charts
   - victory-native on mobile
-  - victory on web (conditional import/alias). 
+  - victory on web (conditional import/alias).
   - react-native-svg has a web compatibility layer
 - next.js
   - if Expo Router + Metro don't work out, Next.js is Plan B
@@ -219,8 +253,7 @@ Plan moved to ReactConversionPlan.md
 - Testing
   - React Testing Library (web)
   - ts-jest - compiles with the TypeScript compiler, not the Expo/RN Babel chain. RN-specific Babel plugins won’t run, leading to mysterious failures (e.g., reanimated).
-  - Git hook runner (e.g., lefthook) — run typecheck/lint/test on pre-push.  We'll do it ourselves
-  - MSW (mock service wrapper).  Try to get by with manual mocks or actual service calls
-  - Detox (possibly phase 4 for e2e for RN).  Start with Maestro.  Detox is more complicated, but might be needed if maestro doesn't have what we need.
-  - Sentry (hosted error & performance monitoring).  Not needed for conversion
-
+  - Git hook runner (e.g., lefthook) — run typecheck/lint/test on pre-push. We'll do it ourselves
+  - MSW (mock service wrapper). Try to get by with manual mocks or actual service calls
+  - Detox (possibly phase 4 for e2e for RN). Start with Maestro. Detox is more complicated, but might be needed if maestro doesn't have what we need.
+  - Sentry (hosted error & performance monitoring). Not needed for conversion

@@ -10,8 +10,8 @@ module.exports = {
         esModuleInterop: true,
         allowSyntheticDefaultImports: true,
         types: ['jest'],
-      }
-    }
+      },
+    },
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
-}
+};

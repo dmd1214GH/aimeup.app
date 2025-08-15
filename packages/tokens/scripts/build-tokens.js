@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-const fs = require('fs')
-const path = require('path')
+const fs = require('fs');
+const path = require('path');
 
 // Define tokens directly in the build script for now
 const tokens = {
@@ -246,67 +246,68 @@ const tokens = {
       elevation: 0,
     },
   },
-}
+};
 
-const distDir = path.join(__dirname, '../dist')
+const distDir = path.join(__dirname, '../dist');
 
 function ensureDistDir() {
   if (!fs.existsSync(distDir)) {
-    fs.mkdirSync(distDir, { recursive: true })
+    fs.mkdirSync(distDir, { recursive: true });
   }
 }
 
 function generateJSON() {
-  const jsonPath = path.join(distDir, 'tokens.json')
-  fs.writeFileSync(jsonPath, JSON.stringify(tokens, null, 2))
-  console.log('✅ Generated tokens.json')
+  const jsonPath = path.join(distDir, 'tokens.json');
+  fs.writeFileSync(jsonPath, JSON.stringify(tokens, null, 2));
+  console.log('✅ Generated tokens.json');
 }
 
 function generateTailwindConfig() {
   const config = {
     colors: Object.entries(tokens.colors).reduce((acc, [key, value]) => {
       if (typeof value === 'string') {
-        acc[key] = value
+        acc[key] = value;
       } else if (typeof value === 'object') {
-        acc[key] = value
+        acc[key] = value;
       }
-      return acc
+      return acc;
     }, {}),
     spacing: tokens.spacing,
     fontSize: Object.entries(tokens.fontSize).reduce((acc, [key, value]) => {
-      acc[key] = [`${value.size}px`, `${value.lineHeight}px`]
-      return acc
+      acc[key] = [`${value.size}px`, `${value.lineHeight}px`];
+      return acc;
     }, {}),
     fontWeight: tokens.fontWeight,
     borderRadius: Object.entries(tokens.borderRadius).reduce((acc, [key, value]) => {
-      acc[key] = `${value}px`
-      return acc
+      acc[key] = `${value}px`;
+      return acc;
     }, {}),
     borderWidth: Object.entries(tokens.borderWidth).reduce((acc, [key, value]) => {
-      acc[key] = `${value}px`
-      return acc
+      acc[key] = `${value}px`;
+      return acc;
     }, {}),
     opacity: tokens.opacity,
     boxShadow: Object.entries(tokens.shadows).reduce((acc, [key, value]) => {
       if (key === 'none') {
-        acc[key] = 'none'
+        acc[key] = 'none';
       } else {
-        acc[key] = `${value.shadowOffset.width}px ${value.shadowOffset.height}px ${value.shadowRadius}px rgba(0, 0, 0, ${value.shadowOpacity})`
+        acc[key] =
+          `${value.shadowOffset.width}px ${value.shadowOffset.height}px ${value.shadowRadius}px rgba(0, 0, 0, ${value.shadowOpacity})`;
       }
-      return acc
+      return acc;
     }, {}),
-  }
+  };
 
-  const tailwindPath = path.join(distDir, 'tailwind.js')
+  const tailwindPath = path.join(distDir, 'tailwind.js');
   const content = `// Auto-generated Tailwind config extensions from design tokens
-module.exports = ${JSON.stringify(config, null, 2)}`
-  
-  fs.writeFileSync(tailwindPath, content)
-  console.log('✅ Generated tailwind.js')
+module.exports = ${JSON.stringify(config, null, 2)}`;
+
+  fs.writeFileSync(tailwindPath, content);
+  console.log('✅ Generated tailwind.js');
 }
 
 function generateTypeScript() {
-  const tsPath = path.join(distDir, 'index.d.ts')
+  const tsPath = path.join(distDir, 'index.d.ts');
   const content = `// Auto-generated TypeScript definitions for design tokens
 export declare const tokens: {
   colors: Record<string, string | Record<string, string>>
@@ -332,24 +333,24 @@ export declare type FontWeightToken = string
 export declare type BorderRadiusToken = string
 export declare type BorderWidthToken = string
 export declare type OpacityToken = string | number
-export declare type ShadowToken = string`
-  
-  fs.writeFileSync(tsPath, content)
-  console.log('✅ Generated index.d.ts')
+export declare type ShadowToken = string`;
+
+  fs.writeFileSync(tsPath, content);
+  console.log('✅ Generated index.d.ts');
 }
 
 function generateJavaScript() {
-  const jsPath = path.join(distDir, 'index.js')
+  const jsPath = path.join(distDir, 'index.js');
   const content = `// Auto-generated JavaScript module for design tokens
-module.exports = ${JSON.stringify(tokens, null, 2)}`
-  
-  fs.writeFileSync(jsPath, content)
-  console.log('✅ Generated index.js')
+module.exports = ${JSON.stringify(tokens, null, 2)}`;
+
+  fs.writeFileSync(jsPath, content);
+  console.log('✅ Generated index.js');
 }
 
 function generateReactNativeStyles() {
-  const rnPath = path.join(distDir, 'react-native.js')
-  
+  const rnPath = path.join(distDir, 'react-native.js');
+
   const styles = {
     colors: tokens.colors,
     spacing: tokens.spacing,
@@ -357,34 +358,34 @@ function generateReactNativeStyles() {
       acc[key] = {
         fontSize: value.size,
         lineHeight: value.lineHeight,
-      }
-      return acc
+      };
+      return acc;
     }, {}),
     fontWeights: tokens.fontWeight,
     radii: tokens.borderRadius,
     borderWidths: tokens.borderWidth,
     opacity: tokens.opacity,
     shadows: tokens.shadows,
-  }
+  };
 
   const content = `// Auto-generated React Native style constants from design tokens
-module.exports = ${JSON.stringify(styles, null, 2)}`
-  
-  fs.writeFileSync(rnPath, content)
-  console.log('✅ Generated react-native.js')
+module.exports = ${JSON.stringify(styles, null, 2)}`;
+
+  fs.writeFileSync(rnPath, content);
+  console.log('✅ Generated react-native.js');
 }
 
 function main() {
-  console.log('🔨 Building design tokens...')
-  
-  ensureDistDir()
-  generateJSON()
-  generateTailwindConfig()
-  generateTypeScript()
-  generateJavaScript()
-  generateReactNativeStyles()
-  
-  console.log('✨ Design tokens built successfully!')
+  console.log('🔨 Building design tokens...');
+
+  ensureDistDir();
+  generateJSON();
+  generateTailwindConfig();
+  generateTypeScript();
+  generateJavaScript();
+  generateReactNativeStyles();
+
+  console.log('✨ Design tokens built successfully!');
 }
 
-main()
+main();

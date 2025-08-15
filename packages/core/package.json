@@ -5,7 +5,7 @@
   "main": "index.ts",
   "exports": {
     "./aiapi": "./aiapi/index.ts",
-    "./chatapi": "./chatapi/index.ts", 
+    "./chatapi": "./chatapi/index.ts",
     "./menuapi": "./menuapi/index.ts",
     "./securityapi": "./securityapi/index.ts"
   },

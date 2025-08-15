@@ -1,14 +1,19 @@
 # aimeup - appframework design
+
 appframework shapes the shell of an aimeup app
 
 References:
+
 - `_docs/guides/monorepo.md`
 
 ---
+
 ## Physical targets within monorepo
 
 ### aimeup-core (EXTEND aimeup/core with /menuapi)
+
 Contribute ubiquitously available data classes in the ultra-light core package
+
 ```
 /aimeup
   /packages
@@ -18,7 +23,9 @@ Contribute ubiquitously available data classes in the ultra-light core package
 ```
 
 ### @aimeup/appframework (NEW package)
-Establish a new "Level 1" package in monorepo to store the medium-weight framework logic.  This package should have minimal dependencies.
+
+Establish a new "Level 1" package in monorepo to store the medium-weight framework logic. This package should have minimal dependencies.
+
 ```
 /aimeup
   /packages
@@ -37,7 +44,9 @@ Establish a new "Level 1" package in monorepo to store the medium-weight framewo
 ```
 
 ### @aimeup/testharness (NEW RN/RN-web app)
+
 Establish a new "Level 3" target endpoint for testing and demonstrating application framework functionality
+
 ```
 /aimeup
   /apps
@@ -48,6 +57,7 @@ Establish a new "Level 3" target endpoint for testing and demonstrating applicat
 ```
 
 ### @eatgpt/nutrition (EXTEND @eatgpt/nutrition package)
+
 ```
 /aimeup
   /packages
@@ -58,20 +68,21 @@ Establish a new "Level 3" target endpoint for testing and demonstrating applicat
 ```
 
 ### Cleanup
+
 - relocated tailwind.config.js, global.css
 - remove kitchen sink from eatgpt app
 
-
-
 TODOS:
-- need to figure out the naming conventions files vs types, dashes vs camel cvs pascal
-- 
 
----
+- need to figure out the naming conventions files vs types, dashes vs camel cvs pascal
+- ***
+
 ## Functional Overview
 
 ### **@aimeup/appframework/style**
+
 Features:
+
 - Baseline styling components for RN / RN-Web (not plain old React)
 - Referenced and used by UI related components through the stack
 - Can be inherited, overridden, and extended by consuming apps
@@ -79,12 +90,12 @@ Features:
 - Decision: Standardize on Tailwind via NativeWind across RN and RN-Web; RN StyleSheet overrides can be documented later.
 - Reference: See `/_docs/epics/react-conversion/react-conversion-backlog.md` BL-0105 ("NativeWind + css-interop").
 
-
-
 #### Recommendation
+
 - Use NativeWind (Tailwind for RN) to share a single `tailwind.config.js` and design tokens across native and web (via `react-native-web`). Keep CSS variables in `global.css` for web-only overrides.
 
 #### Applicable package dependencies
+
 - `nativewind`, `tailwindcss`
 - `react-native-web`, `react-native-safe-area-context`
 - `react-native-svg`
@@ -102,16 +113,20 @@ export const theme = {
 ---
 
 ### **@aimeup/appframework/context**
+
 Features:
+
 - Standardized method for transparently sharing session context across code layers and remote boundaries
 - Automatically configured within framework components, and always available
 - Can be enhanced by applications and components
 
 #### Applicable package dependencies
+
 - `react`, `react-native`
 - Optional: `zod` for runtime validation of context shape
 
 #### Context Shape
+
 ```typescript
 // packages/appframework/context/session-context.tsx
 // Based on <kotlin> shared/chatapi/ChatSessionContext.kt (ported to TS)
@@ -127,10 +142,11 @@ export interface AppSessionContext {
   extras?: Record<string, unknown>;
 }
 
-// TODO: Question: Any additional required fields from Kotlin context (e.g., tenant, appVersion, deviceId)?   not for now, but STUCK on naming 
+// TODO: Question: Any additional required fields from Kotlin context (e.g., tenant, appVersion, deviceId)?   not for now, but STUCK on naming
 ```
 
 #### Setting and Access Patterns
+
 ```typescript
 import React, { createContext, useContext, useMemo, useState } from 'react';
 
@@ -165,6 +181,7 @@ function Example() {
 ```
 
 #### Serializing for remote calls (Firebase Functions)
+
 ```typescript
 export function contextHeaders(ctx: AppSessionContext) {
   return {
@@ -179,10 +196,11 @@ async function callFn(ctx: AppSessionContext) {
   return fetch('/api', { headers: contextHeaders(ctx) });
 }
 
-// TODO: Question: Should we also persist a subset of context into request body for non-header-aware backends?  A: 
+// TODO: Question: Should we also persist a subset of context into request body for non-header-aware backends?  A:
 ```
 
 #### Extending context (e.g. for chat, nutrition, providers)
+
 ```typescript
 // Consumers can module-augment to add domain-specific context
 declare module '@aimeup/appframework/context' {
@@ -197,13 +215,16 @@ declare module '@aimeup/appframework/context' {
 ---
 
 ### **@aimeup/appframework/menu**
+
 Features:
+
 - UI menu elements and extensible menu framework allowing apps and packages to contribute navigational and control elements to a common app-level RN/RN-web menu controls.
 - Shell will request menu injections from components and configure as it.
 - Applications have an opportunity to override and adjust the menu.
 - Decisions about menus considers context of screen, authentication state, platform (TODO others?)
 
 #### Components specifying menu items
+
 - Approach: contributors register functions returning `AppMenuItem[]` based on current `AppSessionContext`. Shell aggregates, sorts, and renders.
 - Mapping: `AppMenuItem` aligns with <kotlin> `shared/menuapi/AppMenuItem.kt`. `UITopBar` aligns with <kotlin> `UITopBar.kt`. `UiTopMenuOption` aligns with <kotlin> `UiTopMenuOption.kt`.
 
@@ -237,19 +258,25 @@ export interface UiTopMenuOption {
 // packages/appframework/menu/registry.ts
 type Contributor = (ctx: any) => AppMenuItem[];
 const contributors = new Set<Contributor>();
-export function registerMenu(fn: Contributor) { contributors.add(fn); return () => contributors.delete(fn); }
+export function registerMenu(fn: Contributor) {
+  contributors.add(fn);
+  return () => contributors.delete(fn);
+}
 export function buildMenu(ctx: any, transform?: (items: AppMenuItem[]) => AppMenuItem[]): UITopBar {
-  const items = Array.from(contributors).flatMap(fn => fn(ctx)).sort((a,b) => (a.order ?? 0) - (b.order ?? 0));
+  const items = Array.from(contributors)
+    .flatMap((fn) => fn(ctx))
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   const finalItems = transform ? transform(items) : items;
   return { title: ctx?.route?.name, items: finalItems };
 }
 ```
 
 - Example from nutrition:
+
 ```typescript
 // packages/eatgpt/nutrition/nutrition-menu.ts
 import { registerMenu } from '@aimeup/appframework/menu/registry';
-export const unregister = registerMenu(ctx => [
+export const unregister = registerMenu((ctx) => [
   { id: 'nutrition-history', title: 'History', route: 'NutritionHistory', order: 10 },
   { id: 'nutrition-log', title: 'Log Meal', route: 'NutritionLog', order: 5 },
 ]);
@@ -257,30 +284,35 @@ export const unregister = registerMenu(ctx => [
 ```
 
 #### Application modifications
+
 ```typescript
 // apps/testharness/app/menu.ts
 import { AppMenuItem } from '@aimeup/appframework/menu/types';
 export const appMenuTransform = (items: AppMenuItem[]) =>
-  items.filter(i => i.id !== 'nutrition-log'); // example override
+  items.filter((i) => i.id !== 'nutrition-log'); // example override
 // TODO: Question: Provide both transform hook and config-based excludes? Which is preferred?
 ```
 
 ---
 
 ### **@aimeup/appframework/shell**
-Sharable, outer-most edge of an application.  Applications built on this framework can contain app-shell with minimal additional work.  It handles all of the wiring required to be an empty RN/RNWeb app. 
+
+Sharable, outer-most edge of an application. Applications built on this framework can contain app-shell with minimal additional work. It handles all of the wiring required to be an empty RN/RNWeb app.
+
 - Base app wrapper with navigation, context providers
 - Handles RN/RNWeb platform differences
 - Provides hooks for apps to integrate
 - sets up context
-- TODO:  Expose providers and themes, configs, etc
-- Handles platform 
+- TODO: Expose providers and themes, configs, etc
+- Handles platform
 
 #### Questions
+
 - TODO: Question: How much platform abstraction do we own in `appshell.tsx`? RN/RNWeb differences only, or also navigation config, deep linking, and theming?
 - TODO: Question: Navigation library choice: `@react-navigation/native` vs Expo Router? Preference and constraints?
 
 #### Containment pattern
+
 ```typescript
 // apps/testharness/App.tsx
 import React from 'react';
@@ -300,6 +332,7 @@ export default function App() {
 ```
 
 #### Minimal shell surface
+
 ```tsx
 // packages/appframework/shell/appshell.tsx
 import React from 'react';
@@ -324,12 +357,15 @@ export function AppShell({ initialContext, menuTransform, children }: AppShellPr
 ```
 
 #### Abstracting platform differences on behalf of consuming apps
+
 - TODO: Question: Which differences should shell own? Safe areas, status bar, gesture handler, linking, fonts? Define minimal set now vs later.
 
 ---
 
 ### **@aimeup/testharness**
+
 Features:
+
 - Fully-runnable RN/RN-Web app, runnable on all target platforms
 - Demonstration tool for consuming apps and component packages
 - e2e test harness for other aimeup shared components.
@@ -346,7 +382,9 @@ Features:
 ---
 
 ### **@eatgpt/nutrition**
+
 Features:
+
 - The kotlin mealHistory screen was only a stub used for navigation
 - It extended Kotlin menu framework
 - Port this over now with minimal dependencies to support standing up the menu framework in the test harness

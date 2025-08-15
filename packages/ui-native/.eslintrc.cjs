@@ -1,6 +1,6 @@
-module.exports = { 
+module.exports = {
   extends: ['../../configs/eslint/base.cjs'],
   env: {
-    jest: true
-  }
+    jest: true,
+  },
 };

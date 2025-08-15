@@ -31,6 +31,7 @@ packages/
 ### **Core Domain (`packages/core/`)**
 
 #### `packages/core/aiapi/`
+
 - `_reference/EatGPT/shared/src/main/java/com/eatgpt/shared/aiapi/AiAssistantResponse.kt` → `index.ts`
 - `_reference/EatGPT/shared/src/main/java/com/eatgpt/shared/aiapi/AiChatMessage.kt` → `types.ts`
 - `_reference/EatGPT/shared/src/main/java/com/eatgpt/shared/aiapi/AiServiceInterface.kt` → `service.ts`
@@ -40,6 +41,7 @@ packages/
 - `_reference/EatGPT/shared/src/main/java/com/eatgpt/shared/aiapi/IAiToolHandler.kt` → `interfaces.ts`
 
 #### `packages/core/chatapi/`
+
 - `_reference/EatGPT/shared/src/main/java/com/eatgpt/shared/chatapi/ChatMessageActionBase.kt` → `base.ts`
 - `_reference/EatGPT/shared/src/main/java/com/eatgpt/shared/chatapi/ChatSessionContext.kt` → `types.ts`
 - `_reference/EatGPT/shared/src/main/java/com/eatgpt/shared/chatapi/ChatSystemBlock.kt` → `types.ts`
@@ -50,20 +52,24 @@ packages/
 - `_reference/EatGPT/shared/src/main/java/com/eatgpt/shared/chatapi/UiTopMenuOption.kt` → `types.ts`
 
 #### `packages/core/menuapi/`
+
 - `_reference/EatGPT/shared/src/main/java/com/eatgpt/shared/menuapi/AppMenuItem.kt` → `types.ts`
 - `_reference/EatGPT/shared/src/main/java/com/eatgpt/shared/menuapi/MenuContext.kt` → `types.ts`
 
 #### `packages/core/securityapi/`
+
 - `_reference/EatGPT/shared/src/main/java/com/eatgpt/shared/securityapi/IUser.kt` → `interfaces.ts`
 - `_reference/EatGPT/shared/src/main/java/com/eatgpt/shared/securityapi/UserContext.kt` → `types.ts`
 
 ### **Helpers (`packages/helpers/`)**
 
 #### `packages/helpers/utility/`
+
 - `_reference/EatGPT/shared/src/main/java/com/eatgpt/shared/utilities/ChangeDetector.kt` → `change-detector.ts`
 - `_reference/EatGPT/shared/src/main/java/com/eatgpt/shared/utilities/InstantIso8601Serializer.kt` → `serializers.ts`
 
 #### `packages/helpers/openai/`
+
 - `_reference/EatGPT/openai/src/main/java/com/eatgpt/openai/model/OpenAIChatMessage.kt` → `types.ts`
 - `_reference/EatGPT/openai/src/main/java/com/eatgpt/openai/model/OpenAIChatRequest.kt` → `types.ts`
 - `_reference/EatGPT/openai/src/main/java/com/eatgpt/openai/model/OpenAiChatResponse.kt` → `types.ts`
@@ -73,9 +79,11 @@ packages/
 - `_reference/EatGPT/openai/src/main/java/com/eatgpt/openai/service/OpenAiService.kt` → `service.ts`
 
 #### `packages/helpers/files/`
+
 - `_reference/EatGPT/shared/src/main/java/com/eatgpt/shared/service/FileService.kt` → `service.ts`
 
 ### **Account Domain (`packages/account/`)**
+
 - `_reference/EatGPT/account/src/main/java/com/eatgpt/account/model/AuthState.kt` → `types.ts`
 - `_reference/EatGPT/account/src/main/java/com/eatgpt/account/model/User.kt` → `types.ts`
 - `_reference/EatGPT/account/src/main/java/com/eatgpt/account/service/GoogleSignInHelper.kt` → `google-signin.ts`
@@ -86,6 +94,7 @@ packages/
 - `_reference/EatGPT/account/src/main/java/com/eatgpt/account/ui/LoginProvider.kt` → `providers/login-provider.tsx`
 
 ### **Chat Domain (`packages/chat/`)**
+
 - `_reference/EatGPT/chat/src/main/java/com/eatgpt/chat/model/ChatMessage.kt` → `types.ts`
 - `_reference/EatGPT/chat/src/main/java/com/eatgpt/chat/model/ChatMessageDto.kt` → `types.ts`
 - `_reference/EatGPT/chat/src/main/java/com/eatgpt/chat/model/ChatUiEvent.kt` → `types.ts`
@@ -100,6 +109,7 @@ packages/
 ### **EatGPT-Specific (`packages/eatgpt/`)**
 
 #### `packages/eatgpt/nutrition/`
+
 - `_reference/EatGPT/nutritionProfile/src/main/java/com/eatgpt/nutritionProfile/chat/NutritionProfileChatable.kt` → `chatable.ts`
 - `_reference/EatGPT/nutritionProfile/src/main/java/com/eatgpt/nutritionProfile/chat/NutritionUserProfileToolHandler.kt` → `tool-handler.ts`
 - `_reference/EatGPT/nutritionProfile/src/main/java/com/eatgpt/nutritionProfile/model/MacroNutrients.kt` → `types.ts`
@@ -111,12 +121,14 @@ packages/
 - `_reference/EatGPT/nutritionProfile/src/main/java/com/eatgpt/nutritionProfile/service/UserProfileParser.kt` → `services/parser.ts`
 
 #### `packages/eatgpt/healthconnect/`
+
 - `_reference/EatGPT/healthconnect/src/main/java/com/eatgpt/healthconnect/chat/HealthconnectChatable.kt` → `chatable.ts`
 - `_reference/EatGPT/healthconnect/src/main/java/com/eatgpt/healthconnect/chat/SaveHCNutritionMessageAction.kt` → `actions/save-nutrition.ts`
 - `_reference/EatGPT/healthconnect/src/main/java/com/eatgpt/healthconnect/model/HealthconnectNutritionSummary.kt` → `types.ts`
 - `_reference/EatGPT/healthconnect/src/main/java/com/eatgpt/healthconnect/service/HealthConnectManager.kt` → `manager.ts`
 
 ### **UI Components (`packages/ui-native/`)**
+
 - `_reference/EatGPT/chat/src/main/java/com/eatgpt/chat/ui/ChatAssistantThinkingBubble.kt` → `components/chat/thinking-bubble.tsx`
 - `_reference/EatGPT/chat/src/main/java/com/eatgpt/chat/ui/ChatBubble.kt` → `components/chat/bubble.tsx`
 - `_reference/EatGPT/chat/src/main/java/com/eatgpt/chat/ui/ChatBubbleBottomActions.kt` → `components/chat/bubble-actions.tsx`
@@ -132,6 +144,7 @@ packages/
 - `_reference/EatGPT/nutritionProfile/src/main/java/com/eatgpt/nutritionProfile/ui/NutritionProfileMenu.kt` → `components/nutrition/menu.tsx`
 
 ### **App-Specific (`apps/eatgpt/`)**
+
 - `_reference/EatGPT/app/src/main/java/com/eatgpt/chat/AppChatable.kt` → `app/chatable.ts`
 - `_reference/EatGPT/app/src/main/java/com/eatgpt/EatGPTMenus.kt` → `app/menus.ts`
 - `_reference/EatGPT/app/src/main/java/com/eatgpt/MainActivity.kt` → `app/main-activity.tsx`
@@ -141,26 +154,31 @@ packages/
 - `_reference/EatGPT/app/src/main/java/com/eatgpt/theme/Type.kt` → `app/theme/typography.ts`
 
 ### **Test Files (Not Migrated)**
+
 - `_reference/EatGPT/app/src/androidTest/java/com/example/eatgpt/ExampleInstrumentedTest.kt` → ❌ **Delete** (Android-specific)
 - `_reference/EatGPT/app/src/test/java/com/example/eatgpt/ExampleUnitTest.kt` → ❌ **Delete** (Android-specific)
 
 ## Migration Priority
 
 ### **Phase 1: Core Contracts (High Priority)**
+
 1. `packages/core/aiapi/` - AI service interfaces
 2. `packages/core/chatapi/` - Chat system contracts
 3. `packages/core/securityapi/` - User authentication contracts
 
 ### **Phase 2: Domain Models (Medium Priority)**
+
 1. `packages/account/` - User management
 2. `packages/chat/` - Chat functionality
 3. `packages/eatgpt/nutrition/` - Nutrition domain
 
 ### **Phase 3: UI Components (Lower Priority)**
+
 1. `packages/ui-native/` - Reusable components
 2. `apps/eatgpt/` - App-specific screens
 
 ### **Phase 4: Platform-Specific (Lowest Priority)**
+
 1. `packages/eatgpt/healthconnect/` - Android-only features
 
 ## Notes

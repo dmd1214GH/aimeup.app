@@ -11,6 +11,6 @@ module.exports = function (api) {
     plugins: [
       // Other plugins can go here (e.g., 'react-native-reanimated/plugin')
       // But NOT 'nativewind/babel' - that causes "BABEL is not a valid plugin" error
-    ]
+    ],
   };
 };

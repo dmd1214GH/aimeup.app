@@ -1,9 +1,0 @@
-#!/bin/bash
-set -e
-
-echo "🧪 Running unit tests..."
-
-echo "  → Running test suite..."
-pnpm run test
-
-echo "✅ All tests passed!"

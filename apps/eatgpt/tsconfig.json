@@ -1,14 +1,6 @@
 {
-  "extends": [
-    "expo/tsconfig.base",
-    "../../configs/tsconfig/tsconfig.app.json"
-  ],
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "nativewind-env.d.ts",
-    "types/**/*.d.ts"
-  ],
+  "extends": ["expo/tsconfig.base", "../../configs/tsconfig/tsconfig.app.json"],
+  "include": ["**/*.ts", "**/*.tsx", "nativewind-env.d.ts", "types/**/*.d.ts"],
   "compilerOptions": {
     "skipLibCheck": true,
     "noEmit": true

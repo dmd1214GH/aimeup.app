@@ -1,42 +1,40 @@
-import React, { useState } from 'react'
-import { ScrollView, View, Text } from 'react-native'
-import { Button, Input, Card } from '@aimeup/ui-native'
-import { useSelector, useDispatch } from 'react-redux'
-import { RootState } from '@aimeup/core-react'
-import { setComposerOpen, setTheme } from '@aimeup/core-react'
+import React, { useState } from 'react';
+import { ScrollView, View, Text } from 'react-native';
+import { Button, Input, Card } from '@aimeup/ui-native';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '@aimeup/core-react';
+import { setComposerOpen, setTheme } from '@aimeup/core-react';
 
 export default function KitchenSinkScreen() {
-  const [inputValue, setInputValue] = useState('')
-  const [loading, setLoading] = useState(false)
-  
-  const dispatch = useDispatch()
-  const { composerOpen, theme } = useSelector((state: RootState) => state.ui)
-  
+  const [inputValue, setInputValue] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const dispatch = useDispatch();
+  const { composerOpen, theme } = useSelector((state: RootState) => state.ui);
+
   // Log Redux state changes
-  console.log('Redux State:', { composerOpen, theme })
-  
+  console.log('Redux State:', { composerOpen, theme });
+
   const handleLoadingDemo = () => {
-    setLoading(true)
-    setTimeout(() => setLoading(false), 2000)
-  }
-  
+    setLoading(true);
+    setTimeout(() => setLoading(false), 2000);
+  };
+
   return (
     <ScrollView className="flex-1 bg-gray-50">
       <View className="p-4 space-y-6">
-        
         <Card variant="elevated">
           <Text className="text-xl font-bold text-gray-900 mb-4">
             Kitchen Sink - UI Components Demo
           </Text>
           <Text className="text-gray-600">
-            This screen showcases core @aimeup/ui-native components with various states and interactions.
+            This screen showcases core @aimeup/ui-native components with various states and
+            interactions.
           </Text>
         </Card>
 
         <Card>
-          <Text className="text-lg font-semibold text-gray-900 mb-3">
-            Button Variants
-          </Text>
+          <Text className="text-lg font-semibold text-gray-900 mb-3">Button Variants</Text>
           <View className="space-y-3">
             <Button
               title="Primary Button"
@@ -59,18 +57,12 @@ export default function KitchenSinkScreen() {
               loading={loading}
               variant="primary"
             />
-            <Button
-              title="Disabled Button"
-              onPress={() => {}}
-              disabled={true}
-            />
+            <Button title="Disabled Button" onPress={() => {}} disabled={true} />
           </View>
         </Card>
 
         <Card>
-          <Text className="text-lg font-semibold text-gray-900 mb-3">
-            Button Sizes
-          </Text>
+          <Text className="text-lg font-semibold text-gray-900 mb-3">Button Sizes</Text>
           <View className="space-y-3">
             <Button title="Small Button" size="sm" onPress={() => {}} />
             <Button title="Medium Button" size="md" onPress={() => {}} />
@@ -79,9 +71,7 @@ export default function KitchenSinkScreen() {
         </Card>
 
         <Card>
-          <Text className="text-lg font-semibold text-gray-900 mb-3">
-            Input Components
-          </Text>
+          <Text className="text-lg font-semibold text-gray-900 mb-3">Input Components</Text>
           <View className="space-y-4">
             <Input
               label="Basic Input"
@@ -115,9 +105,7 @@ export default function KitchenSinkScreen() {
         </Card>
 
         <Card>
-          <Text className="text-lg font-semibold text-gray-900 mb-3">
-            Card Variants
-          </Text>
+          <Text className="text-lg font-semibold text-gray-900 mb-3">Card Variants</Text>
           <View className="space-y-3">
             <Card variant="default">
               <Text className="text-gray-900">Default Card</Text>
@@ -132,17 +120,11 @@ export default function KitchenSinkScreen() {
         </Card>
 
         <Card>
-          <Text className="text-lg font-semibold text-gray-900 mb-3">
-            Redux State Demo
-          </Text>
+          <Text className="text-lg font-semibold text-gray-900 mb-3">Redux State Demo</Text>
           <View className="space-y-3">
-            <Text className="text-gray-600">
-              Composer Open: {composerOpen ? 'Yes' : 'No'}
-            </Text>
-            <Text className="text-gray-600">
-              Theme: {theme}
-            </Text>
-            
+            <Text className="text-gray-600">Composer Open: {composerOpen ? 'Yes' : 'No'}</Text>
+            <Text className="text-gray-600">Theme: {theme}</Text>
+
             {/* Visual indicator of state changes */}
             <View className="mt-2 p-2 bg-blue-50 rounded">
               <Text className="text-xs text-blue-800">
@@ -176,8 +158,7 @@ export default function KitchenSinkScreen() {
             </View>
           </View>
         </Card>
-
       </View>
     </ScrollView>
-  )
+  );
 }

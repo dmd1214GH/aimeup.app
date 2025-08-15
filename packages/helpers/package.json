@@ -6,7 +6,7 @@
   "exports": {
     "./files": "./files/index.ts",
     "./chatable": "./chatable/index.ts",
-    "./account": "./account/index.ts", 
+    "./account": "./account/index.ts",
     "./utility": "./utility/index.ts",
     "./openai": "./openai/index.ts"
   },

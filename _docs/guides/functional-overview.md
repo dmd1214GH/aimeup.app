@@ -7,22 +7,26 @@ EatGPT is a nutrition-focused AI chat application that helps users manage their 
 ### **Primary Features**
 
 #### **AI Chat Interface**
+
 - **Conversational AI**: Chat with OpenAI-powered assistant about nutrition and health
 - **Context-Aware**: AI remembers conversation history and user context
 - **Multi-Modal Input**: Support for text, images, and camera photos
 - **Chat Management**: Reset conversations, view message history
 
 #### **Nutrition Profile Management**
+
 - **Meal History**: Track and view past meals (currently placeholder)
 - **Nutrition Data**: Store and retrieve nutrition information
 - **Health Insights**: AI analysis of nutrition patterns
 
 #### **Health Connect Integration** (Android Only)
+
 - **Data Import**: Import nutrition data from Android Health Connect
 - **Automated Actions**: Save nutrition information from AI conversations
 - **Health Data Sync**: Bridge between AI chat and health tracking
 
 #### **User Authentication**
+
 - **Google Sign-In**: Secure authentication via Google accounts
 - **User Profiles**: Personalized experience and data storage
 - **Session Management**: Persistent login across app sessions
@@ -51,6 +55,7 @@ EatGPT is a nutrition-focused AI chat application that helps users manage their 
 ## Technical Architecture
 
 The application uses a modular architecture with:
+
 - **AI Service Layer**: OpenAI integration for intelligent responses
 - **Chat System**: Extensible chat framework with plugin support
 - **Health Data Layer**: Platform-specific health integrations

@@ -1,25 +1,9 @@
 module.exports = {
-  displayName: 'EatGPT App - React Native Environment',
-  testEnvironment: 'node',
-  testMatch: ['<rootDir>/__tests__/**/*.test.(ts|tsx|js|jsx)'],
-  transform: {
-    '^.+\\.(ts|tsx)$': ['babel-jest', {
-      presets: [
-        ['@babel/preset-env', { targets: { node: 'current' } }],
-        '@babel/preset-typescript',
-      ],
-    }],
-  },
-  collectCoverageFrom: [
-    '**/*.{ts,tsx}',
-    '!**/*.d.ts',
-    '!**/node_modules/**',
+  preset: '../../configs/jest/react-native.ts',
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/__tests__/e2e/', // Exclude Playwright E2E tests
+    '\\.spec\\.ts$', // Exclude .spec.ts files (Playwright convention)
   ],
-  moduleNameMapper: {
-    '^@aimeup/core/(.*)$': '<rootDir>/../../packages/core/$1',
-    '^@aimeup/helpers/(.*)$': '<rootDir>/../../packages/helpers/$1',
-    '^@aimeup/(.*)$': '<rootDir>/../../packages/$1',
-    '^@eatgpt/(.*)$': '<rootDir>/../../packages/eatgpt/$1',
-  },
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
+  displayName: '@eatgpt/app',
 };

@@ -7,37 +7,37 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './__tests__/e2e',
   testMatch: ['**/*.spec.ts'],
-  
+
   // Test execution settings
   timeout: 30000, // 30 seconds per test
   fullyParallel: false, // Run tests sequentially for now
   forbidOnly: true, // Fail if test.only is left in code
   retries: 0, // No retries in dev
   workers: 1, // Single worker for predictable results
-  
+
   // Reporter configuration
   reporter: [
     ['list'], // Simple list output for terminal
-    ['html', { outputFolder: 'playwright-report', open: 'never' }]
+    ['html', { outputFolder: 'playwright-report', open: 'never' }],
   ],
-  
+
   // Shared settings for all browsers
   use: {
     // Base URL for all tests
     baseURL: 'http://localhost:8081',
-    
+
     // Timeout for each action
     actionTimeout: 10000,
-    
+
     // Collect trace on failure
     trace: 'on-first-retry',
-    
+
     // Screenshot on failure
     screenshot: 'only-on-failure',
-    
+
     // Video on failure
     video: 'retain-on-failure',
-    
+
     // Slow down actions for demo (0 = normal speed, 1000 = 1 second between actions)
     launchOptions: {
       slowMo: process.env.SLOW_MO ? parseInt(process.env.SLOW_MO) : 0,

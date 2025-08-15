@@ -25,6 +25,6 @@ config.resolver.disableHierarchicalLookup = true;
 // Wraps the config to enable Tailwind CSS className prop support
 // This processes global.css and enables className->style transformation
 const { withNativeWind } = require('nativewind/metro');
-module.exports = withNativeWind(config, { 
-  input: './global.css'  // Path to the CSS file with Tailwind directives
+module.exports = withNativeWind(config, {
+  input: './global.css', // Path to the CSS file with Tailwind directives
 });

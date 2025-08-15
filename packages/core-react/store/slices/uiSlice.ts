@@ -1,10 +1,10 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 export interface UiState {
-  composerOpen: boolean
-  activeChatId: string | null
-  sidebarCollapsed: boolean
-  theme: 'light' | 'dark' | 'system'
+  composerOpen: boolean;
+  activeChatId: string | null;
+  sidebarCollapsed: boolean;
+  theme: 'light' | 'dark' | 'system';
 }
 
 const initialState: UiState = {
@@ -12,32 +12,27 @@ const initialState: UiState = {
   activeChatId: null,
   sidebarCollapsed: false,
   theme: 'system',
-}
+};
 
 export const uiSlice = createSlice({
   name: 'ui',
   initialState,
   reducers: {
     setComposerOpen: (state, action: PayloadAction<boolean>) => {
-      state.composerOpen = action.payload
+      state.composerOpen = action.payload;
     },
     setActiveChatId: (state, action: PayloadAction<string | null>) => {
-      state.activeChatId = action.payload
+      state.activeChatId = action.payload;
     },
     setSidebarCollapsed: (state, action: PayloadAction<boolean>) => {
-      state.sidebarCollapsed = action.payload
+      state.sidebarCollapsed = action.payload;
     },
     setTheme: (state, action: PayloadAction<'light' | 'dark' | 'system'>) => {
-      state.theme = action.payload
+      state.theme = action.payload;
     },
     resetUi: () => initialState,
   },
-})
+});
 
-export const {
-  setComposerOpen,
-  setActiveChatId,
-  setSidebarCollapsed,
-  setTheme,
-  resetUi,
-} = uiSlice.actions
+export const { setComposerOpen, setActiveChatId, setSidebarCollapsed, setTheme, resetUi } =
+  uiSlice.actions;

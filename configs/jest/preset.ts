@@ -16,12 +16,15 @@ const config: Config = {
     '^@eatgpt/(.*)$': '<rootDir>/packages/eatgpt/$1',
   },
   transform: {
-    '^.+\\.tsx?$': ['babel-jest', {
-      presets: [
-        ['@babel/preset-env', { targets: { node: 'current' } }],
-        '@babel/preset-typescript',
-      ],
-    }],
+    '^.+\\.tsx?$': [
+      'babel-jest',
+      {
+        presets: [
+          ['@babel/preset-env', { targets: { node: 'current' } }],
+          '@babel/preset-typescript',
+        ],
+      },
+    ],
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
 };

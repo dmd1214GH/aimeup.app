@@ -1,2 +1,2 @@
-// Nutrition domain logic will be implemented here  
+// Nutrition domain logic will be implemented here
 export const placeholder = 'nutrition package';

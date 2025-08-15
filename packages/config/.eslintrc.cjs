@@ -1,13 +1,13 @@
 module.exports = {
   extends: ['../../configs/eslint/base.cjs'],
   parserOptions: {
-    project: false
+    project: false,
   },
   globals: {
-    __DEV__: 'readonly'
+    __DEV__: 'readonly',
   },
   env: {
     browser: true,
-    node: true
-  }
+    node: true,
+  },
 };

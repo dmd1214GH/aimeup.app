@@ -1,5 +1,5 @@
-
 ## Acceptance Criteria
+
 [] New testharness app is available through url and expo
 [] App supports navigation between a clone of the kitchen sink page, and the ported meal history screen from kotlin, blank stub in kotlin used for navigation testing
 [] Menu options are controlled through the menu framework, and are not hard coded in the menu.
