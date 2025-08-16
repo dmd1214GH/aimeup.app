@@ -32,19 +32,19 @@ Agent / Operator Collaboration to prepare Backlog item for development.
 ### Groom Input Prompt
 
 ```
-We are grooming a backlog item according to `Backlog Item Delivery` mode referenced `CLAUDE.md`.  The process is defined in `_docs/guides/agent-item-delivery.md`.  
+We are grooming a backlog item according to `Backlog Item Delivery` mode referenced `CLAUDE.md`.  The process is defined in `_docs/guides/agent-item-delivery.md`.
 
 Our objectives
-- Ensure this backlog item is clear, reasonably sized, and aligns with technology constraints.  
+- Ensure this backlog item is clear, reasonably sized, and aligns with technology constraints.
 - Raise questions and test assumptions in order to disambiguate the specification
-- Collaborate on resolutions to make the backlog item and referenced documents clear and unambiguous.  
+- Collaborate on resolutions to make the backlog item and referenced documents clear and unambiguous.
 - Validate assumptions by inspecting monorepo assets
 
-Agent SHALL NOT take mutative actions in this phase other than backlog editing request. 
+Agent SHALL NOT take mutative actions in this phase other than backlog editing request.
 
 Confirm understanding:
 - Restate the objectives and constraints in your own words
-- Request the focus backlog item's ID 
+- Request the focus backlog item's ID
 
 When Operator provides the backlog item id:
 - Locate the backlog item folder within `_docs/delivery/<BL-ID>*`
@@ -62,7 +62,7 @@ When Operator provides the backlog item id:
 ### Groom Phase Exit Prompt
 
 ```
-It looks like we are near the end of grooming this item.  
+It looks like we are near the end of grooming this item.
 
 As a final check, lets review the grooming exit criteria to make sure we have captured everything correctly.
 
@@ -74,7 +74,7 @@ These are the grooming phase exit criteria. Do you agree we have met all of thes
 - Acceptance criteria are:
   - Clear and unambiguously defined
   - Specification Will survive across a context reset
-  - Demonstrable to the Operator in a showcase 
+  - Demonstrable to the Operator in a showcase
 - Required assets are clearly identified within the monorepo, or are marked "to be created" in the specification
 
 Once confirmed, agent shall create or augment the Grooming Status of the backlog item definition according to this format:
@@ -93,7 +93,7 @@ Agent creates and manages task list. Operator supports, oversees, and approves.
 ### Task Input Prompt:
 
 ```
-We are tasking a backlog item according to `Backlog Item Delivery` mode referenced `CLAUDE.md`.  The process is defined in `_docs/guides/agent-item-delivery.md`.  
+We are tasking a backlog item according to `Backlog Item Delivery` mode referenced `CLAUDE.md`.  The process is defined in `_docs/guides/agent-item-delivery.md`.
 
 Our objectives:
 - List and sequence all tasks required to deliver the acceptance criteria, including, but not limited to (Setup, coding, testing, documentation, demonstration, and anything else)
@@ -111,7 +111,7 @@ Our objectives:
 
 Confirm understanding:
 - Restate the objectives and constraints in your own words
-- Request the focus backlog item's ID 
+- Request the focus backlog item's ID
 
 When Operator provides the backlog item id:
 - Locate the backlog item folder within `_docs/delivery/<BL-ID>*`
@@ -128,6 +128,7 @@ When Operator provides the backlog item id:
 - If the story changes substantially during the tasking process, make the required adjustments and reset context before starting again
 
 ### Task Phase Exit
+
 ```
 Task Phase Exit Criteria include:
 - Tasks are defined to deliver all acceptance criteria
@@ -154,7 +155,7 @@ We are preparing to begin the 'DeliveryRun' for this backlog item.
 Acknowledge your understanding and prioritization of these `prime development directives` before we begin:
 1. Agent will complete the task list with maximal autonomy to deliver the backlog item
 2. Agent will update task status:
-  - Update task status as it changes, not in batches 
+  - Update task status as it changes, not in batches
   - Update to [O] (In Progress) when a task is started
   - Update to [X] (Done) only after verifying that the task as been fully completed
   - Update to [-] (Blocked) if the task is determined to be blocked, or depends on a previously blocked task
@@ -167,7 +168,7 @@ Acknowledge your understanding and prioritization of these `prime development di
 4. If a task is determined to be BLOCKED:
   - Update the task status as specified
   - Move on to non-blocked tasks
-5. Do not start a task that is known to be BLOCKED by other BLOCKED tasks.  Instead, determine the task to be BLOCKED with a reason of "Blocked by Task X" 
+5. Do not start a task that is known to be BLOCKED by other BLOCKED tasks.  Instead, determine the task to be BLOCKED with a reason of "Blocked by Task X"
 6. When continuing work after operator intervention:
   - Guide operator to clearing all known blockers, updating task status as blockers are cleared
   - When no known blockers remain in the task status, resume the DeliveryRun with maximal autonomy after confirming with Operator.
@@ -209,13 +210,14 @@ Delivery phase exit criteria include the following. Do you agree we have met the
 - Code is in a committable state
 - Agent affirms readiness to showcase the work
 - Agent creates or adds Delivery Status section in the backlog item definition providing details file:
-  - ## Delivery Status 
+  - ## Delivery Status
   - Status: <> In progress, In review, Accepted, Blocked, Failed, etc. (informal)
   - ### Compromises or shortcuts
   - ### Unexpected variations from expectations (+ or -)
   - ### Technical debt delta or recommendations (+ or -)
   - ### Feedback on development process (+ or -)
   - ### Deferred or revealed future work (if any)
+- Agent must not perform git operations
 
 ```
 

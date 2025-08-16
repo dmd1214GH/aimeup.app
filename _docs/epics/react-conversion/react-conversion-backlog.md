@@ -114,7 +114,6 @@ Status: Resolved
 
 DO NOT AUTOMATE DEVELOPMENT BEYOND THIS POINT
 
-
 **BL-0130 — RN E2E testing with Maestro**
 [] Work in this story requires thorough understanding of `_docs/guides/automated-testing.md`
 [] Maestro is installed and available to use for Native E2E testing in our monorepo

@@ -256,24 +256,22 @@ export const getColorToken = (
   return '#000000'; // fallback
 };
 
-export const getFontWeightToken = (
-  weight: keyof typeof tokens.fontWeight
-): string => {
+export const getFontWeightToken = (weight: keyof typeof tokens.fontWeight): string => {
   return tokens.fontWeight[weight];
 };
 
 // Type-safe font weight for React Native
-export type ReactNativeFontWeight = 
-  | 'normal' 
-  | 'bold' 
-  | '100' 
-  | '200' 
-  | '300' 
-  | '400' 
-  | '500' 
-  | '600' 
-  | '700' 
-  | '800' 
+export type ReactNativeFontWeight =
+  | 'normal'
+  | 'bold'
+  | '100'
+  | '200'
+  | '300'
+  | '400'
+  | '500'
+  | '600'
+  | '700'
+  | '800'
   | '900';
 
 export const getFontWeightForRN = (
@@ -286,16 +284,26 @@ export const getFontWeightForRN = (
   }
   // Map named weights to numeric equivalents
   switch (weight) {
-    case 'thin': return '100';
-    case 'extralight': return '200';
-    case 'light': return '300';
-    case 'normal': return '400';
-    case 'medium': return '500';
-    case 'semibold': return '600';
-    case 'bold': return '700';
-    case 'extrabold': return '800';
-    case 'black': return '900';
-    default: return 'normal';
+    case 'thin':
+      return '100';
+    case 'extralight':
+      return '200';
+    case 'light':
+      return '300';
+    case 'normal':
+      return '400';
+    case 'medium':
+      return '500';
+    case 'semibold':
+      return '600';
+    case 'bold':
+      return '700';
+    case 'extrabold':
+      return '800';
+    case 'black':
+      return '900';
+    default:
+      return 'normal';
   }
 };
 

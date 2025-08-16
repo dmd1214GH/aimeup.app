@@ -250,15 +250,15 @@ appId: com.eatgpt.app
 - launchApp:
     clearState: true
 - assertVisible:
-    text: "EatGPT"
+    text: 'EatGPT'
     timeout: 10000
 - tapOn:
-    id: "home.navigate.kitchensink"
+    id: 'home.navigate.kitchensink'
 - assertVisible:
-    text: "Kitchen Sink - UI Components Demo"
+    text: 'Kitchen Sink - UI Components Demo'
 - pressKey: back
 - assertVisible:
-    id: "home.title.text"
+    id: 'home.title.text'
 ```
 
 - **Coverage Standards**:

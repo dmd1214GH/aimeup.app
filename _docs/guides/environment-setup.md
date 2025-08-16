@@ -25,6 +25,7 @@
 #### Mobile (Maestro)
 
 **Maestro CLI Installation:**
+
 ```bash
 # Install Maestro CLI (required for mobile E2E tests)
 curl -fsSL https://get.maestro.mobile.dev | bash
@@ -37,6 +38,7 @@ maestro --version
 ```
 
 **Android Testing:**
+
 - Android Studio with Android SDK (required)
 - Android Emulator with "Pixel 9a (Play)" AVD or similar
 - Expo Go app installed on emulator (for development testing)
@@ -44,6 +46,7 @@ maestro --version
 - Production bundle ID: `com.eatgpt.app` (future EAS builds)
 
 **iOS Testing (future):**
+
 - Xcode and iOS Simulator (macOS only)
 - Currently out of scope
 
@@ -210,16 +213,18 @@ pnpm install
    - During installation, ensure Android SDK and Android Virtual Device are selected
 
 2. **Add Android SDK tools to PATH**
+
    ```bash
    # Add to your ~/.zshrc or ~/.bashrc:
    export PATH="$PATH:$HOME/Library/Android/sdk/platform-tools"
    export PATH="$PATH:$HOME/Library/Android/sdk/emulator"
-   
+
    # Reload your shell config:
    source ~/.zshrc  # or source ~/.bashrc
    ```
 
 3. **Create an Android Virtual Device (AVD)**
+
    ```bash
    # Open Android Studio → Tools → AVD Manager
    # Click "Create Virtual Device"
@@ -229,25 +234,28 @@ pnpm install
    ```
 
 4. **Start the Emulator**
+
    ```bash
    # From command line (after adding to PATH):
    emulator -avd "Pixel_9a_Play"
-   
+
    # Or from Android Studio:
    # Tools → AVD Manager → Launch
    ```
 
 5. **Verify Emulator is Running**
+
    ```bash
    adb devices
    # Should show: emulator-5554  device
    ```
 
 6. **Install Expo Go for Development Testing**
+
    ```bash
    # Download Expo Go APK (latest version)
    curl -L -o expo-go.apk https://d1ahtucjixef4r.cloudfront.net/Exponent-2.33.10.apk
-   
+
    # Install on emulator
    adb install expo-go.apk
    ```
