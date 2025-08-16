@@ -6,3 +6,8 @@ reports/
 recordings/
 screenshots/
 .maestro/
+
+# Large binary files - DO NOT COMMIT
+*.apk
+*.ipa
+expo-go.*
