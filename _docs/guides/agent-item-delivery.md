@@ -40,7 +40,7 @@ Our objectives
 - Collaborate on resolutions to make the backlog item and referenced documents clear and unambiguous.  
 - Validate assumptions by inspecting monorepo assets
 
-Agent SHALL NOT take mutative actions in this phase. 
+Agent SHALL NOT take mutative actions in this phase other than backlog editing request. 
 
 Confirm understanding:
 - Restate the objectives and constraints in your own words
