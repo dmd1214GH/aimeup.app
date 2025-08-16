@@ -1,0 +1,8 @@
+# Maestro artifacts
+*.mp4
+*.log
+*.png
+reports/
+recordings/
+screenshots/
+.maestro/

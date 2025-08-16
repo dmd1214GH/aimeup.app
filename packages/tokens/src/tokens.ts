@@ -241,6 +241,64 @@ export const tokens = {
     },
   },
 } as const;
+
+// Helper functions for safe token access
+export const getColorToken = (
+  colorFamily: keyof typeof tokens.colors,
+  shade?: string | number
+): string => {
+  const family = tokens.colors[colorFamily];
+  if (typeof family === 'string') return family;
+  if (shade && typeof family === 'object' && family !== null) {
+    const color = (family as Record<string, string>)[String(shade)];
+    return color || '#000000'; // fallback
+  }
+  return '#000000'; // fallback
+};
+
+export const getFontWeightToken = (
+  weight: keyof typeof tokens.fontWeight
+): string => {
+  return tokens.fontWeight[weight];
+};
+
+// Type-safe font weight for React Native
+export type ReactNativeFontWeight = 
+  | 'normal' 
+  | 'bold' 
+  | '100' 
+  | '200' 
+  | '300' 
+  | '400' 
+  | '500' 
+  | '600' 
+  | '700' 
+  | '800' 
+  | '900';
+
+export const getFontWeightForRN = (
+  weight: keyof typeof tokens.fontWeight
+): ReactNativeFontWeight => {
+  const tokenWeight = tokens.fontWeight[weight];
+  // Ensure the weight is compatible with React Native
+  if (['100', '200', '300', '400', '500', '600', '700', '800', '900'].includes(tokenWeight)) {
+    return tokenWeight as ReactNativeFontWeight;
+  }
+  // Map named weights to numeric equivalents
+  switch (weight) {
+    case 'thin': return '100';
+    case 'extralight': return '200';
+    case 'light': return '300';
+    case 'normal': return '400';
+    case 'medium': return '500';
+    case 'semibold': return '600';
+    case 'bold': return '700';
+    case 'extrabold': return '800';
+    case 'black': return '900';
+    default: return 'normal';
+  }
+};
+
 export type Tokens = typeof tokens;
 export type ColorToken = keyof typeof tokens.colors;
 export type SpacingToken = keyof typeof tokens.spacing;

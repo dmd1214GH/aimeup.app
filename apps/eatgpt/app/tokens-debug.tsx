@@ -1,6 +1,263 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ScrollView, View, Text, Pressable, Platform } from 'react-native';
+import { ScrollView, View, Pressable, Platform, StyleSheet } from 'react-native';
+import { Text } from 'react-native-elements';
 import { tokens } from '@aimeup/tokens';
+
+// StyleSheet for replacing className props
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+  },
+  padding: {
+    padding: 16,
+  },
+  marginBottom4: {
+    marginBottom: 16,
+  },
+  marginBottom6: {
+    marginBottom: 24,
+  },
+  marginBottom8: {
+    marginBottom: 32,
+  },
+  marginTop8: {
+    marginTop: 32,
+  },
+  marginTop2: {
+    marginTop: 8,
+  },
+  marginTop1: {
+    marginTop: 4,
+  },
+  marginLeft4: {
+    marginLeft: 16,
+  },
+  marginBottom2: {
+    marginBottom: 8,
+  },
+  marginBottom3: {
+    marginBottom: 12,
+  },
+  marginBottom1: {
+    marginBottom: 4,
+  },
+  border: {
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  borderNeutral200: {
+    borderColor: '#e5e7eb',
+  },
+  borderNeutral300: {
+    borderColor: '#d1d5db',
+  },
+  borderPrimary600: {
+    borderColor: '#2563eb',
+  },
+  borderPrimary300: {
+    borderColor: '#93c5fd',
+  },
+  borderInfo200: {
+    borderColor: '#bfdbfe',
+  },
+  borderTop: {
+    borderTopWidth: 1,
+  },
+  rounded: {
+    borderRadius: 8,
+  },
+  roundedLg: {
+    borderRadius: 12,
+  },
+  roundedXl: {
+    borderRadius: 16,
+  },
+  roundedFull: {
+    borderRadius: 9999,
+  },
+  overflow: {
+    overflow: 'hidden',
+  },
+  bgWhite: {
+    backgroundColor: '#ffffff',
+  },
+  bgNeutral50: {
+    backgroundColor: '#f9fafb',
+  },
+  bgNeutral900: {
+    backgroundColor: '#111827',
+  },
+  bgPrimary50: {
+    backgroundColor: '#eff6ff',
+  },
+  bgPrimary100: {
+    backgroundColor: '#dbeafe',
+  },
+  bgPrimary500: {
+    backgroundColor: '#3b82f6',
+  },
+  bgPrimary600: {
+    backgroundColor: '#2563eb',
+  },
+  bgPrimary700: {
+    backgroundColor: '#1d4ed8',
+  },
+  bgInfo50: {
+    backgroundColor: '#eff6ff',
+  },
+  bgSuccess500: {
+    backgroundColor: '#22c55e',
+  },
+  bgWarning500: {
+    backgroundColor: '#eab308',
+  },
+  padding4: {
+    padding: 16,
+  },
+  padding6: {
+    padding: 24,
+  },
+  padding3: {
+    padding: 12,
+  },
+  padding2: {
+    padding: 8,
+  },
+  paddingHorizontal4: {
+    paddingHorizontal: 16,
+  },
+  paddingVertical2: {
+    paddingVertical: 8,
+  },
+  paddingHorizontal3: {
+    paddingHorizontal: 12,
+  },
+  paddingVertical1: {
+    paddingVertical: 4,
+  },
+  text3xl: {
+    fontSize: 30,
+    lineHeight: 36,
+  },
+  textXl: {
+    fontSize: 20,
+    lineHeight: 28,
+  },
+  textLg: {
+    fontSize: 18,
+    lineHeight: 28,
+  },
+  textBase: {
+    fontSize: 16,
+    lineHeight: 24,
+  },
+  textSm: {
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  textXs: {
+    fontSize: 12,
+    lineHeight: 16,
+  },
+  fontBold: {
+    fontWeight: 'bold',
+  },
+  fontSemibold: {
+    fontWeight: '600',
+  },
+  fontMedium: {
+    fontWeight: '500',
+  },
+  fontMono: {
+    fontFamily: Platform.OS === 'ios' ? 'Courier New' : 'monospace',
+  },
+  textNeutral900: {
+    color: '#111827',
+  },
+  textNeutral800: {
+    color: '#1f2937',
+  },
+  textNeutral700: {
+    color: '#374151',
+  },
+  textNeutral600: {
+    color: '#4b5563',
+  },
+  textNeutral500: {
+    color: '#6b7280',
+  },
+  textWhite: {
+    color: '#ffffff',
+  },
+  textPrimary600: {
+    color: '#2563eb',
+  },
+  textPrimary800: {
+    color: '#1e40af',
+  },
+  textInfo800: {
+    color: '#1e40af',
+  },
+  textSuccess600: {
+    color: '#16a34a',
+  },
+  textGreen400: {
+    color: '#4ade80',
+  },
+  textBlue400: {
+    color: '#60a5fa',
+  },
+  textYellow400: {
+    color: '#facc15',
+  },
+  textCenter: {
+    textAlign: 'center',
+  },
+  flexRow: {
+    flexDirection: 'row',
+  },
+  flexWrap: {
+    flexWrap: 'wrap',
+  },
+  gap2: {
+    gap: 8,
+  },
+  gap4: {
+    gap: 16,
+  },
+  spaceBetween: {
+    justifyContent: 'space-between',
+  },
+  itemsCenter: {
+    alignItems: 'center',
+  },
+  justifyCenter: {
+    justifyContent: 'center',
+  },
+  itemsEnd: {
+    alignItems: 'flex-end',
+  },
+  minWidth20: {
+    minWidth: 80,
+  },
+  maxHeight32: {
+    maxHeight: 128,
+  },
+  shadowLg: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 10,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 25,
+    elevation: 10,
+  },
+  activeBgPrimary700: {
+    backgroundColor: '#1d4ed8',
+  },
+});
 
 // Type definitions for better IntelliSense
 type TokenCategory = 'colors' | 'spacing' | 'fontSize' | 'borderRadius' | 'shadows';
@@ -8,7 +265,6 @@ type TokenCategory = 'colors' | 'spacing' | 'fontSize' | 'borderRadius' | 'shado
 interface TokenInfo {
   category: TokenCategory;
   name: string;
-  className: string;
   value: any;
   description: string;
 }
@@ -48,8 +304,8 @@ const getComputedStylesWeb = (ref: any) => {
 const TokenExample: React.FC<{
   tokenInfo: TokenInfo;
   children: React.ReactNode;
-  className: string;
-}> = ({ tokenInfo, children, className }) => {
+  style?: any;
+}> = ({ tokenInfo, children, style }) => {
   const [showDetails, setShowDetails] = useState(false);
   const [computedStyles, setComputedStyles] = useState<any>({});
   const elementRef = useRef(null);
@@ -59,35 +315,51 @@ const TokenExample: React.FC<{
       const styles = getComputedStylesWeb(elementRef);
       setComputedStyles(styles);
     }
-  }, [className]);
+  }, [style]);
 
   return (
-    <View className="mb-4 border border-neutral-200 rounded-lg overflow-hidden">
-      <Pressable
-        ref={elementRef}
-        className={className}
-        onPress={() => setShowDetails(!showDetails)}
-      >
+    <View
+      style={[
+        styles.marginBottom4,
+        styles.border,
+        styles.borderNeutral200,
+        styles.roundedLg,
+        styles.overflow,
+      ]}
+    >
+      <Pressable ref={elementRef} style={style} onPress={() => setShowDetails(!showDetails)}>
         {children}
       </Pressable>
 
       {showDetails && (
-        <View className="bg-neutral-50 p-4 border-t border-neutral-200">
-          <Text className="text-sm font-semibold text-neutral-900 mb-2">Token Debug Info</Text>
-
-          {/* Tailwind Class */}
-          <View className="mb-3">
-            <Text className="text-xs font-medium text-neutral-600 mb-1">Tailwind Class:</Text>
-            <View className="bg-white p-2 rounded border">
-              <Text className="text-xs font-mono text-primary-600">{tokenInfo.className}</Text>
-            </View>
-          </View>
+        <View
+          style={[styles.bgNeutral50, styles.padding4, styles.borderTop, styles.borderNeutral200]}
+        >
+          <Text
+            style={[
+              styles.textSm,
+              styles.fontSemibold,
+              styles.textNeutral900,
+              styles.marginBottom2,
+            ]}
+          >
+            Token Debug Info
+          </Text>
 
           {/* Token Value */}
-          <View className="mb-3">
-            <Text className="text-xs font-medium text-neutral-600 mb-1">Token Value:</Text>
-            <View className="bg-white p-2 rounded border">
-              <Text className="text-xs font-mono text-success-600">
+          <View style={styles.marginBottom3}>
+            <Text
+              style={[
+                styles.textXs,
+                styles.fontMedium,
+                styles.textNeutral600,
+                styles.marginBottom1,
+              ]}
+            >
+              Token Value:
+            </Text>
+            <View style={[styles.bgWhite, styles.padding2, styles.rounded, styles.border]}>
+              <Text style={[styles.textXs, styles.fontMono, styles.textSuccess600]}>
                 {typeof tokenInfo.value === 'object'
                   ? JSON.stringify(tokenInfo.value, null, 2)
                   : String(tokenInfo.value)}
@@ -97,16 +369,34 @@ const TokenExample: React.FC<{
 
           {/* Computed CSS (Web only) */}
           {Platform.OS === 'web' && Object.keys(computedStyles).length > 0 && (
-            <View className="mb-3">
-              <Text className="text-xs font-medium text-neutral-600 mb-1">
+            <View style={styles.marginBottom3}>
+              <Text
+                style={[
+                  styles.textXs,
+                  styles.fontMedium,
+                  styles.textNeutral600,
+                  styles.marginBottom1,
+                ]}
+              >
                 Computed CSS (Browser):
               </Text>
-              <View className="bg-white p-2 rounded border max-h-32">
+              <View
+                style={[
+                  styles.bgWhite,
+                  styles.padding2,
+                  styles.rounded,
+                  styles.border,
+                  styles.maxHeight32,
+                ]}
+              >
                 <ScrollView>
                   {Object.entries(computedStyles)
                     .filter(([_, value]) => value && value !== 'none' && value !== 'auto')
                     .map(([property, value]) => (
-                      <Text key={property} className="text-xs font-mono text-neutral-700">
+                      <Text
+                        key={property}
+                        style={[styles.textXs, styles.fontMono, styles.textNeutral700]}
+                      >
                         {property}: {String(value)}
                       </Text>
                     ))}
@@ -115,7 +405,7 @@ const TokenExample: React.FC<{
             </View>
           )}
 
-          <Text className="text-xs text-neutral-500">{tokenInfo.description}</Text>
+          <Text style={[styles.textXs, styles.textNeutral500]}>{tokenInfo.description}</Text>
         </View>
       )}
     </View>
@@ -126,45 +416,64 @@ const TokenExample: React.FC<{
 const ColorSwatch: React.FC<{ colorKey: string; colorValue: string }> = ({
   colorKey,
   colorValue,
-}) => (
-  <TokenExample
-    tokenInfo={{
-      category: 'colors',
-      name: colorKey,
-      className: `bg-${colorKey}`,
-      value: colorValue,
-      description: `Background color token: ${colorKey} = ${colorValue}`,
-    }}
-    className={`bg-${colorKey} p-4 rounded-lg min-w-20 items-center justify-center`}
-  >
-    <Text
-      className={`text-xs font-medium ${
-        ['50', '100', '200', '300'].some((shade) => colorKey.endsWith(shade))
-          ? 'text-neutral-900'
-          : 'text-white'
-      }`}
+}) => {
+  // Determine text color based on background lightness
+  const isLightBackground = ['50', '100', '200', '300'].some((shade) => colorKey.endsWith(shade));
+
+  const swatchStyle = {
+    backgroundColor: colorValue,
+    padding: 16,
+    borderRadius: 12,
+    minWidth: 80,
+    alignItems: 'center' as const,
+    justifyContent: 'center' as const,
+  };
+
+  return (
+    <TokenExample
+      tokenInfo={{
+        category: 'colors',
+        name: colorKey,
+        value: colorValue,
+        description: `Background color token: ${colorKey} = ${colorValue}`,
+      }}
+      style={swatchStyle}
     >
-      {colorKey.split('-').pop()}
-    </Text>
-  </TokenExample>
-);
+      <Text
+        style={[
+          styles.textXs,
+          styles.fontMedium,
+          isLightBackground ? styles.textNeutral900 : styles.textWhite,
+        ]}
+      >
+        {colorKey.split('-').pop()}
+      </Text>
+    </TokenExample>
+  );
+};
 
 // Typography example
 const TypographyExample: React.FC<{ sizeKey: string }> = ({ sizeKey }) => {
   const fontSize = tokens.fontSize[sizeKey as keyof typeof tokens.fontSize];
+
+  const typographyStyle = {
+    fontSize: fontSize?.size || 16,
+    lineHeight: fontSize?.lineHeight || 24,
+    color: '#111827',
+    padding: 8,
+  };
 
   return (
     <TokenExample
       tokenInfo={{
         category: 'fontSize',
         name: sizeKey,
-        className: `text-${sizeKey}`,
         value: fontSize,
         description: `Font size token: text-${sizeKey} = ${fontSize?.size}px / ${fontSize?.lineHeight}px line-height`,
       }}
-      className={`text-${sizeKey} text-neutral-900 p-2`}
+      style={typographyStyle}
     >
-      <Text className={`text-${sizeKey}`}>
+      <Text style={typographyStyle}>
         text-{sizeKey} ({fontSize?.size}px)
       </Text>
     </TokenExample>
@@ -175,18 +484,24 @@ const TypographyExample: React.FC<{ sizeKey: string }> = ({ sizeKey }) => {
 const SpacingExample: React.FC<{ spaceKey: string }> = ({ spaceKey }) => {
   const spaceValue = tokens.spacing[spaceKey as keyof typeof tokens.spacing];
 
+  const spacingStyle = {
+    width: spaceValue,
+    height: spaceValue,
+    backgroundColor: '#3b82f6',
+    borderRadius: 8,
+  };
+
   return (
     <TokenExample
       tokenInfo={{
         category: 'spacing',
         name: spaceKey,
-        className: `w-${spaceKey} h-${spaceKey}`,
         value: `${spaceValue}px`,
         description: `Spacing token: w-${spaceKey} h-${spaceKey} = ${spaceValue}px`,
       }}
-      className={`w-${spaceKey} h-${spaceKey} bg-primary-500 rounded`}
+      style={spacingStyle}
     >
-      <Text className="text-xs text-white text-center">{spaceKey}</Text>
+      <Text style={[styles.textXs, styles.textWhite, styles.textCenter]}>{spaceKey}</Text>
     </TokenExample>
   );
 };
@@ -196,19 +511,31 @@ export default function TokensDebugScreen() {
   const [showInspectorGuide, setShowInspectorGuide] = useState(false);
 
   return (
-    <ScrollView className="flex-1 bg-white">
-      <View className="p-4">
+    <ScrollView style={styles.container}>
+      <View style={styles.padding}>
         {/* Header */}
-        <View className="mb-6">
-          <Text className="text-3xl font-bold text-neutral-900 mb-2">Design Tokens Debug</Text>
-          <Text className="text-base text-neutral-600 mb-4">
+        <View style={styles.marginBottom6}>
+          <Text
+            style={[styles.text3xl, styles.fontBold, styles.textNeutral900, styles.marginBottom2]}
+          >
+            Design Tokens Debug
+          </Text>
+          <Text style={[styles.textBase, styles.textNeutral600, styles.marginBottom4]}>
             Interactive guide to understanding how design tokens translate to CSS in React Native
             Web
           </Text>
 
           {/* Platform indicator */}
-          <View className="bg-info-50 p-3 rounded-lg border border-info-200">
-            <Text className="text-sm text-info-800">
+          <View
+            style={[
+              styles.bgInfo50,
+              styles.padding3,
+              styles.roundedLg,
+              styles.border,
+              styles.borderInfo200,
+            ]}
+          >
+            <Text style={[styles.textSm, styles.textInfo800]}>
               Platform: {Platform.OS} •
               {Platform.OS === 'web'
                 ? ' Browser DevTools available'
@@ -218,67 +545,111 @@ export default function TokensDebugScreen() {
         </View>
 
         {/* Inspector Guide */}
-        <View className="mb-6">
+        <View style={styles.marginBottom6}>
           <Pressable
-            className="bg-primary-600 active:bg-primary-700 p-4 rounded-lg"
+            style={[styles.bgPrimary600, styles.padding4, styles.roundedLg]}
             onPress={() => setShowInspectorGuide(!showInspectorGuide)}
           >
-            <Text className="text-white font-semibold text-center">
+            <Text style={[styles.textWhite, styles.fontSemibold, styles.textCenter]}>
               {showInspectorGuide ? 'Hide' : 'Show'} Browser DevTools Guide
             </Text>
           </Pressable>
 
           {showInspectorGuide && (
-            <View className="bg-neutral-50 p-4 rounded-lg mt-2 border border-neutral-200">
-              <Text className="text-lg font-semibold text-neutral-900 mb-3">
+            <View
+              style={[
+                styles.bgNeutral50,
+                styles.padding4,
+                styles.roundedLg,
+                styles.marginTop2,
+                styles.border,
+                styles.borderNeutral200,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.textLg,
+                  styles.fontSemibold,
+                  styles.textNeutral900,
+                  styles.marginBottom3,
+                ]}
+              >
                 How to Inspect Tokens in Browser DevTools
               </Text>
 
-              <View className="space-y-3">
-                <View>
-                  <Text className="text-sm font-medium text-neutral-800 mb-1">
+              <View>
+                <View style={styles.marginBottom3}>
+                  <Text
+                    style={[
+                      styles.textSm,
+                      styles.fontMedium,
+                      styles.textNeutral800,
+                      styles.marginBottom1,
+                    ]}
+                  >
                     1. Open DevTools
                   </Text>
-                  <Text className="text-sm text-neutral-600">
+                  <Text style={[styles.textSm, styles.textNeutral600]}>
                     Press F12 or right-click → "Inspect Element"
                   </Text>
                 </View>
 
-                <View>
-                  <Text className="text-sm font-medium text-neutral-800 mb-1">
+                <View style={styles.marginBottom3}>
+                  <Text
+                    style={[
+                      styles.textSm,
+                      styles.fontMedium,
+                      styles.textNeutral800,
+                      styles.marginBottom1,
+                    ]}
+                  >
                     2. Inspect Elements
                   </Text>
-                  <Text className="text-sm text-neutral-600">
+                  <Text style={[styles.textSm, styles.textNeutral600]}>
                     Click the inspect tool and hover over elements below to see:
                   </Text>
-                  <View className="ml-4 mt-1">
-                    <Text className="text-xs text-neutral-600">
+                  <View style={[styles.marginLeft4, styles.marginTop1]}>
+                    <Text style={[styles.textXs, styles.textNeutral600]}>
                       • CSS class names generated by Tailwind
                     </Text>
-                    <Text className="text-xs text-neutral-600">
+                    <Text style={[styles.textXs, styles.textNeutral600]}>
                       • Computed CSS values from tokens
                     </Text>
-                    <Text className="text-xs text-neutral-600">
+                    <Text style={[styles.textXs, styles.textNeutral600]}>
                       • CSS custom properties (variables)
                     </Text>
                   </View>
                 </View>
 
-                <View>
-                  <Text className="text-sm font-medium text-neutral-800 mb-1">
+                <View style={styles.marginBottom3}>
+                  <Text
+                    style={[
+                      styles.textSm,
+                      styles.fontMedium,
+                      styles.textNeutral800,
+                      styles.marginBottom1,
+                    ]}
+                  >
                     3. View CSS Variables
                   </Text>
-                  <Text className="text-sm text-neutral-600">
+                  <Text style={[styles.textSm, styles.textNeutral600]}>
                     In the Elements panel, look for :root or html to see CSS custom properties like
                     --color-primary-500
                   </Text>
                 </View>
 
                 <View>
-                  <Text className="text-sm font-medium text-neutral-800 mb-1">
+                  <Text
+                    style={[
+                      styles.textSm,
+                      styles.fontMedium,
+                      styles.textNeutral800,
+                      styles.marginBottom1,
+                    ]}
+                  >
                     4. Interactive Debug
                   </Text>
-                  <Text className="text-sm text-neutral-600">
+                  <Text style={[styles.textSm, styles.textNeutral600]}>
                     Tap any element below to see its token mapping and computed styles
                   </Text>
                 </View>
@@ -288,26 +659,41 @@ export default function TokensDebugScreen() {
         </View>
 
         {/* Category Selector */}
-        <View className="mb-6">
-          <Text className="text-lg font-semibold text-neutral-900 mb-3">Token Categories</Text>
+        <View style={styles.marginBottom6}>
+          <Text
+            style={[
+              styles.textLg,
+              styles.fontSemibold,
+              styles.textNeutral900,
+              styles.marginBottom3,
+            ]}
+          >
+            Token Categories
+          </Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-            <View className="flex-row gap-2">
+            <View style={[styles.flexRow, styles.gap2]}>
               {(
                 ['colors', 'spacing', 'fontSize', 'borderRadius', 'shadows'] as TokenCategory[]
               ).map((category) => (
                 <Pressable
                   key={category}
-                  className={`px-4 py-2 rounded-lg border ${
+                  style={[
+                    styles.paddingHorizontal4,
+                    styles.paddingVertical2,
+                    styles.roundedLg,
+                    styles.border,
                     selectedCategory === category
-                      ? 'bg-primary-600 border-primary-600'
-                      : 'bg-white border-neutral-300'
-                  }`}
+                      ? [styles.bgPrimary600, styles.borderPrimary600]
+                      : [styles.bgWhite, styles.borderNeutral300],
+                  ]}
                   onPress={() => setSelectedCategory(category)}
                 >
                   <Text
-                    className={`text-sm font-medium ${
-                      selectedCategory === category ? 'text-white' : 'text-neutral-700'
-                    }`}
+                    style={[
+                      styles.textSm,
+                      styles.fontMedium,
+                      selectedCategory === category ? styles.textWhite : styles.textNeutral700,
+                    ]}
                   >
                     {category}
                   </Text>
@@ -320,25 +706,52 @@ export default function TokensDebugScreen() {
         {/* Token Examples */}
         {selectedCategory === 'colors' && (
           <View>
-            <Text className="text-xl font-semibold text-neutral-900 mb-4">Color Tokens</Text>
-            <Text className="text-sm text-neutral-600 mb-4">
+            <Text
+              style={[
+                styles.textXl,
+                styles.fontSemibold,
+                styles.textNeutral900,
+                styles.marginBottom4,
+              ]}
+            >
+              Color Tokens
+            </Text>
+            <Text style={[styles.textSm, styles.textNeutral600, styles.marginBottom4]}>
               Tap any color to see how the bg-* class maps to CSS values
             </Text>
 
             {Object.entries(tokens.colors).map(([colorFamily, shades]) => {
               if (typeof shades === 'string') {
                 return (
-                  <View key={colorFamily} className="mb-4">
-                    <Text className="text-sm font-medium text-neutral-700 mb-2">{colorFamily}</Text>
+                  <View key={colorFamily} style={styles.marginBottom4}>
+                    <Text
+                      style={[
+                        styles.textSm,
+                        styles.fontMedium,
+                        styles.textNeutral700,
+                        styles.marginBottom2,
+                      ]}
+                    >
+                      {colorFamily}
+                    </Text>
                     <ColorSwatch colorKey={colorFamily} colorValue={shades} />
                   </View>
                 );
               }
 
               return (
-                <View key={colorFamily} className="mb-6">
-                  <Text className="text-sm font-medium text-neutral-700 mb-2">{colorFamily}</Text>
-                  <View className="flex-row flex-wrap gap-2">
+                <View key={colorFamily} style={styles.marginBottom6}>
+                  <Text
+                    style={[
+                      styles.textSm,
+                      styles.fontMedium,
+                      styles.textNeutral700,
+                      styles.marginBottom2,
+                    ]}
+                  >
+                    {colorFamily}
+                  </Text>
+                  <View style={[styles.flexRow, styles.flexWrap, styles.gap2]}>
                     {Object.entries(shades).map(([shade, value]) => (
                       <ColorSwatch
                         key={`${colorFamily}-${shade}`}
@@ -355,8 +768,17 @@ export default function TokensDebugScreen() {
 
         {selectedCategory === 'fontSize' && (
           <View>
-            <Text className="text-xl font-semibold text-neutral-900 mb-4">Typography Tokens</Text>
-            <Text className="text-sm text-neutral-600 mb-4">
+            <Text
+              style={[
+                styles.textXl,
+                styles.fontSemibold,
+                styles.textNeutral900,
+                styles.marginBottom4,
+              ]}
+            >
+              Typography Tokens
+            </Text>
+            <Text style={[styles.textSm, styles.textNeutral600, styles.marginBottom4]}>
               Tap any text to see how text-* classes map to font-size and line-height
             </Text>
 
@@ -368,16 +790,25 @@ export default function TokensDebugScreen() {
 
         {selectedCategory === 'spacing' && (
           <View>
-            <Text className="text-xl font-semibold text-neutral-900 mb-4">Spacing Tokens</Text>
-            <Text className="text-sm text-neutral-600 mb-4">
+            <Text
+              style={[
+                styles.textXl,
+                styles.fontSemibold,
+                styles.textNeutral900,
+                styles.marginBottom4,
+              ]}
+            >
+              Spacing Tokens
+            </Text>
+            <Text style={[styles.textSm, styles.textNeutral600, styles.marginBottom4]}>
               Tap any square to see how w-* and h-* classes map to pixel values
             </Text>
 
-            <View className="flex-row flex-wrap gap-4 items-end">
+            <View style={[styles.flexRow, styles.flexWrap, styles.gap4, styles.itemsEnd]}>
               {['1', '2', '4', '6', '8', '10', '12', '16', '20', '24'].map((spaceKey) => (
-                <View key={spaceKey} className="items-center">
+                <View key={spaceKey} style={styles.itemsCenter}>
                   <SpacingExample spaceKey={spaceKey} />
-                  <Text className="text-xs text-neutral-500 mt-1">
+                  <Text style={[styles.textXs, styles.textNeutral500, styles.marginTop1]}>
                     {tokens.spacing[spaceKey as keyof typeof tokens.spacing]}px
                   </Text>
                 </View>
@@ -388,30 +819,44 @@ export default function TokensDebugScreen() {
 
         {selectedCategory === 'borderRadius' && (
           <View>
-            <Text className="text-xl font-semibold text-neutral-900 mb-4">
+            <Text
+              style={[
+                styles.textXl,
+                styles.fontSemibold,
+                styles.textNeutral900,
+                styles.marginBottom4,
+              ]}
+            >
               Border Radius Tokens
             </Text>
-            <Text className="text-sm text-neutral-600 mb-4">
+            <Text style={[styles.textSm, styles.textNeutral600, styles.marginBottom4]}>
               Tap any shape to see how rounded-* classes map to border-radius values
             </Text>
 
-            <View className="flex-row flex-wrap gap-4">
+            <View style={[styles.flexRow, styles.flexWrap, styles.gap4]}>
               {Object.entries(tokens.borderRadius).map(([radiusKey, radiusValue]) => (
                 <TokenExample
                   key={radiusKey}
                   tokenInfo={{
                     category: 'borderRadius',
                     name: radiusKey,
-                    className: `rounded-${radiusKey === 'base' ? '' : radiusKey}`,
                     value: `${radiusValue}px`,
                     description: `Border radius token: rounded-${radiusKey} = ${radiusValue}px`,
                   }}
-                  className={`bg-primary-100 p-6 ${
-                    radiusKey === 'base' ? 'rounded' : `rounded-${radiusKey}`
-                  } border border-primary-300`}
+                  style={[
+                    styles.bgPrimary100,
+                    styles.padding6,
+                    { borderRadius: radiusKey === 'base' ? 8 : radiusValue },
+                    styles.border,
+                    styles.borderPrimary300,
+                  ]}
                 >
-                  <Text className="text-xs text-primary-800 text-center">{radiusKey}</Text>
-                  <Text className="text-xs text-primary-600 text-center">{radiusValue}px</Text>
+                  <Text style={[styles.textXs, styles.textPrimary800, styles.textCenter]}>
+                    {radiusKey}
+                  </Text>
+                  <Text style={[styles.textXs, styles.textPrimary600, styles.textCenter]}>
+                    {radiusValue}px
+                  </Text>
                 </TokenExample>
               ))}
             </View>
@@ -420,71 +865,147 @@ export default function TokensDebugScreen() {
 
         {selectedCategory === 'shadows' && (
           <View>
-            <Text className="text-xl font-semibold text-neutral-900 mb-4">Shadow Tokens</Text>
-            <Text className="text-sm text-neutral-600 mb-4">
+            <Text
+              style={[
+                styles.textXl,
+                styles.fontSemibold,
+                styles.textNeutral900,
+                styles.marginBottom4,
+              ]}
+            >
+              Shadow Tokens
+            </Text>
+            <Text style={[styles.textSm, styles.textNeutral600, styles.marginBottom4]}>
               Tap any card to see how shadow-* classes map to box-shadow values
             </Text>
 
-            <View className="gap-4">
-              {Object.entries(tokens.shadows).map(([shadowKey, shadowValue]) => (
-                <TokenExample
-                  key={shadowKey}
-                  tokenInfo={{
-                    category: 'shadows',
-                    name: shadowKey,
-                    className: `shadow-${shadowKey === 'base' ? '' : shadowKey}`,
-                    value: shadowValue,
-                    description: `Shadow token: shadow-${shadowKey} maps to elevation and box-shadow`,
-                  }}
-                  className={`bg-white p-6 rounded-lg ${
-                    shadowKey === 'base' ? 'shadow' : `shadow-${shadowKey}`
-                  }`}
-                >
-                  <Text className="text-sm font-medium text-neutral-900">shadow-{shadowKey}</Text>
-                  <Text className="text-xs text-neutral-600">
-                    elevation: {shadowValue.elevation}
-                  </Text>
-                </TokenExample>
-              ))}
+            <View style={styles.gap4}>
+              {Object.entries(tokens.shadows).map(([shadowKey, shadowValue]) => {
+                const shadowStyle = shadowKey === 'lg' ? styles.shadowLg : {};
+
+                return (
+                  <TokenExample
+                    key={shadowKey}
+                    tokenInfo={{
+                      category: 'shadows',
+                      name: shadowKey,
+                      value: shadowValue,
+                      description: `Shadow token: shadow-${shadowKey} maps to elevation and box-shadow`,
+                    }}
+                    style={[styles.bgWhite, styles.padding6, styles.roundedLg, shadowStyle]}
+                  >
+                    <Text style={[styles.textSm, styles.fontMedium, styles.textNeutral900]}>
+                      shadow-{shadowKey}
+                    </Text>
+                    <Text style={[styles.textXs, styles.textNeutral600]}>
+                      elevation: {shadowValue.elevation}
+                    </Text>
+                  </TokenExample>
+                );
+              })}
             </View>
           </View>
         )}
 
         {/* CSS Variables Section */}
-        <View className="mt-8 mb-6">
-          <Text className="text-xl font-semibold text-neutral-900 mb-4">CSS Variables Mapping</Text>
-          <Text className="text-sm text-neutral-600 mb-4">
+        <View style={[styles.marginTop8, styles.marginBottom6]}>
+          <Text
+            style={[
+              styles.textXl,
+              styles.fontSemibold,
+              styles.textNeutral900,
+              styles.marginBottom4,
+            ]}
+          >
+            CSS Variables Mapping
+          </Text>
+          <Text style={[styles.textSm, styles.textNeutral600, styles.marginBottom4]}>
             How tokens become CSS custom properties in the browser
           </Text>
 
-          <View className="bg-neutral-900 p-4 rounded-lg">
-            <Text className="text-green-400 text-xs font-mono mb-2">
+          <View style={[styles.bgNeutral900, styles.padding4, styles.roundedLg]}>
+            <Text
+              style={[styles.textGreen400, styles.textXs, styles.fontMono, styles.marginBottom2]}
+            >
               /* Tailwind generates CSS variables from tokens */
             </Text>
-            <Text className="text-white text-xs font-mono mb-1">:root {'{'}</Text>
-            <Text className="text-blue-400 text-xs font-mono ml-4 mb-1">
+            <Text style={[styles.textWhite, styles.textXs, styles.fontMono, styles.marginBottom1]}>
+              :root {'{'}
+            </Text>
+            <Text
+              style={[
+                styles.textBlue400,
+                styles.textXs,
+                styles.fontMono,
+                styles.marginLeft4,
+                styles.marginBottom1,
+              ]}
+            >
               --color-primary-500: #3b82f6;
             </Text>
-            <Text className="text-blue-400 text-xs font-mono ml-4 mb-1">--spacing-4: 16px;</Text>
-            <Text className="text-blue-400 text-xs font-mono ml-4 mb-1">--font-size-lg: 18px;</Text>
-            <Text className="text-white text-xs font-mono mb-2">{'}'}</Text>
-            <Text className="text-green-400 text-xs font-mono mb-2">
+            <Text
+              style={[
+                styles.textBlue400,
+                styles.textXs,
+                styles.fontMono,
+                styles.marginLeft4,
+                styles.marginBottom1,
+              ]}
+            >
+              --spacing-4: 16px;
+            </Text>
+            <Text
+              style={[
+                styles.textBlue400,
+                styles.textXs,
+                styles.fontMono,
+                styles.marginLeft4,
+                styles.marginBottom1,
+              ]}
+            >
+              --font-size-lg: 18px;
+            </Text>
+            <Text style={[styles.textWhite, styles.textXs, styles.fontMono, styles.marginBottom2]}>
+              {'}'}
+            </Text>
+            <Text
+              style={[styles.textGreen400, styles.textXs, styles.fontMono, styles.marginBottom2]}
+            >
               /* Classes use the variables */
             </Text>
-            <Text className="text-yellow-400 text-xs font-mono mb-1">.bg-primary-500 {'{'}</Text>
-            <Text className="text-blue-400 text-xs font-mono ml-4 mb-1">
+            <Text
+              style={[styles.textYellow400, styles.textXs, styles.fontMono, styles.marginBottom1]}
+            >
+              .bg-primary-500 {'{'}
+            </Text>
+            <Text
+              style={[
+                styles.textBlue400,
+                styles.textXs,
+                styles.fontMono,
+                styles.marginLeft4,
+                styles.marginBottom1,
+              ]}
+            >
               background-color: var(--color-primary-500);
             </Text>
-            <Text className="text-yellow-400 text-xs font-mono">{'}'}</Text>
+            <Text style={[styles.textYellow400, styles.textXs, styles.fontMono]}>{'}'}</Text>
           </View>
         </View>
 
         {/* Interactive Example */}
-        <View className="mb-8">
-          <Text className="text-xl font-semibold text-neutral-900 mb-4">
+        <View style={styles.marginBottom8}>
+          <Text
+            style={[
+              styles.textXl,
+              styles.fontSemibold,
+              styles.textNeutral900,
+              styles.marginBottom4,
+            ]}
+          >
             Interactive Token Example
           </Text>
-          <Text className="text-sm text-neutral-600 mb-4">
+          <Text style={[styles.textSm, styles.textNeutral600, styles.marginBottom4]}>
             A complex component showing multiple tokens working together
           </Text>
 
@@ -492,62 +1013,110 @@ export default function TokensDebugScreen() {
             tokenInfo={{
               category: 'colors',
               name: 'complex-card',
-              className: 'bg-white shadow-lg rounded-xl p-6 border border-neutral-200',
               value: 'Multiple tokens combined',
               description:
                 'Card component using background, shadow, border-radius, padding, and border tokens',
             }}
-            className="bg-white shadow-lg rounded-xl p-6 border border-neutral-200"
+            style={[
+              styles.bgWhite,
+              styles.shadowLg,
+              styles.roundedXl,
+              styles.padding6,
+              styles.border,
+              styles.borderNeutral200,
+            ]}
           >
-            <View className="mb-4">
-              <Text className="text-xl font-bold text-neutral-900 mb-2">Interactive Card</Text>
-              <Text className="text-sm text-neutral-600 mb-4">
+            <View style={styles.marginBottom4}>
+              <Text
+                style={[
+                  styles.textXl,
+                  styles.fontBold,
+                  styles.textNeutral900,
+                  styles.marginBottom2,
+                ]}
+              >
+                Interactive Card
+              </Text>
+              <Text style={[styles.textSm, styles.textNeutral600, styles.marginBottom4]}>
                 This card uses multiple design tokens:
               </Text>
-              <View className="space-y-2">
-                <Text className="text-xs text-neutral-500">• bg-white (background)</Text>
-                <Text className="text-xs text-neutral-500">• shadow-lg (elevation)</Text>
-                <Text className="text-xs text-neutral-500">• rounded-xl (border-radius)</Text>
-                <Text className="text-xs text-neutral-500">• p-6 (padding)</Text>
-                <Text className="text-xs text-neutral-500">
+              <View>
+                <Text style={[styles.textXs, styles.textNeutral500]}>• bg-white (background)</Text>
+                <Text style={[styles.textXs, styles.textNeutral500]}>• shadow-lg (elevation)</Text>
+                <Text style={[styles.textXs, styles.textNeutral500]}>
+                  • rounded-xl (border-radius)
+                </Text>
+                <Text style={[styles.textXs, styles.textNeutral500]}>• p-6 (padding)</Text>
+                <Text style={[styles.textXs, styles.textNeutral500]}>
                   • border border-neutral-200 (border)
                 </Text>
               </View>
             </View>
 
-            <View className="flex-row gap-2">
-              <View className="bg-primary-500 px-3 py-1 rounded-full">
-                <Text className="text-white text-xs font-medium">Primary</Text>
+            <View style={[styles.flexRow, styles.gap2]}>
+              <View
+                style={[
+                  styles.bgPrimary500,
+                  styles.paddingHorizontal3,
+                  styles.paddingVertical1,
+                  styles.roundedFull,
+                ]}
+              >
+                <Text style={[styles.textWhite, styles.textXs, styles.fontMedium]}>Primary</Text>
               </View>
-              <View className="bg-success-500 px-3 py-1 rounded-full">
-                <Text className="text-white text-xs font-medium">Success</Text>
+              <View
+                style={[
+                  styles.bgSuccess500,
+                  styles.paddingHorizontal3,
+                  styles.paddingVertical1,
+                  styles.roundedFull,
+                ]}
+              >
+                <Text style={[styles.textWhite, styles.textXs, styles.fontMedium]}>Success</Text>
               </View>
-              <View className="bg-warning-500 px-3 py-1 rounded-full">
-                <Text className="text-white text-xs font-medium">Warning</Text>
+              <View
+                style={[
+                  styles.bgWarning500,
+                  styles.paddingHorizontal3,
+                  styles.paddingVertical1,
+                  styles.roundedFull,
+                ]}
+              >
+                <Text style={[styles.textWhite, styles.textXs, styles.fontMedium]}>Warning</Text>
               </View>
             </View>
           </TokenExample>
         </View>
 
         {/* Footer */}
-        <View className="bg-neutral-50 p-4 rounded-lg border border-neutral-200">
-          <Text className="text-sm font-medium text-neutral-900 mb-2">
+        <View
+          style={[
+            styles.bgNeutral50,
+            styles.padding4,
+            styles.roundedLg,
+            styles.border,
+            styles.borderNeutral200,
+          ]}
+        >
+          <Text
+            style={[styles.textSm, styles.fontMedium, styles.textNeutral900, styles.marginBottom2]}
+          >
             Pro Tips for Token Debugging:
           </Text>
-          <View className="space-y-1">
-            <Text className="text-xs text-neutral-600">
+          <View>
+            <Text style={[styles.textXs, styles.textNeutral600]}>
               • Use browser DevTools to inspect generated CSS classes
             </Text>
-            <Text className="text-xs text-neutral-600">
+            <Text style={[styles.textXs, styles.textNeutral600]}>
               • Check the :root element for CSS custom properties
             </Text>
-            <Text className="text-xs text-neutral-600">
+            <Text style={[styles.textXs, styles.textNeutral600]}>
               • Tokens are defined in packages/tokens/src/tokens.ts
             </Text>
-            <Text className="text-xs text-neutral-600">
+            <Text style={[styles.textXs, styles.textNeutral600]}>
               • Tailwind config extends theme with tokens in tailwind.config.js
             </Text>
-            <Text className="text-xs text-neutral-600">
+            <Text style={[styles.textXs, styles.textNeutral600]}>
               • React Native Web converts styles to CSS automatically
             </Text>
           </View>

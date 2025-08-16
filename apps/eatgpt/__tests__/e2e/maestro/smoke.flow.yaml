@@ -1,0 +1,85 @@
+appId: host.exp.exponent # Expo Go bundle ID for development testing
+---
+# Smoke Test - Single session navigating through all pages
+# Mirrors Playwright smoke.spec.ts
+
+# Open the app directly via deep link to development server
+# This ensures Expo Go connects to our Metro bundler
+- openLink: exp://192.168.86.28:8081
+
+# Wait for the app to load
+- waitForAnimationToEnd
+
+# Verify home page
+- assertVisible:
+    text: 'EatGPT'
+- assertVisible:
+    id: 'home.title.text'
+- assertVisible:
+    text: 'React Native + Web App'
+
+# Verify all navigation buttons are present
+- assertVisible:
+    id: 'home.navigate.kitchensink'
+- assertVisible:
+    id: 'home.navigate.tokens'
+- assertVisible:
+    id: 'home.navigate.envtest'
+- assertVisible:
+    id: 'home.navigate.enverror'
+
+# Navigate to Kitchen Sink
+- tapOn:
+    id: 'home.navigate.kitchensink'
+- waitForAnimationToEnd
+# Scroll to find Primary Button to confirm navigation worked
+- scrollUntilVisible:
+    element:
+      text: 'Primary Button'
+    direction: DOWN
+
+# Go back to home
+- pressKey: back
+- assertVisible:
+    id: 'home.title.text'
+
+# Navigate to Tokens Debug
+- tapOn:
+    id: 'home.navigate.tokens'
+- assertVisible:
+    text: 'Design Tokens Debug'
+# TODO: Add testID to tokens-debug page title
+#- assertVisible:
+#    id: "tokensDebug.title.text"
+
+# Go back to home
+- pressKey: back
+- assertVisible:
+    id: 'home.title.text'
+
+# Navigate to Environment Test
+- tapOn:
+    id: 'home.navigate.envtest'
+- assertVisible:
+    text: 'Environment Variables Test'
+# TODO: Add testID to env-test page title
+#- assertVisible:
+#    id: "envTest.title.text"
+
+# Go back to home
+- pressKey: back
+- assertVisible:
+    id: 'home.title.text'
+
+# Navigate to Environment Error Demo
+- tapOn:
+    id: 'home.navigate.enverror'
+- assertVisible:
+    id: 'env-error-demo.title.text'
+
+# Final verification - navigate back to home
+- pressKey: back
+- assertVisible:
+    text: 'EatGPT'
+- assertVisible:
+    id: 'home.title.text'

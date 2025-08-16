@@ -28,7 +28,6 @@ describe('Monorepo Structure Validation', () => {
         'eatgpt',
         'helpers',
         'tokens',
-        'ui-native',
       ],
     },
     configs: {

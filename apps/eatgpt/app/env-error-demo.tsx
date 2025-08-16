@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Button, TextInput } from 'react-native';
+import { ScrollView, View, StyleSheet } from 'react-native';
+import { Text, Button, Input } from 'react-native-elements';
 import { validateEnv, EnvValidationError } from '@aimeup/config';
+import { tokens, getColorToken, getFontWeightForRN } from '@aimeup/tokens';
 
 export default function EnvErrorDemoScreen() {
   const [testResult, setTestResult] = useState<string>('');
@@ -83,70 +85,165 @@ export default function EnvErrorDemoScreen() {
   };
 
   return (
-    <ScrollView style={{ flex: 1, padding: 20 }}>
-      <Text style={{ fontSize: 24, fontWeight: 'bold', marginBottom: 20 }}>
-        Environment Validation Error Demo
-      </Text>
+    <ScrollView style={styles.container}>
+      <View style={styles.content}>
+        <Text h1 style={styles.title} testID="env-error-demo.title.text">
+          Environment Validation Error Demo
+        </Text>
 
-      <Text style={{ fontSize: 16, marginBottom: 20 }}>
-        Click any button below to test different validation scenarios:
-      </Text>
+        <Text style={styles.description} testID="env-error-demo.description.text">
+          Click any button below to test different validation scenarios:
+        </Text>
 
-      <View style={{ marginBottom: 20 }}>
-        {testScenarios.map((scenario, index) => (
-          <View key={index} style={{ marginVertical: 5 }}>
-            <Button
-              title={scenario.name}
-              onPress={() => runValidationTest(scenario.config, scenario.name)}
-              color={scenario.name.includes('Valid') ? '#22c55e' : '#ef4444'}
-            />
-          </View>
-        ))}
-      </View>
-
-      <Text style={{ fontSize: 18, fontWeight: 'bold', marginTop: 20 }}>Custom Test:</Text>
-
-      <TextInput
-        style={{
-          borderWidth: 1,
-          borderColor: '#ccc',
-          borderRadius: 5,
-          padding: 10,
-          marginTop: 10,
-          marginBottom: 10,
-          minHeight: 150,
-          fontFamily: 'monospace',
-          fontSize: 12,
-        }}
-        multiline
-        value={customEnv}
-        onChangeText={setCustomEnv}
-      />
-
-      <Button title="Test Custom Configuration" onPress={runCustomTest} color="#3b82f6" />
-
-      {testResult && (
-        <View
-          style={{
-            marginTop: 20,
-            padding: 15,
-            backgroundColor: testResult.includes('✅') ? '#d4edda' : '#f8d7da',
-            borderRadius: 5,
-            borderWidth: 1,
-            borderColor: testResult.includes('✅') ? '#c3e6cb' : '#f5c6cb',
-          }}
-        >
-          <Text
-            style={{
-              fontFamily: 'monospace',
-              fontSize: 12,
-              color: testResult.includes('✅') ? '#155724' : '#721c24',
-            }}
-          >
-            {testResult}
-          </Text>
+        <View style={styles.buttonContainer}>
+          {testScenarios.map((scenario, index) => (
+            <View key={index} style={styles.buttonWrapper}>
+              <Button
+                title={scenario.name}
+                onPress={() => runValidationTest(scenario.config, scenario.name)}
+                buttonStyle={[
+                  styles.testButton,
+                  scenario.name.includes('Valid') ? styles.successButton : styles.errorButton,
+                ]}
+                titleStyle={styles.buttonTitle}
+                testID={`env-error-demo.test.${scenario.name.toLowerCase().replace(/\s+/g, '-')}`}
+              />
+            </View>
+          ))}
         </View>
-      )}
+
+        <Text h3 style={styles.customTestTitle}>
+          Custom Test:
+        </Text>
+
+        <Input
+          containerStyle={styles.inputContainer}
+          inputContainerStyle={styles.inputInnerContainer}
+          inputStyle={styles.input}
+          multiline
+          value={customEnv}
+          onChangeText={setCustomEnv}
+          testID="env-error-demo.custom-input.field"
+        />
+
+        <Button
+          title="Test Custom Configuration"
+          onPress={runCustomTest}
+          buttonStyle={[styles.testButton, styles.primaryButton]}
+          titleStyle={styles.buttonTitle}
+          testID="env-error-demo.test.custom"
+        />
+
+        {testResult && (
+          <View
+            style={[
+              styles.resultCard,
+              testResult.includes('✅') ? styles.successCard : styles.errorCard,
+            ]}
+          >
+            <Text
+              style={[
+                styles.resultText,
+                {
+                  color: testResult.includes('✅')
+                    ? getColorToken('success', 700)
+                    : getColorToken('danger', 700),
+                },
+              ]}
+              testID="env-error-demo.result.text"
+            >
+              {testResult}
+            </Text>
+          </View>
+        )}
+      </View>
     </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: getColorToken('white'),
+  },
+  content: {
+    padding: tokens.spacing[5],
+  },
+  title: {
+    marginBottom: tokens.spacing[5],
+    textAlign: 'center',
+  },
+  description: {
+    fontSize: tokens.fontSize.base.size,
+    color: getColorToken('neutral', 600),
+    marginBottom: tokens.spacing[5],
+    textAlign: 'center',
+  },
+  buttonContainer: {
+    marginBottom: tokens.spacing[5],
+  },
+  buttonWrapper: {
+    marginVertical: tokens.spacing[1.5],
+  },
+  testButton: {
+    borderRadius: tokens.borderRadius.lg,
+    paddingVertical: tokens.spacing[3],
+    paddingHorizontal: tokens.spacing[4],
+  },
+  buttonTitle: {
+    fontSize: tokens.fontSize.base.size,
+    fontWeight: getFontWeightForRN('semibold'),
+  },
+  successButton: {
+    backgroundColor: getColorToken('success', 500),
+  },
+  errorButton: {
+    backgroundColor: getColorToken('danger', 500),
+  },
+  primaryButton: {
+    backgroundColor: getColorToken('primary', 600),
+  },
+  customTestTitle: {
+    marginTop: tokens.spacing[5],
+    marginBottom: tokens.spacing[3],
+  },
+  inputContainer: {
+    paddingHorizontal: 0,
+    marginBottom: tokens.spacing[4],
+  },
+  inputInnerContainer: {
+    borderWidth: tokens.borderWidth[1],
+    borderColor: getColorToken('neutral', 300),
+    borderRadius: tokens.borderRadius.base,
+    paddingHorizontal: tokens.spacing[3],
+    paddingVertical: tokens.spacing[2],
+    minHeight: 150,
+    borderBottomWidth: tokens.borderWidth[1],
+  },
+  input: {
+    fontSize: tokens.fontSize.sm.size,
+    fontFamily: 'monospace',
+    color: getColorToken('neutral', 900),
+    textAlignVertical: 'top',
+  },
+  resultCard: {
+    marginTop: tokens.spacing[5],
+    borderRadius: tokens.borderRadius.lg,
+    padding: tokens.spacing[4],
+  },
+  successCard: {
+    backgroundColor: getColorToken('success', 50),
+    borderColor: getColorToken('success', 200),
+    borderWidth: tokens.borderWidth[1],
+  },
+  errorCard: {
+    backgroundColor: getColorToken('danger', 50),
+    borderColor: getColorToken('danger', 200),
+    borderWidth: tokens.borderWidth[1],
+  },
+  resultText: {
+    fontFamily: 'monospace',
+    fontSize: tokens.fontSize.sm.size,
+    lineHeight: tokens.fontSize.sm.lineHeight,
+  },
+});

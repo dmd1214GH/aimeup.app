@@ -1,0 +1,11 @@
+# Maestro Configuration
+# Using Expo Go for development testing
+# For production builds with EAS, change to: com.eatgpt.app
+appId: host.exp.exponent
+tags:
+  - mobile
+  - android
+  - expo-go
+env:
+  APP_BUNDLE_ID: host.exp.exponent
+  METRO_PORT: 8081

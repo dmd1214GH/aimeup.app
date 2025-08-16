@@ -36,8 +36,7 @@
     /eatgpt                                   # container for eatgpt-specific code
       /nutrition     (@eatgpt/nutrition)      # Renamed from nutritionProfile
       /healthconnect (@eatgpt/healthconnect)  # RN only, does not apply to web or iOS
-    /tokens          (@aimeup/tokens)         # design tokens
-    /ui-native       (@aimeup/ui-native)      # reusable RN ui components
+    /tokens          (@aimeup/tokens)         # design tokens & RN Elements theming
   /configs           # optional location for preset storage
     /tsconfig        # tsconfig.lib.json, tsconfig.app.json → packages/apps extend these
     /eslint          # base.cjs → root .eslintrc.cjs just extends this

@@ -1,4 +1,4 @@
-import '../global.css';
+import React from 'react';
 import { Stack } from 'expo-router';
 import { AppProviders } from '@aimeup/core-react';
 

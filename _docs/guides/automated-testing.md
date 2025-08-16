@@ -231,31 +231,34 @@ pnpm typecheck
 - **Execution**:
 
 ```bash
+# Run smoke test only
+pnpm test:smoke:mobile
+
+# Run all mobile E2E tests
 pnpm test:e2e:mobile
 ```
 
-- **Current Status**: 🚧 Not Started - Tools identified but not yet configured or implemented
-- **Location**: `__tests__/e2e/` directories in app packages
-- **Naming Standards**: `*.flow.yaml` files, test suites named by user journey (e.g., `user-authentication.flow.yaml`, `nutrition-tracking.flow.yaml`, `chat-conversation.flow.yaml`)
+- **Current Status**: ✅ Implemented - Maestro configured with smoke and interaction tests for Android
+- **Location**: `apps/eatgpt/__tests__/e2e/maestro/` directory
+- **Naming Standards**: `*.flow.yaml` files (smoke.flow.yaml, interaction.flow.yaml)
 - **Sample Test**:
 
 ```yaml
-# apps/eatgpt/__tests__/e2e/user-authentication.flow.yaml
+# apps/eatgpt/__tests__/e2e/maestro/smoke.flow.yaml
 appId: com.eatgpt.app
 ---
-- launchApp
-- tapOn:
-    id: 'login-button'
-- inputText:
-    id: 'email-input'
-    text: 'test@example.com'
-- inputText:
-    id: 'password-input'
-    text: 'password123'
-- tapOn:
-    id: 'signin-button'
+- launchApp:
+    clearState: true
 - assertVisible:
-    id: 'dashboard'
+    text: "EatGPT"
+    timeout: 10000
+- tapOn:
+    id: "home.navigate.kitchensink"
+- assertVisible:
+    text: "Kitchen Sink - UI Components Demo"
+- pressKey: back
+- assertVisible:
+    id: "home.title.text"
 ```
 
 - **Coverage Standards**:
@@ -329,16 +332,16 @@ test.describe('User Authentication', () => {
 - **Execution**:
 
 ```bash
-pnpm test:smoke:mobile  # Coming in BL-0130
-pnpm test:smoke:web     # Available now
+pnpm test:smoke:mobile  # Maestro smoke test
+pnpm test:smoke:web     # Playwright smoke test
 ```
 
 - **Current Status**:
   - Web: ✅ Implemented - Navigation tests for all 4 main pages
-  - Mobile: 🚧 Not Started - Coming in BL-0130
+  - Mobile: ✅ Implemented - Navigation tests mirroring web smoke tests
 - **Location**:
   - Web: `apps/eatgpt/__tests__/e2e/smoke.spec.ts`
-  - Mobile: Will be in `__tests__/e2e/` directories
+  - Mobile: `apps/eatgpt/__tests__/e2e/maestro/smoke.flow.yaml`
 - **Naming Standards**: `smoke.spec.ts` (Playwright), `smoke.flow.yaml` (Maestro)
 - **Sample Tests**:
 

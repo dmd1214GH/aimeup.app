@@ -149,17 +149,30 @@ Agent codes and tests the required functionality.
 ### Deliver Input Prompt
 
 ```
-We are preparing to Deliver this backlog item.
+We are preparing to begin the 'DeliveryRun' for this backlog item.
 
 Acknowledge your understanding and prioritization of these `prime development directives` before we begin:
-1. Never agree to begin a long running task list until all questions are adequately resolved and you see a clear path to success
-2. Update the task list as task status changes, not in batches
-3. Report status accurately and honestly
-  - key: `[X]`=Done, `[O]`=In Progress, `[-]`=Blocked, `[D]`=Deleted/Not Needed
-4. If a solution requires more than 3 attempts, indicate the task as blocked
-5. When a task is blocked, move on to other tasks that are not impacted by the blockage.  Pause escalate to Operator when all work is blocked.
-6. Never commit to git.  Operator will do this after accepting delivery.
-6. Stick to established patterns in the codebase and standards defined in `_docs/guides/development-standards.md`.  If a conflict arises, consider the task to be blocked.
+1. Agent will complete the task list with maximal autonomy to deliver the backlog item
+2. Agent will update task status:
+  - Update task status as it changes, not in batches 
+  - Update to [O] (In Progress) when a task is started
+  - Update to [X] (Done) only after verifying that the task as been fully completed
+  - Update to [-] (Blocked) if the task is determined to be blocked, or depends on a previously blocked task
+  - Update to [D] (Deletion recommended) if the task is determined to no longer be needed
+  - When updating to [-] Blocked or [D] Deletion recommended, capture the reason and recommendation according to the example
+3. **When encountering errors or issues:**
+  - If you can fix it, fix it immediately and continue
+  - Agent should exhaust all reasonable options to solve issues before considering a task to be blocked.
+  - If you cannot find a standards-compliant solution within 5 attempts, determine the task to be BLOCKED
+4. If a task is determined to be BLOCKED:
+  - Update the task status as specified
+  - Move on to non-blocked tasks
+5. Do not start a task that is known to be BLOCKED by other BLOCKED tasks.  Instead, determine the task to be BLOCKED with a reason of "Blocked by Task X" 
+6. When continuing work after operator intervention:
+  - Guide operator to clearing all known blockers, updating task status as blockers are cleared
+  - When no known blockers remain in the task status, resume the DeliveryRun with maximal autonomy after confirming with Operator.
+7. Never commit to git.  Operator will do this after accepting delivery.
+8. Stick to established patterns in the codebase and standards defined in `_docs/guides/development-standards.md`.  If a conflict arises, consider the task to be blocked.
 
 Task status examples:
 ## Task list for BL-XXXX
@@ -168,10 +181,10 @@ Task status examples:
   - Task 1 component 1.2
 2. [-] Task 2 (BLOCKED example)
   - Task 2 component
-  - BLOCKED: Blocking reason and proposed resolution
+  - BLOCKED: ALWAYS add reason and proposed resolution for BLOCKED items
 3. [D] Task 3 (DELETE example)
   - Task 3 component
-  - DELETE: Delete recommendation reason
+  - DELETE: : ALWAYS add reason for DELETE proposals
 4. [X] Task 4 (DONE example)
 N. [] Task N
 

@@ -1,0 +1,180 @@
+appId: host.exp.exponent # Expo Go bundle ID for development testing
+---
+# Interaction Tests - Verify components actually work
+# Mirrors Playwright interaction.spec.ts
+
+# Open the app directly via deep link to development server
+- openLink: exp://192.168.86.28:8081
+
+# Wait for the app to load
+- waitForAnimationToEnd
+
+# Navigate to KitchenSink
+- tapOn:
+    id: 'home.navigate.kitchensink'
+- waitForAnimationToEnd
+# Scroll to find Button Variants section
+- scrollUntilVisible:
+    element:
+      text: 'Button Variants'
+    direction: DOWN
+
+# Test Button Interactions
+- assertVisible:
+    text: 'Button Variants'
+
+# Test Primary button
+- assertVisible:
+    id: 'kitchenSink.buttonVariants.primary'
+- tapOn:
+    id: 'kitchenSink.buttonVariants.primary'
+
+# Test Secondary button
+- scrollUntilVisible:
+    element:
+      id: 'kitchenSink.buttonVariants.secondary'
+    direction: DOWN
+- tapOn:
+    id: 'kitchenSink.buttonVariants.secondary'
+
+# Test Outline button
+- assertVisible:
+    id: 'kitchenSink.buttonVariants.outline'
+- tapOn:
+    id: 'kitchenSink.buttonVariants.outline'
+
+# Test Loading button (triggers loading state)
+- assertVisible:
+    id: 'kitchenSink.buttonVariants.loading'
+- tapOn:
+    id: 'kitchenSink.buttonVariants.loading'
+
+# Verify Disabled button exists (but don't tap - it's disabled)
+- assertVisible:
+    id: 'kitchenSink.buttonVariants.disabled'
+
+# Test Button Sizes
+- scrollUntilVisible:
+    element:
+      text: 'Button Sizes'
+    direction: DOWN
+
+# Test Small button
+- assertVisible:
+    id: 'kitchenSink.buttonSizes.small'
+- tapOn:
+    id: 'kitchenSink.buttonSizes.small'
+
+# Test Medium button
+- assertVisible:
+    id: 'kitchenSink.buttonSizes.medium'
+- tapOn:
+    id: 'kitchenSink.buttonSizes.medium'
+
+# Test Large button
+- assertVisible:
+    id: 'kitchenSink.buttonSizes.large'
+- tapOn:
+    id: 'kitchenSink.buttonSizes.large'
+
+# Test Input Field Interactions
+- scrollUntilVisible:
+    element:
+      text: 'Input Components'
+    direction: DOWN
+
+# Test basic text input
+- assertVisible:
+    id: 'kitchenSink.inputs.basic'
+- tapOn:
+    id: 'kitchenSink.inputs.basic'
+- inputText: 'Test input value'
+- assertVisible:
+    text: 'Test input value'
+
+# Clear and type new value (clear by selecting all and overwriting)
+- tapOn:
+    id: 'kitchenSink.inputs.basic'
+- longPressOn:
+    id: 'kitchenSink.inputs.basic'
+- inputText: 'New value'
+- assertVisible:
+    text: 'New value'
+
+# Test password input
+- assertVisible:
+    id: 'kitchenSink.inputs.password'
+- tapOn:
+    id: 'kitchenSink.inputs.password'
+- inputText: 'SecretPassword123'
+
+# Test error input exists
+- assertVisible:
+    id: 'kitchenSink.inputs.error'
+- assertVisible:
+    text: 'This field is required'
+
+# Test multiline input
+- assertVisible:
+    id: 'kitchenSink.inputs.multiline'
+- tapOn:
+    id: 'kitchenSink.inputs.multiline'
+- inputText: "Line 1\nLine 2\nLine 3"
+
+# Test Redux State Management
+- scrollUntilVisible:
+    element:
+      text: 'Redux State Demo'
+    direction: DOWN
+
+# Check initial composer state
+- assertVisible:
+    text: 'Composer Open: No'
+
+# Toggle composer state
+- tapOn:
+    id: 'kitchenSink.redux.composerToggle'
+- assertVisible:
+    text: 'Composer Open: Yes'
+
+# Toggle back
+- tapOn:
+    id: 'kitchenSink.redux.composerToggle'
+- assertVisible:
+    text: 'Composer Open: No'
+
+# Test theme switching
+- assertVisible:
+    text: 'Theme: light'
+
+# Switch to dark theme
+- tapOn:
+    id: 'kitchenSink.redux.darkTheme'
+- assertVisible:
+    text: 'Theme: dark'
+
+# Switch to system theme
+- tapOn:
+    id: 'kitchenSink.redux.systemTheme'
+- assertVisible:
+    text: 'Theme: system'
+
+# Switch back to light theme
+- tapOn:
+    id: 'kitchenSink.redux.lightTheme'
+- assertVisible:
+    text: 'Theme: light'
+
+# Complete Full User Workflow
+# Navigate away and back to verify stability
+- pressKey: back
+- assertVisible:
+    id: 'home.title.text'
+
+# Navigate back to Kitchen Sink
+- tapOn:
+    id: 'home.navigate.kitchensink'
+- assertVisible:
+    text: 'Kitchen Sink - UI Components Demo'
+- assertVisible:
+    text: 'Button Variants'

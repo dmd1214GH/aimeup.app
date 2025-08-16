@@ -22,10 +22,30 @@
 - Optional: WebKit/Safari (`npx playwright install webkit`)
 - Optional: Firefox (`npx playwright install firefox`)
 
-#### Mobile (Maestro - Coming in BL-0130)
+#### Mobile (Maestro)
 
-- Android Studio Emulator (required for Android testing)
-- iOS Simulator (optional, macOS only)
+**Maestro CLI Installation:**
+```bash
+# Install Maestro CLI (required for mobile E2E tests)
+curl -fsSL https://get.maestro.mobile.dev | bash
+
+# Add to PATH (add to your .bashrc/.zshrc for persistence)
+export PATH="$PATH":"$HOME/.maestro/bin"
+
+# Verify installation
+maestro --version
+```
+
+**Android Testing:**
+- Android Studio with Android SDK (required)
+- Android Emulator with "Pixel 9a (Play)" AVD or similar
+- Expo Go app installed on emulator (for development testing)
+- Development bundle ID: `host.exp.exponent` (Expo Go)
+- Production bundle ID: `com.eatgpt.app` (future EAS builds)
+
+**iOS Testing (future):**
+- Xcode and iOS Simulator (macOS only)
+- Currently out of scope
 
 ## Initial Setup
 
@@ -183,11 +203,62 @@ pnpm install
 2. Open Xcode > Settings > Platforms
 3. Download iOS simulator if needed
 
-### Android Emulator Not Starting
+### Android Emulator Setup
 
-1. Install Android Studio
-2. Create an AVD (Android Virtual Device)
-3. Start the emulator before running `pnpm android`
+1. **Install Android Studio**
+   - Download from https://developer.android.com/studio
+   - During installation, ensure Android SDK and Android Virtual Device are selected
+
+2. **Add Android SDK tools to PATH**
+   ```bash
+   # Add to your ~/.zshrc or ~/.bashrc:
+   export PATH="$PATH:$HOME/Library/Android/sdk/platform-tools"
+   export PATH="$PATH:$HOME/Library/Android/sdk/emulator"
+   
+   # Reload your shell config:
+   source ~/.zshrc  # or source ~/.bashrc
+   ```
+
+3. **Create an Android Virtual Device (AVD)**
+   ```bash
+   # Open Android Studio → Tools → AVD Manager
+   # Click "Create Virtual Device"
+   # Select: Pixel 9 or Pixel 8
+   # System Image: API 34 (Android 14) with Google Play
+   # Name it: "Pixel 9a (Play)" or similar
+   ```
+
+4. **Start the Emulator**
+   ```bash
+   # From command line (after adding to PATH):
+   emulator -avd "Pixel_9a_Play"
+   
+   # Or from Android Studio:
+   # Tools → AVD Manager → Launch
+   ```
+
+5. **Verify Emulator is Running**
+   ```bash
+   adb devices
+   # Should show: emulator-5554  device
+   ```
+
+6. **Install Expo Go for Development Testing**
+   ```bash
+   # Download Expo Go APK (latest version)
+   curl -L -o expo-go.apk https://d1ahtucjixef4r.cloudfront.net/Exponent-2.33.10.apk
+   
+   # Install on emulator
+   adb install expo-go.apk
+   ```
+
+7. **Run the App**
+   ```bash
+   cd apps/eatgpt
+   pnpm android
+   # Or for E2E tests:
+   pnpm test:smoke:mobile
+   ```
 
 ## Testing the Setup
 

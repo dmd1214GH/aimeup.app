@@ -129,6 +129,10 @@ cleanup() {
         echo "Stopping web server (PID: $WEB_SERVER_PID)..."
         kill $WEB_SERVER_PID 2>/dev/null || true
     fi
+    if [[ -n "${METRO_PID:-}" ]]; then
+        echo "Stopping Metro bundler (PID: $METRO_PID)..."
+        kill $METRO_PID 2>/dev/null || true
+    fi
 }
 
 # Set up cleanup trap
@@ -147,6 +151,96 @@ if [[ -f "apps/eatgpt/playwright.config.ts" ]]; then
     run_test "Web E2E Smoke Test" "cd apps/eatgpt && HEADED=true SLOW_MO=500 pnpm test:smoke:web"
 fi
 
+# Run Maestro Mobile tests if Android emulator is available
+check_and_run_mobile_tests() {
+    # Check if Maestro is installed
+    if ! command -v maestro &> /dev/null; then
+        echo "⚠️  Maestro not installed, skipping mobile tests"
+        return 0
+    fi
+    
+    # Check if Android emulator is running
+    if ! adb devices 2>/dev/null | grep -q "emulator"; then
+        echo "⚠️  No Android emulator detected, skipping mobile tests"
+        echo "   To run mobile tests: Start Android emulator and re-run aimequal"
+        return 0
+    fi
+    
+    echo "Android emulator detected, preparing mobile tests..."
+    
+    # Clean Maestro artifacts before tests
+    if [[ -x "apps/eatgpt/__tests__/e2e/maestro/cleanup-artifacts.sh" ]]; then
+        echo "Cleaning Maestro artifacts..."
+        apps/eatgpt/__tests__/e2e/maestro/cleanup-artifacts.sh clean
+    fi
+    
+    # Start Metro bundler using automation script
+    if [[ -x "apps/eatgpt/__tests__/e2e/maestro/start-metro.sh" ]]; then
+        apps/eatgpt/__tests__/e2e/maestro/start-metro.sh start
+        METRO_STARTED=true
+    else
+        # Fallback to inline Metro management
+        if lsof -i :8081 > /dev/null 2>&1; then
+            echo "Metro bundler already running on port 8081"
+            METRO_PID=""
+        else
+            echo "Starting Metro bundler for mobile tests..."
+            cd apps/eatgpt
+            npx expo start --no-dev --minify > /dev/null 2>&1 &
+            METRO_PID=$!
+            cd ../..
+            
+            # Wait for Metro to be ready
+            echo "Waiting for Metro bundler to start..."
+            for i in {1..30}; do
+                if lsof -i :8081 > /dev/null 2>&1; then
+                    echo "Metro bundler started successfully"
+                    break
+                fi
+                sleep 1
+            done
+            
+            if ! lsof -i :8081 > /dev/null 2>&1; then
+                echo "Failed to start Metro bundler"
+                [[ -n "$METRO_PID" ]] && kill $METRO_PID 2>/dev/null || true
+                return 1
+            fi
+        fi
+    fi
+    
+    # Run the mobile smoke test with timeout
+    set +e  # Don't exit on test failure, we want to clean up
+    run_test "Mobile E2E Smoke Test" "cd apps/eatgpt && timeout 120 pnpm test:smoke:mobile"
+    TEST_RESULT=$?
+    set -e
+    
+    # Archive artifacts on failure
+    if [[ $TEST_RESULT -ne 0 ]] && [[ -x "apps/eatgpt/__tests__/e2e/maestro/cleanup-artifacts.sh" ]]; then
+        echo "Archiving test artifacts due to failure..."
+        apps/eatgpt/__tests__/e2e/maestro/cleanup-artifacts.sh archive smoke_test
+    fi
+    
+    # Cleanup Metro
+    if [[ "${METRO_STARTED:-false}" == "true" ]] && [[ -x "apps/eatgpt/__tests__/e2e/maestro/start-metro.sh" ]]; then
+        apps/eatgpt/__tests__/e2e/maestro/start-metro.sh stop
+    elif [[ -n "${METRO_PID:-}" ]]; then
+        echo "Stopping Metro bundler (PID: $METRO_PID)..."
+        kill $METRO_PID 2>/dev/null || true
+    fi
+    
+    # Prune old artifacts
+    if [[ -x "apps/eatgpt/__tests__/e2e/maestro/cleanup-artifacts.sh" ]]; then
+        apps/eatgpt/__tests__/e2e/maestro/cleanup-artifacts.sh prune
+    fi
+    
+    return $TEST_RESULT
+}
+
+# Run mobile tests if available
+if [[ -d "apps/eatgpt/__tests__/e2e/maestro" ]]; then
+    check_and_run_mobile_tests
+fi
+
 echo "=========================================="
 
 # Verify all expected tests actually ran by checking the log file
@@ -158,6 +252,11 @@ EXPECTED_TESTS=(
     "TypeScript Type Check: PASSED"
     "Web E2E Smoke Test: PASSED"
 )
+
+# Add mobile test to expected list if it was attempted
+if grep -q "Mobile E2E Smoke Test" "$OUTPUT_FILE"; then
+    EXPECTED_TESTS+=("Mobile E2E Smoke Test: PASSED")
+fi
 
 echo "Checking log file for expected tests:"
 MISSING_TESTS=()

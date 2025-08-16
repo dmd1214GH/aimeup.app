@@ -1,42 +1,56 @@
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
+import { Text } from 'react-native-elements';
+import { tokens } from '@aimeup/tokens';
 
 export default function HomePage() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>EatGPT</Text>
-      <Text style={styles.subtitle}>React Native + Web App</Text>
+      <Text h1 style={styles.title} testID="home.title.text">
+        EatGPT
+      </Text>
+      <Text style={styles.subtitle} testID="home.subtitle.text">
+        React Native + Web App
+      </Text>
 
       <View style={styles.buttonContainer}>
-        <Button
-          title="View Kitchen Sink"
+        <TouchableOpacity
           onPress={() => router.push('/kitchensink')}
-          color="#841584"
-        />
+          style={[styles.button, styles.primaryButton]}
+          testID="home.navigate.kitchensink"
+        >
+          <Text style={styles.buttonTitle}>View Kitchen Sink</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.buttonContainer}>
-        <Button
-          title="Tokens Debug Guide"
+        <TouchableOpacity
           onPress={() => router.push('/tokens-debug')}
-          color="#3b82f6"
-        />
+          style={[styles.button, styles.infoButton]}
+          testID="home.navigate.tokens"
+        >
+          <Text style={styles.buttonTitle}>Tokens Debug Guide</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.buttonContainer}>
-        <Button
-          title="Test Environment Variables"
+        <TouchableOpacity
           onPress={() => router.push('/env-test')}
-          color="#22c55e"
-        />
+          style={[styles.button, styles.successButton]}
+          testID="home.navigate.envtest"
+        >
+          <Text style={styles.buttonTitle}>Test Environment Variables</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.buttonContainer}>
-        <Button
-          title="Environment Error Demo"
+        <TouchableOpacity
           onPress={() => router.push('/env-error-demo')}
-          color="#ef4444"
-        />
+          style={[styles.button, styles.dangerButton]}
+          testID="home.navigate.enverror"
+        >
+          <Text style={styles.buttonTitle}>Environment Error Demo</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -47,22 +61,47 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'white',
-    padding: 20,
+    backgroundColor: tokens.colors.white as string,
+    padding: tokens.spacing[5],
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#111',
+    marginBottom: tokens.spacing[2],
+    textAlign: 'center',
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666',
-    marginTop: 8,
-    marginBottom: 32,
+    fontSize: tokens.fontSize.base.size,
+    color: (tokens.colors.neutral as any)[600],
+    marginTop: tokens.spacing[2],
+    marginBottom: tokens.spacing[8],
+    textAlign: 'center',
   },
   buttonContainer: {
-    marginVertical: 10,
+    marginVertical: tokens.spacing[2.5],
     minWidth: 200,
+  },
+  button: {
+    borderRadius: tokens.borderRadius.lg,
+    paddingVertical: tokens.spacing[3],
+    paddingHorizontal: tokens.spacing[4],
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 44, // Ensure minimum touch target size
+  },
+  buttonTitle: {
+    fontSize: tokens.fontSize.base.size,
+    fontWeight: tokens.fontWeight.semibold as any,
+    textAlign: 'center',
+  },
+  primaryButton: {
+    backgroundColor: '#841584',
+  },
+  infoButton: {
+    backgroundColor: (tokens.colors.info as any)[500],
+  },
+  successButton: {
+    backgroundColor: (tokens.colors.success as any)[500],
+  },
+  dangerButton: {
+    backgroundColor: (tokens.colors.danger as any)[500],
   },
 });

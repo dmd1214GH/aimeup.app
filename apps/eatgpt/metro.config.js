@@ -21,10 +21,8 @@ config.resolver.nodeModulesPaths = [
 // Without this, Metro might resolve to hoisted versions instead of workspace packages
 config.resolver.disableHierarchicalLookup = true;
 
-// === NATIVEWIND CONFIGURATION ===
-// Wraps the config to enable Tailwind CSS className prop support
-// This processes global.css and enables className->style transformation
-const { withNativeWind } = require('nativewind/metro');
-module.exports = withNativeWind(config, {
-  input: './global.css', // Path to the CSS file with Tailwind directives
-});
+// === VECTOR ICONS CONFIGURATION ===
+// Add support for react-native-vector-icons
+config.resolver.assetExts = [...(config.resolver.assetExts || []), 'ttf', 'otf'];
+
+module.exports = config;
