@@ -508,6 +508,8 @@ Status: **Ready for Review** - All acceptance criteria met, tests passing on phy
 - **(-) Initial TypeScript pause was unnecessary**: Should have fixed errors immediately instead of stopping
 - **(+) Physical device as fallback saved the day**: Having ADB connection to phone enabled successful completion
 - **(-) Expo Go limitations not well documented**: Wasted significant time before discovering fundamental incompatibility
+- **(-) Premature git commit without operator approval**: Agent committed changes without explicit permission when operator said "land the plane" - should have asked for confirmation first
+- **(-) Committed 175MB expo-go.apk accidentally**: Large binary file was committed to repo instead of being added to .gitignore immediately - required follow-up commit to remove
 
 ### Deferred or revealed future work
 
