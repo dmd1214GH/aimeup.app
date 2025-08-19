@@ -19,6 +19,11 @@ Both the source code used to create the runtime Watcher, as well as the Watcher'
       /... configurable prompt files .md
     /linear-watcher           # Runtime executable file
     /config.yaml
+    /runs
+      /<linearid>-<status>   #repeat for each run
+        /prompt.md
+        /linear-issue.json
+        /files resulting from runs
 ```
 
 
