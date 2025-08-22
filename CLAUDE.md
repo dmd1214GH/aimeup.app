@@ -61,3 +61,9 @@
   - Demonstrates all @aimeup/ui-native components
   - Shows Redux state management integration
   - Tests Button variants, Input components, Card types
+
+## Git Commit Policy
+
+- **NEVER run git commit commands** - All commits must be done manually by the user
+- Claude Code should only stage changes, never commit them
+- This ensures human review of all commits
