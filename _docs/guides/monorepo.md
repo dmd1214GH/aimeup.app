@@ -1,5 +1,13 @@
 # Monorepo Guide
 
+## Maintenance Standards
+This document must reflect the source of truth about the monorepos. Every modification to the monorepos structure MUST be done so with these standards:
+**New/Removed Packages***
+- The workspace configuration (pnpm-workspace.yaml) must be updated
+- The this document must be updated as part of the task, not as a separate documentation task
+- Package level classification (Level 0-3) must be determined and documented. Ambiguous specification blocks commit-ability
+- Unit tests protecting the monorepos structure must be updated to reflect the changes
+
 ## Target Folder Structure
 
 ```
