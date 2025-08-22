@@ -62,8 +62,10 @@
   - Shows Redux state management integration
   - Tests Button variants, Input components, Card types
 
-## Git Commit Policy
+## Git Policy
 
 - **NEVER run git commit commands** - All commits must be done manually by the user
-- Claude Code should only stage changes, never commit them
-- This ensures human review of all commits
+- **NEVER run git add commands** - All staging must be done manually by the user
+- **NEVER run git push commands** - All pushes must be done manually by the user
+- Claude Code should not stage, commit, or push changes
+- This ensures human review and control of all git operations
