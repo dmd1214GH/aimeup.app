@@ -1,8 +1,9 @@
 # Linear Watcher Design
+
 Linear-Watcher (Watcher) is a batch program used coordinate work between Linear (issue tracking) and Claude Code (AI Agent).
 
-
 ## Watcher Process Overview:
+
 1. Read Linear Issues (Linear API) in certain states
 1. Prepare Issues for AI processing (attach prompts, format)
 1. Invoke Claude Code terminals perform tasks defined by the prompt and Issue
@@ -10,7 +11,8 @@ Linear-Watcher (Watcher) is a batch program used coordinate work between Linear 
 1. Transmit results back to Linear (Linear API)
 
 ## Physical Footprint
-Both the source code used to create the runtime Watcher, as well as the Watcher's runtime elements, will reside within the aimeup monorepo.  
+
+Both the source code used to create the runtime Watcher, as well as the Watcher's runtime elements, will reside within the aimeup monorepo.
 
 ```
 /aimeup
@@ -26,8 +28,8 @@ Both the source code used to create the runtime Watcher, as well as the Watcher'
         /files resulting from runs
 ```
 
-
 ## config.yaml
+
 ```
 linearurl: https://api.linear.app/graphql
 #apiKey comes from $LINEAR_API_KEY; do not put secrets here
@@ -60,6 +62,3 @@ actions:
 
 
 ```
-
-
-

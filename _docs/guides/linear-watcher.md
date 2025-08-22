@@ -1,9 +1,11 @@
 # linear-watcher
+
 Custom tool designed to watch linear activity and initiate ClaudeCode agents to refine Issues and deliver functionality.
 
 ## Working Folder
+
 At install time, a working folder is established into the workspace:
-    `./.linear-watcher`
+`./.linear-watcher`
 This is the runtime folder used by the linear-watcher framework
 
 ```bash
@@ -24,35 +26,37 @@ This is the runtime folder used by the linear-watcher framework
 ```
 
 ## lc-runner
+
 This command-line tool (lc-runner) automates execution of predefined workflows based on Linear issue status. When a developer provides an issue ID, the tool checks its status, maps it to a configured command, prepares a run folder, and invokes Claude Code in headless mode. It persists execution context and updates Linear with success or failure.
 
 It can support these operations:
+
 - `Tasking` - Specify Tasks required to delivery Issues that are in the state of `Tasking-ai`
 - `Delivery` - Develop the code required to deliver the Issue's specified functionality for issues in the state of `Delivery-ai`.
 - `Smoke` - Run the standard Smoketest against the code when issues are set to the status of `Smoke-ai`.
 
-
 ## Issue Status Workflow in Linear
-Explains the exact statuses used in Linear.  This solution maps AI Operations of to certain statuses (Tasking, Delivering, SmokeTesting)
 
-* Backlog
-  * **Triage**: transitions to Grooming, Icebox, Out of Scope, Duplicate
-  * **Needs Clarification**: transitions: Tasking-prep, Icebox, Will not do, Duplicate
-  * **Grooming**: transitions to Tasking-prep, Icebox, Will not do, Duplicate
-  * **Icebox**: transitions to Grooming, Out of Scope
-* Unstarted
-  * **Tasking-Prep**: transitions Tasking-ai, Needs Clarification
-  * **Tasking-ai**: transitions to Delivery-Ready, Tasking-BLOCKED << AI Executed
-  * **Tasking-BLOCKED**: transitions to Tasking-Prep, Needs Clarification
-* Started
-  * **Delivery-Ready**: transitions to Delivery-ai, Needs Clarification
-  * **Delivery-ai**: transitions: Smoke-ai, Delivery-BLOCKED << AI Executed
-  * **Delivery-BLOCKED**: transitions: Tasking-Prep, Needs Clarification
-  * **Smoke-ai**: transitions: Final Review, Smoke-BLOCKED << AI Executed
-  * **Smoke-BLOCKED**: transitions: Tasking-Prep, Needs Clarification
-  * **Acceptance**: transitions: Done, Needs Clarification
-* Completed
-  * **Done**: (terminal)
-* Cancelled
-  * **Duplicate**: (terminal)
-  * **Will not do**: (terminal)
+Explains the exact statuses used in Linear. This solution maps AI Operations of to certain statuses (Tasking, Delivering, SmokeTesting)
+
+- Backlog
+  - **Triage**: transitions to Grooming, Icebox, Out of Scope, Duplicate
+  - **Needs Clarification**: transitions: Tasking-prep, Icebox, Will not do, Duplicate
+  - **Grooming**: transitions to Tasking-prep, Icebox, Will not do, Duplicate
+  - **Icebox**: transitions to Grooming, Out of Scope
+- Unstarted
+  - **Tasking-Prep**: transitions Tasking-ai, Needs Clarification
+  - **Tasking-ai**: transitions to Delivery-Ready, Tasking-BLOCKED << AI Executed
+  - **Tasking-BLOCKED**: transitions to Tasking-Prep, Needs Clarification
+- Started
+  - **Delivery-Ready**: transitions to Delivery-ai, Needs Clarification
+  - **Delivery-ai**: transitions: Smoke-ai, Delivery-BLOCKED << AI Executed
+  - **Delivery-BLOCKED**: transitions: Tasking-Prep, Needs Clarification
+  - **Smoke-ai**: transitions: Final Review, Smoke-BLOCKED << AI Executed
+  - **Smoke-BLOCKED**: transitions: Tasking-Prep, Needs Clarification
+  - **Acceptance**: transitions: Done, Needs Clarification
+- Completed
+  - **Done**: (terminal)
+- Cancelled
+  - **Duplicate**: (terminal)
+  - **Will not do**: (terminal)

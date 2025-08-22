@@ -1,8 +1,10 @@
 # Monorepo Guide
 
 ## Maintenance Standards
+
 This document must reflect the source of truth about the monorepos. Every modification to the monorepos structure MUST be done so with these standards:
-**New/Removed Packages***
+**New/Removed Packages\***
+
 - The workspace configuration (pnpm-workspace.yaml) must be updated
 - The this document must be updated as part of the task, not as a separate documentation task
 - Package level classification (Level 0-3) must be determined and documented. Ambiguous specification blocks commit-ability
@@ -54,19 +56,23 @@ This document must reflect the source of truth about the monorepos. Every modifi
 ```
 
 ## Product Map
+
 - How various conceptual products exist within the monorepo.
 - Explains the products
 - Defines operational rules for building and documenting
 
 ### Product: Chatable Framework
+
 Namespace: **@aimeup**
 
 **Intentions**
+
 - Sharable TS/React packages which can be used by apps seeking similar chat + integration experience
 - Design patterns to provide extensibility and customizatation, but also a rich starting point
 - Jumpstart to: ChatUI, Authenticaition, Storage, Responsiveness,
 
 **Chatable Packages**
+
 - @aimeup/core
 - @aimeup/helpers
 - @aimeup/core-react
@@ -76,66 +82,78 @@ Namespace: **@aimeup**
 - @aimeup/chat
 - @aimeup/aime-aidev
 
-
 ### Product: EatGPT
-Namespace:  **@eatgpt**
+
+Namespace: **@eatgpt**
 
 **Intentions**
+
 - Specific, AI-driven, meal tracking app built on the Chatable Framework
 - Deploy to iOS, Android, Web (RN-web)
 - Coding and testing largely completed through automated AI supplied through AI Dev Ops
 
 **EatGPT Packages**
+
 - @eatgpt/nutrition
 - @eatgpt/healthconnect
 
 ### Product: AI Dev Ops
-Namespace:  **@aidevops**
+
+Namespace: **@aidevops**
 
 **Intentions**
+
 - Development tools, processes, patterns for coding and testing with AI assistance
 
 **AI Dev Ops Packages**
+
 - @aidevops/lc-runner
-
-
 
 ## Package Levels
 
 ### Level 0 - Core Code
+
 Trustworthy, low-weight table stakes components necessary for working within the aimeup ecosystem.
 
 #### Includes
+
 - `@aimeup/core` - Core domain types and API contracts
 - `@aimeup/tokens` - Design tokens and theme system
 - `@aimeup/core-react` - React context providers and state management
 
 #### Allowed Dependencies
-- Ubiquitous, non-blocking, low-weight libraries only. No side effects (external calls, singletons, etc.). 
+
+- Ubiquitous, non-blocking, low-weight libraries only. No side effects (external calls, singletons, etc.).
 - Other level 0 packages (no circular references)
 
 #### Export Rules
+
 No wholesale exports. Only subdomains may be exported. Use focused imports for dependency management.
 
-
 ### Level 1 - Helpers, Libraries, Utilities
+
 Medium-weight resources required for deeper interactions without requiring full dependency on major packages.
 
 #### Includes
+
 - `@aimeup/helpers` - Utility functions and services
 
 #### Allowed Dependencies
+
 - Level 0 packages
 - Other level-1 packages (no circular dependencies)
-- Curated packages intended for consumption, well-documented side effects. 
+- Curated packages intended for consumption, well-documented side effects.
 
 #### Export Rules
+
 - No wholesale exports. Only subdomains may be exported. Use focused imports for dependency management.
 
 ### Level 2 - Packages, Tools
+
 Heavy-weight resources designed for delivering maximal functionality with minimal dependency constraints.
 
 #### Includes
+
 - `@aimeup/ui-native` - Reusable React Native UI components
 - `@aimeup/account` - Authentication and user profile domain
 - `@aimeup/chat` - Chat functionality and domain logic
@@ -143,33 +161,36 @@ Heavy-weight resources designed for delivering maximal functionality with minima
 - `@eatgpt/healthconnect` - HealthConnect integration (Android only)
 
 #### Allowed Dependencies
+
 May have Level 0-2 dependencies so long as circular references are avoided.
 
 #### Export Rules
+
 Package export flexibility. Clients are all-in.
 
-
 ### Level 3 - Application Endpoint
+
 Endpoint applications
 
 #### Includes
+
 - `@eatgpt/app` - EatGPT React Native application
 - `@aimeup/service` - Firebase Cloud Functions service
 - `@aimeup/testharness` - Testharness for demonstration and testing, not for deployment
 
 #### Allowed Dependencies
+
 Dependencies are not constrained.
 
 #### Export Rules
+
 Code in these packages is not intended for export.
-
-
 
 ## Standards
 
 ### Root Exports
 
-- **No root exports** for Level 0 and Level 1 packages **which bundle multiple subdomains**.  
+- **No root exports** for Level 0 and Level 1 packages **which bundle multiple subdomains**.
 - Use subpath exports instead to promotes minimal dependencies and prepare for future refactoring. (e.g., `@aimeup/core/aiapi` not `@aimeup/core`)
 - Prevent circular dependencies between packages
 - Packages must not import from higher-level packages
@@ -177,6 +198,7 @@ Code in these packages is not intended for export.
 - Enforce dependency constraints with ESLint for specific package hygiene
 
 #### Prevent root exports
+
 Level 0 and Level 1 packages which contain multiple subdomains MUST prevent root from being imported. (Intentionally omit "." so import '@aimeup/core' fails.)
 
 ```json
@@ -192,7 +214,8 @@ Level 0 and Level 1 packages which contain multiple subdomains MUST prevent root
 ```
 
 ### Structural Standards
-- Changes to core monorepo structure must be approved and documented. 
+
+- Changes to core monorepo structure must be approved and documented.
 - Update this document (`monorepo.md`), and include along with git commits that apply structural changes:
   - Modify the `Target Folder Structure` section to specify names, namespaces, and relative locations of folders
   - Modify the `Product Map` section to explain which product each package belongs to.

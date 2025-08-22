@@ -29,6 +29,7 @@
 ## Core Capabilities
 
 ### 🕵️ Poll Linear
+
 - Poll for issue updates (e.g. `updatedAt`)
 - Filter by:
   - Assignee = `claude-code`
@@ -36,6 +37,7 @@
 - Skip duplicates using in-memory or file-based tracking
 
 ### 📥 Gather Input
+
 - Collect:
   - Title, description, status
   - Comments and linked issues
@@ -44,12 +46,14 @@
 - Prepare input payload for ClaudeCode
 
 ### 🚀 Trigger ClaudeCode
+
 - Launches **local terminal process**
 - Passes prompt + metadata via CLI args or stdin
 - Tracks PID and result file paths
 - Future-proofed to support daemon or job-runner models
 
 ### 📤 Update Linear
+
 - Post results to:
   - Issue comments
   - Issue description (if configured)
@@ -60,13 +64,13 @@
 
 ## Priority Use Cases
 
-| Use Case | Description |
-|----------|-------------|
-| **Feature Collaboration** | Refine specs at epic or story level |
-| **Acceptance Criteria**  | Generate ACs or split into sub-issues |
-| **Grooming**             | Clarify requirements, resolve ambiguity, smallerize |
-| **Delivery**             | ClaudeCode drafts code, doc, or test artifacts |
-| **Testing Support**      | Generate test plans, cases, or analysis |
+| Use Case                  | Description                                         |
+| ------------------------- | --------------------------------------------------- |
+| **Feature Collaboration** | Refine specs at epic or story level                 |
+| **Acceptance Criteria**   | Generate ACs or split into sub-issues               |
+| **Grooming**              | Clarify requirements, resolve ambiguity, smallerize |
+| **Delivery**              | ClaudeCode drafts code, doc, or test artifacts      |
+| **Testing Support**       | Generate test plans, cases, or analysis             |
 
 ---
 
