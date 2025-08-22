@@ -1,0 +1,26 @@
+{
+  "name": "@aimeup/aime-aidev",
+  "version": "0.0.1",
+  "description": "AI Dev profile package with runtime configuration and prompts",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc && npm run copy-assets",
+    "copy-assets": "cp -r assets dist/",
+    "postinstall": "node dist/postinstall.js",
+    "test": "jest",
+    "typecheck": "tsc --noEmit",
+    "hygiene": "eslint . --ext .ts,.tsx,.js,.jsx --ignore-pattern node_modules --max-warnings 0 || true"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.13",
+    "@types/node": "^20.14.8",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.5.4"
+  },
+  "files": [
+    "dist",
+    "assets"
+  ],
+  "license": "MIT"
+}

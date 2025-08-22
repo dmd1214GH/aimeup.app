@@ -46,6 +46,9 @@ This document must reflect the source of truth about the monorepos. Every modifi
     /eatgpt                                   # container for eatgpt-specific code
       /nutrition     (@eatgpt/nutrition)      # Renamed from nutritionProfile
       /healthconnect (@eatgpt/healthconnect)  # RN only, does not apply to web or iOS
+    /aidevops                                 # container for AI Dev Ops tools
+      /lc-runner     (@aidevops/lc-runner)    # Linear/ClaudeCode runner CLI
+    /aime-aidev      (@aimeup/aime-aidev)     # AI Dev profile package with prompts and config
     /tokens          (@aimeup/tokens)         # design tokens & RN Elements theming
   /configs           # optional location for preset storage
     /tsconfig        # tsconfig.lib.json, tsconfig.app.json → packages/apps extend these
@@ -159,6 +162,8 @@ Heavy-weight resources designed for delivering maximal functionality with minima
 - `@aimeup/chat` - Chat functionality and domain logic
 - `@eatgpt/nutrition` - Nutrition domain (renamed from nutritionProfile)
 - `@eatgpt/healthconnect` - HealthConnect integration (Android only)
+- `@aidevops/lc-runner` - Linear/ClaudeCode runner CLI tool
+- `@aimeup/aime-aidev` - AI Dev profile package with runtime config and prompts
 
 #### Allowed Dependencies
 
@@ -220,3 +225,56 @@ Level 0 and Level 1 packages which contain multiple subdomains MUST prevent root
   - Modify the `Target Folder Structure` section to specify names, namespaces, and relative locations of folders
   - Modify the `Product Map` section to explain which product each package belongs to.
   - Update the `Package Levels` section to identify the product that the package belongs to.
+
+## AI Dev Ops Tools
+
+### lc-runner CLI
+
+The `lc-runner` CLI tool is part of the AI Dev Ops product for automating Linear/ClaudeCode operations.
+
+#### Installation and Build
+
+1. **Package Location**: `/packages/aidevops/lc-runner/`
+2. **Build Command**: `pnpm build` (from package directory or root)
+3. **Output**: Compiles TypeScript to `/dist/lc-runner.js`
+4. **Binary Linking**: pnpm creates symlink in `node_modules/.bin/lc-runner`
+
+#### Runtime Configuration
+
+The CLI depends on the `@aimeup/aime-aidev` profile package which:
+
+- Installs during `pnpm install` via postinstall script
+- Copies runtime assets to `/.linear-watcher/`:
+  - `config.json` - Operation mappings and settings
+  - `prompts/` - Operation-specific prompt templates
+
+#### Usage
+
+```bash
+# From repository root after pnpm install
+pnpm lc-runner <operation> <issueId>
+
+# Or directly if in PATH
+lc-runner <operation> <issueId>
+
+# Example
+pnpm lc-runner Task AM-123
+# Output: Hello World (AM-123 : Task)
+```
+
+#### Configuration Schema
+
+The `.linear-watcher/config.json` file defines:
+
+- `issuePrefixes`: Valid issue ID prefixes (e.g., ["AM", "BUG", "FEAT"])
+- `operations`: Mapping of operation names to Linear statuses
+- `settings`: Runtime configuration options
+
+#### Error Handling
+
+The CLI validates:
+
+- Configuration file exists and is valid JSON
+- Operation name matches configured operations
+- Issue ID starts with configured prefix
+- Exits with non-zero status and clear error messages on failure

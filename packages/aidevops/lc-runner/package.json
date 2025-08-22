@@ -1,0 +1,31 @@
+{
+  "name": "@aidevops/lc-runner",
+  "version": "0.0.1",
+  "description": "Linear/ClaudeCode runner CLI for AI-assisted development",
+  "main": "dist/index.js",
+  "bin": {
+    "lc-runner": "dist/lc-runner.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "typecheck": "tsc --noEmit",
+    "hygiene": "eslint . --ext .ts,.tsx,.js,.jsx --ignore-pattern node_modules --max-warnings 0 || true"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.13",
+    "@types/node": "^20.14.8",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.2.5",
+    "typescript": "^5.5.4"
+  },
+  "files": [
+    "dist"
+  ],
+  "license": "MIT"
+}

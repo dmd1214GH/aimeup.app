@@ -1,0 +1,31 @@
+{
+  "version": "1.0.0",
+  "issuePrefixes": ["AM", "BUG", "FEAT"],
+  "operations": [
+    {
+      "name": "Task",
+      "linearStatus": "Tasking",
+      "description": "Break down a Linear issue into actionable tasks"
+    },
+    {
+      "name": "Deliver",
+      "linearStatus": "Delivery",
+      "description": "Deliver the implementation for a Linear issue"
+    },
+    {
+      "name": "Review",
+      "linearStatus": "Review",
+      "description": "Review the delivered implementation"
+    },
+    {
+      "name": "Test",
+      "linearStatus": "Testing",
+      "description": "Test the implementation"
+    }
+  ],
+  "settings": {
+    "workingFolder": ".linear-watcher/work",
+    "timeout": 300000,
+    "debug": false
+  }
+}

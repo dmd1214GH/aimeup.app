@@ -21,6 +21,8 @@ describe('Monorepo Structure Validation', () => {
     packages: {
       subfolders: [
         'account',
+        'aidevops',
+        'aime-aidev',
         'chat',
         'config',
         'core',
@@ -28,6 +30,7 @@ describe('Monorepo Structure Validation', () => {
         'eatgpt',
         'helpers',
         'tokens',
+        'ui-native',
       ],
     },
     configs: {
@@ -40,6 +43,7 @@ describe('Monorepo Structure Validation', () => {
     'packages/core': ['aiapi', 'chatapi', 'menuapi', 'securityapi'],
     'packages/helpers': ['files', 'chatable', 'account', 'utility', 'openai'],
     'packages/eatgpt': ['nutrition', 'healthconnect'],
+    'packages/aidevops': ['lc-runner'],
   };
 
   test('should have all required top-level folders', () => {
