@@ -7,11 +7,13 @@
     "lc-runner": "dist/lc-runner.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && npm run deploy-prompts",
     "dev": "tsc --watch",
     "test": "jest",
     "typecheck": "tsc --noEmit",
-    "hygiene": "eslint . --ext .ts,.tsx,.js,.jsx --ignore-pattern node_modules --max-warnings 0 || true"
+    "hygiene": "eslint . --ext .ts,.tsx,.js,.jsx --ignore-pattern node_modules --max-warnings 0 || true",
+    "deploy-prompts": "node scripts/deploy-prompts.js",
+    "postinstall": "npm run deploy-prompts"
   },
   "dependencies": {
     "commander": "^12.1.0",

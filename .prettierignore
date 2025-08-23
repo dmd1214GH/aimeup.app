@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build outputs
+dist/
+build/
+.turbo/
+.next/
+.expo/
+android/build/
+ios/build/
+
+# Test outputs
+coverage/
+playwright-report/
+test-results/
+
+# Temporary files
+*.log
+*.tmp
+.DS_Store
+
+# Linear watcher prompts - these need specific formatting for lc-runner
+.linear-watcher/prompts/*.md
+packages/aime-aidev/assets/prompts/*.md

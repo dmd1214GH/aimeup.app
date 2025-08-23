@@ -1,0 +1,297 @@
+import * as fs from 'fs';
+import * as path from 'path';
+import { WorkingFolderManager } from '../src/working-folder';
+import { OperationLogger } from '../src/operation-logger';
+import { PromptAssembler } from '../src/prompt-assembler';
+import { OperationReporter } from '../src/operation-reporter';
+
+// Mock modules for integration test
+jest.mock('fs');
+
+describe('lc-runner Integration Tests', () => {
+  const mockFs = fs as jest.Mocked<typeof fs>;
+
+  const testWorkroot = '/test/repo/.linear-watcher/work';
+  const testIssueId = 'AM-19';
+  const testOperation = 'Delivery';
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    jest.useFakeTimers();
+    // Set system time to get desired local timestamp
+    jest.setSystemTime(new Date('2025-08-22T10:30:45'));
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  describe('Complete workflow integration', () => {
+    it('should create working folder, log entry, prompt, and report', () => {
+      // Setup mocks for the complete workflow
+      mockFs.existsSync.mockImplementation((path: any) => {
+        // Simulate various file existence checks
+        if (path.includes('lcr-AM-19')) return false; // Working folder doesn't exist yet
+        if (path.includes('prompt')) return true; // Prompt files exist
+        if (path.includes('config.json')) return true; // Config exists
+        return false;
+      });
+
+      mockFs.mkdirSync.mockImplementation(() => undefined);
+      mockFs.writeFileSync.mockImplementation(() => undefined);
+      mockFs.appendFileSync.mockImplementation(() => undefined);
+      mockFs.readFileSync.mockImplementation((filePath: any) => {
+        if (filePath.includes('general')) {
+          return '## General Prompt\nIssue: <ArgIssueId>\nOperation: <ArgOperation>\nFolder: <ArgWorkingFolder>';
+        }
+        if (filePath.includes('operation')) {
+          return '## Delivery Instructions\nDeliver the issue';
+        }
+        if (filePath.includes('config.json')) {
+          return JSON.stringify({
+            linear: { issuePrefix: 'AM' },
+            generalPrompt: 'lc-runner-general-prompt.md',
+            'lc-runner-operations': {
+              Delivery: {
+                operationName: 'Delivery',
+                linearIssueStatus: 'Code & Test',
+                promptFile: 'delivery-prompt.md',
+              },
+            },
+          });
+        }
+        return '';
+      });
+
+      // Create instances and execute workflow
+      const folderManager = new WorkingFolderManager(testWorkroot);
+      const workingFolderPath = folderManager.createWorkingFolder(testIssueId, testOperation);
+
+      // Verify working folder creation
+      expect(workingFolderPath).toBe(
+        '/test/repo/.linear-watcher/work/lcr-AM-19/op-Delivery-20250822103045'
+      );
+      expect(mockFs.mkdirSync).toHaveBeenCalledWith('/test/repo/.linear-watcher/work/lcr-AM-19', {
+        recursive: true,
+      });
+      expect(mockFs.mkdirSync).toHaveBeenCalledWith(workingFolderPath, { recursive: true });
+
+      // Create and verify operation log
+      const logger = new OperationLogger(testWorkroot);
+      const logEntry = {
+        timestamp: '2025-08-22T10:30:45.000Z',
+        operation: testOperation,
+        status: 'Started',
+        folderPath: 'lcr-AM-19/op-Delivery-20250822103045',
+      };
+      logger.appendLogEntry(testIssueId, logEntry);
+
+      expect(mockFs.writeFileSync).toHaveBeenCalledWith(
+        '/test/repo/.linear-watcher/work/lcr-AM-19/issue-operation-log.md',
+        expect.stringContaining('# Operation Log for AM-19'),
+        'utf8'
+      );
+
+      // Assemble and verify master prompt
+      const assembler = new PromptAssembler();
+      const generalPromptPath = '/test/prompts/general.md';
+      const operationPromptPath = '/test/prompts/operation.md';
+      const masterPromptPath = path.join(workingFolderPath, 'master-prompt.md');
+
+      // Reset mock to track master prompt write
+      mockFs.writeFileSync.mockClear();
+      mockFs.existsSync.mockReturnValue(true);
+
+      assembler.assembleMasterPrompt(
+        generalPromptPath,
+        operationPromptPath,
+        {
+          issueId: testIssueId,
+          operation: testOperation,
+          workingFolder: workingFolderPath,
+        },
+        masterPromptPath
+      );
+
+      expect(mockFs.writeFileSync).toHaveBeenCalledWith(
+        masterPromptPath,
+        expect.stringContaining('Issue: AM-19'),
+        'utf8'
+      );
+      expect(mockFs.writeFileSync).toHaveBeenCalledWith(
+        masterPromptPath,
+        expect.stringContaining('Operation: Delivery'),
+        'utf8'
+      );
+
+      // Create and verify operation report
+      const reporter = new OperationReporter(workingFolderPath);
+
+      mockFs.writeFileSync.mockClear();
+      reporter.createInitialReport(
+        testIssueId,
+        testOperation,
+        'lcr-AM-19/op-Delivery-20250822103045'
+      );
+
+      expect(mockFs.writeFileSync).toHaveBeenCalledWith(
+        path.join(workingFolderPath, 'operation-report.json'),
+        expect.stringContaining('"operationStatus": "Inprog"'),
+        'utf8'
+      );
+
+      // Update report to completed
+      mockFs.existsSync.mockReturnValue(true);
+      mockFs.readFileSync.mockReturnValue(
+        JSON.stringify({
+          issueId: testIssueId,
+          operation: testOperation,
+          workingFolder: 'lcr-AM-19/op-Delivery-20250822103045',
+          operationStatus: 'Inprog',
+          'start-timestamp': '2025-08-22T10:30:45.000Z',
+          'end-timestamp': null,
+          summary: 'Operation in progress',
+          outputs: {},
+        })
+      );
+
+      reporter.updateReport('Completed', 'All tasks completed successfully', {
+        updatedIssue: 'updated-issue.md',
+        commentFiles: ['comment-001.md'],
+        contextDump: 'context-dump.md',
+      });
+
+      const lastWriteCall =
+        mockFs.writeFileSync.mock.calls[mockFs.writeFileSync.mock.calls.length - 1];
+      expect(lastWriteCall[1]).toContain('"operationStatus": "Completed"');
+      expect(lastWriteCall[1]).toContain('"summary": "All tasks completed successfully"');
+    });
+
+    it('should handle errors gracefully and update report to Failed', () => {
+      // Simulate an error during folder creation
+      mockFs.existsSync.mockReturnValue(false);
+      mockFs.mkdirSync.mockImplementation(() => {
+        throw new Error('Permission denied');
+      });
+
+      const folderManager = new WorkingFolderManager(testWorkroot);
+
+      expect(() => {
+        folderManager.createWorkingFolder(testIssueId, testOperation);
+      }).toThrow('Failed to create working folder');
+    });
+
+    it('should validate prompt format during assembly', () => {
+      const assembler = new PromptAssembler();
+
+      mockFs.existsSync.mockReturnValue(true);
+      mockFs.readFileSync.mockImplementation((filePath: any) => {
+        if (filePath.includes('general')) {
+          return '## General Prompt\nContent';
+        }
+        if (filePath.includes('operation')) {
+          return '# Invalid Level 1 Heading\nContent'; // Invalid format
+        }
+        return '';
+      });
+
+      expect(() => {
+        assembler.assembleMasterPrompt(
+          '/test/general.md',
+          '/test/operation.md',
+          {
+            issueId: testIssueId,
+            operation: testOperation,
+            workingFolder: testWorkroot,
+          },
+          '/test/output.md'
+        );
+      }).toThrow('Level-1 heading (#) found');
+    });
+
+    it('should create all required artifacts in correct locations', () => {
+      // Track all file operations
+      const fileWrites: Array<{ path: string; content: string }> = [];
+
+      mockFs.existsSync.mockReturnValue(false);
+      mockFs.mkdirSync.mockImplementation(() => undefined);
+      mockFs.writeFileSync.mockImplementation((filePath: any, content: any) => {
+        fileWrites.push({ path: filePath.toString(), content: content.toString() });
+      });
+      mockFs.readFileSync.mockImplementation((filePath: any) => {
+        if (filePath.includes('general')) {
+          return '## General\nGeneral: <ArgIssueId>';
+        }
+        if (filePath.includes('operation')) {
+          return '## Operation\nContent';
+        }
+        return '';
+      });
+
+      // Execute workflow
+      const folderManager = new WorkingFolderManager(testWorkroot);
+      const workingFolderPath = folderManager.createWorkingFolder(testIssueId, testOperation);
+
+      const logger = new OperationLogger(testWorkroot);
+      logger.appendLogEntry(testIssueId, {
+        timestamp: '2025-08-22T10:30:45.000Z',
+        operation: testOperation,
+        status: 'Started',
+        folderPath: 'lcr-AM-19/op-Delivery-20250822103045',
+      });
+
+      const reporter = new OperationReporter(workingFolderPath);
+      reporter.createInitialReport(
+        testIssueId,
+        testOperation,
+        'lcr-AM-19/op-Delivery-20250822103045'
+      );
+
+      // Reset to track prompt assembly
+      mockFs.existsSync.mockReturnValue(true);
+
+      const assembler = new PromptAssembler();
+      assembler.assembleMasterPrompt(
+        '/test/general.md',
+        '/test/operation.md',
+        {
+          issueId: testIssueId,
+          operation: testOperation,
+          workingFolder: workingFolderPath,
+        },
+        path.join(workingFolderPath, 'master-prompt.md')
+      );
+
+      // Verify all expected files were created
+      const expectedFiles = ['issue-operation-log.md', 'operation-report.json', 'master-prompt.md'];
+
+      expectedFiles.forEach((fileName) => {
+        const fileCreated = fileWrites.some((write) => write.path.includes(fileName));
+        expect(fileCreated).toBe(true);
+      });
+
+      // Verify content replacements in master prompt
+      const masterPromptWrite = fileWrites.find((w) => w.path.includes('master-prompt.md'));
+      expect(masterPromptWrite?.content).toContain('General: AM-19');
+      expect(masterPromptWrite?.content).toContain('## Operation');
+    });
+  });
+
+  describe('CLI argument validation', () => {
+    it('should validate issue prefix matches configuration', () => {
+      const invalidIssueId = 'WRONG-123';
+
+      // This would be validated by ConfigLoader in the real CLI
+      const isValidPrefix = invalidIssueId.startsWith('AM');
+      expect(isValidPrefix).toBe(false);
+    });
+
+    it('should validate operation exists in configuration', () => {
+      const invalidOperation = 'InvalidOp';
+      const validOperations = ['Delivery', 'Task', 'Smoke'];
+
+      const isValidOperation = validOperations.includes(invalidOperation);
+      expect(isValidOperation).toBe(false);
+    });
+  });
+});

@@ -1,0 +1,250 @@
+import * as fs from 'fs';
+import { PromptAssembler } from '../src/prompt-assembler';
+import type { PromptReplacements } from '../src/prompt-assembler';
+
+// Mock fs module
+jest.mock('fs');
+
+describe('PromptAssembler', () => {
+  const mockFs = fs as jest.Mocked<typeof fs>;
+  let assembler: PromptAssembler;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    assembler = new PromptAssembler();
+  });
+
+  describe('assembleMasterPrompt', () => {
+    const generalPromptPath = '/prompts/general.md';
+    const operationPromptPath = '/prompts/operation.md';
+    const outputPath = '/output/master-prompt.md';
+    const replacements: PromptReplacements = {
+      issueId: 'AM-19',
+      operation: 'Delivery',
+      workingFolder: '/work/lcr-AM-19/op-Delivery-123',
+    };
+
+    it('should assemble master prompt with replacements', () => {
+      const generalContent =
+        '## General Prompt\n' +
+        'Issue: <ArgIssueId>\n' +
+        'Operation: <ArgOperation>\n' +
+        'Folder: <ArgWorkingFolder>\n';
+
+      const operationContent = '## Operation Instructions\n' + 'Specific instructions here\n';
+
+      mockFs.existsSync
+        .mockReturnValueOnce(true) // general prompt exists
+        .mockReturnValueOnce(true) // operation prompt exists
+        .mockReturnValueOnce(true); // output dir exists
+      mockFs.readFileSync.mockReturnValueOnce(generalContent).mockReturnValueOnce(operationContent);
+      mockFs.writeFileSync.mockImplementation(() => undefined);
+
+      assembler.assembleMasterPrompt(
+        generalPromptPath,
+        operationPromptPath,
+        replacements,
+        outputPath
+      );
+
+      const expectedContent =
+        '## General Prompt\n' +
+        'Issue: AM-19\n' +
+        'Operation: Delivery\n' +
+        'Folder: /work/lcr-AM-19/op-Delivery-123\n' +
+        '\n' +
+        '## Operation Instructions\n' +
+        'Specific instructions here\n';
+
+      expect(mockFs.writeFileSync).toHaveBeenCalledWith(outputPath, expectedContent, 'utf8');
+    });
+
+    it('should create output directory if missing', () => {
+      const generalContent = '## General\nGeneral: <ArgIssueId>';
+      const operationContent = '## Operation\nContent';
+
+      mockFs.existsSync
+        .mockReturnValueOnce(true) // general prompt exists
+        .mockReturnValueOnce(true) // operation prompt exists
+        .mockReturnValueOnce(false); // output dir doesn't exist
+      mockFs.readFileSync.mockReturnValueOnce(generalContent).mockReturnValueOnce(operationContent);
+      mockFs.mkdirSync.mockImplementation(() => undefined);
+      mockFs.writeFileSync.mockImplementation(() => undefined);
+
+      assembler.assembleMasterPrompt(
+        generalPromptPath,
+        operationPromptPath,
+        replacements,
+        outputPath
+      );
+
+      expect(mockFs.mkdirSync).toHaveBeenCalledWith('/output', { recursive: true });
+    });
+
+    it('should handle missing prompt files', () => {
+      mockFs.existsSync.mockReturnValue(false);
+
+      expect(() => {
+        assembler.assembleMasterPrompt(
+          generalPromptPath,
+          operationPromptPath,
+          replacements,
+          outputPath
+        );
+      }).toThrow('Prompt file not found: /prompts/general.md');
+    });
+  });
+
+  describe('loadPromptFile', () => {
+    it('should load prompt file content', () => {
+      const content = '## Test Prompt\nContent here';
+      mockFs.existsSync.mockReturnValue(true);
+      mockFs.readFileSync.mockReturnValue(content);
+
+      const result = assembler.loadPromptFile('/test/prompt.md');
+
+      expect(result).toBe(content);
+      expect(mockFs.readFileSync).toHaveBeenCalledWith('/test/prompt.md', 'utf8');
+    });
+
+    it('should throw error for missing file', () => {
+      mockFs.existsSync.mockReturnValue(false);
+
+      expect(() => {
+        assembler.loadPromptFile('/missing/prompt.md');
+      }).toThrow('Prompt file not found: /missing/prompt.md');
+    });
+
+    it('should handle read errors', () => {
+      mockFs.existsSync.mockReturnValue(true);
+      mockFs.readFileSync.mockImplementation(() => {
+        throw new Error('Permission denied');
+      });
+
+      expect(() => {
+        assembler.loadPromptFile('/test/prompt.md');
+      }).toThrow('Failed to read prompt file /test/prompt.md: Permission denied');
+    });
+  });
+
+  describe('performReplacements', () => {
+    it('should replace all placeholders', () => {
+      const prompt =
+        'Issue: <ArgIssueId>\n' +
+        'Op: <ArgOperation>\n' +
+        'Folder: <ArgWorkingFolder>\n' +
+        'Again: <ArgIssueId>';
+
+      const replacements: PromptReplacements = {
+        issueId: 'TEST-1',
+        operation: 'TestOp',
+        workingFolder: '/test/folder',
+      };
+
+      const result = assembler.performReplacements(prompt, replacements);
+
+      expect(result).toBe(
+        'Issue: TEST-1\n' + 'Op: TestOp\n' + 'Folder: /test/folder\n' + 'Again: TEST-1'
+      );
+    });
+
+    it('should handle prompts without placeholders', () => {
+      const prompt = 'No placeholders here';
+      const replacements: PromptReplacements = {
+        issueId: 'TEST-1',
+        operation: 'TestOp',
+        workingFolder: '/test/folder',
+      };
+
+      const result = assembler.performReplacements(prompt, replacements);
+
+      expect(result).toBe('No placeholders here');
+    });
+  });
+
+  describe('validatePromptFormat', () => {
+    it('should accept valid prompt with one ## at start', () => {
+      const validPrompt = '## Valid Prompt\nContent here\nMore content';
+
+      expect(() => {
+        assembler.validatePromptFormat(validPrompt, 'test.md');
+      }).not.toThrow();
+    });
+
+    it('should accept prompt with empty lines before ##', () => {
+      const validPrompt = '\n\n## Valid Prompt\nContent';
+
+      expect(() => {
+        assembler.validatePromptFormat(validPrompt, 'test.md');
+      }).not.toThrow();
+    });
+
+    it('should reject prompt with level-1 heading', () => {
+      const invalidPrompt = '## Valid Start\n# Invalid Heading\nContent';
+
+      expect(() => {
+        assembler.validatePromptFormat(invalidPrompt, 'test.md');
+      }).toThrow(
+        'Prompt format error in test.md: ' +
+          'Level-1 heading (#) found at line 2. ' +
+          'Operation prompts must not contain level-1 headings.'
+      );
+    });
+
+    it('should reject prompt with no level-2 heading', () => {
+      const invalidPrompt = 'Just content\nNo headings here';
+
+      expect(() => {
+        assembler.validatePromptFormat(invalidPrompt, 'test.md');
+      }).toThrow(
+        'Prompt format error in test.md: ' +
+          'No level-2 heading (##) found. ' +
+          'Operation prompts must start with exactly one level-2 heading.'
+      );
+    });
+
+    it('should reject prompt with multiple level-2 headings', () => {
+      const invalidPrompt = '## First Heading\nContent\n## Second Heading\nMore';
+
+      expect(() => {
+        assembler.validatePromptFormat(invalidPrompt, 'test.md');
+      }).toThrow(
+        'Prompt format error in test.md: ' +
+          'Multiple level-2 headings (##) found (2 total). ' +
+          'Operation prompts must have exactly one level-2 heading at the start.'
+      );
+    });
+
+    it('should reject prompt with ## not at start', () => {
+      const invalidPrompt = 'Some content first\n## Heading Not At Start\nMore';
+
+      expect(() => {
+        assembler.validatePromptFormat(invalidPrompt, 'test.md');
+      }).toThrow(
+        'Prompt format error in test.md: ' +
+          'Level-2 heading (##) found at line 2 but should be at the start. ' +
+          'First non-empty line is 1.'
+      );
+    });
+  });
+
+  describe('masterPromptExists', () => {
+    it('should return true when file exists', () => {
+      mockFs.existsSync.mockReturnValue(true);
+
+      const exists = assembler.masterPromptExists('/output/master.md');
+
+      expect(exists).toBe(true);
+      expect(mockFs.existsSync).toHaveBeenCalledWith('/output/master.md');
+    });
+
+    it('should return false when file does not exist', () => {
+      mockFs.existsSync.mockReturnValue(false);
+
+      const exists = assembler.masterPromptExists('/output/master.md');
+
+      expect(exists).toBe(false);
+      expect(mockFs.existsSync).toHaveBeenCalledWith('/output/master.md');
+    });
+  });
+});

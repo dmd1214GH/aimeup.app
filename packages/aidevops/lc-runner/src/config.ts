@@ -6,7 +6,7 @@ import { ConfigSchema } from './types';
 export class ConfigLoader {
   private configPath: string;
   private promptsPath: string;
-  private repoRoot: string;
+  public readonly repoRoot: string;
 
   constructor() {
     const repoRoot = this.findRepoRoot();

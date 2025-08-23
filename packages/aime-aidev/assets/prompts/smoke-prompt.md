@@ -1,6 +1,6 @@
-# Smoketesting Operation Prompt
+## Smoketesting Operation Prompt
 
-## Operation: Smoke Testing
+### Operation: Smoke Testing
 
 ### Purpose
 

@@ -1,8 +1,13 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
+import * as path from 'path';
 import { ConfigLoader } from './config';
 import { LinearClient } from './linear-client';
+import { WorkingFolderManager } from './working-folder';
+import { OperationLogger } from './operation-logger';
+import { PromptAssembler } from './prompt-assembler';
+import { OperationReporter } from './operation-reporter';
 
 const program = new Command();
 
@@ -13,6 +18,9 @@ program
   .argument('<operation>', 'The operation name to execute')
   .argument('<issueId>', 'The Linear issue ID')
   .action((operation: string, issueId: string) => {
+    let workingFolderPath: string | undefined;
+    let reporter: OperationReporter | undefined;
+
     try {
       const configLoader = new ConfigLoader();
       const config = configLoader.loadConfig();
@@ -45,10 +53,6 @@ program
         process.exit(1);
       }
 
-      // Load prompts (for future use when implementing actual operations)
-      configLoader.loadPrompt(config.generalPrompt);
-      configLoader.loadPrompt(operationMapping.promptFile);
-
       // Initialize Linear client and validate issue status
       const linearClient = new LinearClient(config.linear);
       const issueStatus = linearClient.validateIssueStatus(
@@ -63,12 +67,95 @@ program
         process.exit(1);
       }
 
-      // Success - return Hello World message with operation details
-      console.log(`Hello World (${issueId} : ${operation})`);
-      console.log(`Operation mapping found: ${operationMapping.linearIssueStatus}`);
-      console.log(`Prompts loaded successfully`);
+      // Get the workroot from config - use ConfigLoader's repo root finding logic
+      const repoRoot = configLoader['repoRoot'];
+      const workroot = path.join(repoRoot, '.linear-watcher', 'work');
+
+      // Create WorkingFolder
+      const folderManager = new WorkingFolderManager(workroot);
+      workingFolderPath = folderManager.createWorkingFolder(issueId, operation);
+      console.log(`Created working folder: ${workingFolderPath}`);
+
+      // Create initial operation report
+      reporter = new OperationReporter(workingFolderPath);
+      const folderName = folderManager.generateFolderName(issueId, operation);
+      reporter.createInitialReport(issueId, operation, folderName);
+      console.log(`Created initial operation report`);
+
+      // Append to operation log
+      const logger = new OperationLogger(workroot);
+      const logEntry = {
+        timestamp: OperationLogger.getCurrentTimestamp(),
+        operation,
+        status: 'Started',
+        folderPath: folderName,
+      };
+      logger.appendLogEntry(issueId, logEntry);
+      console.log(`Appended entry to operation log`);
+
+      // Assemble master prompt
+      const promptAssembler = new PromptAssembler();
+      const generalPromptPath = path.join(
+        repoRoot,
+        '.linear-watcher',
+        'prompts',
+        config.generalPrompt
+      );
+      const operationPromptPath = path.join(
+        repoRoot,
+        '.linear-watcher',
+        'prompts',
+        operationMapping.promptFile
+      );
+      const masterPromptPath = path.join(workingFolderPath, 'master-prompt.md');
+
+      const replacements = {
+        issueId,
+        operation,
+        workingFolder: workingFolderPath,
+      };
+
+      promptAssembler.assembleMasterPrompt(
+        generalPromptPath,
+        operationPromptPath,
+        replacements,
+        masterPromptPath
+      );
+      console.log(`Assembled master prompt at: ${masterPromptPath}`);
+
+      // Update report to completed
+      reporter.updateReport('Completed', 'Successfully initialized working folder and prompts', {
+        updatedIssue: 'updated-issue.md',
+        commentFiles: [],
+        contextDump: 'context-dump.md',
+      });
+
+      // Update operation log with completion
+      const completionEntry = {
+        timestamp: OperationLogger.getCurrentTimestamp(),
+        operation,
+        status: 'Completed',
+        folderPath: folderName,
+      };
+      logger.appendLogEntry(issueId, completionEntry);
+
+      // Success message
+      console.log(`\nOperation initialized successfully!`);
+      console.log(`Issue: ${issueId}`);
+      console.log(`Operation: ${operation}`);
+      console.log(`Working folder: ${workingFolderPath}`);
+      console.log(`Master prompt: ${masterPromptPath}`);
       process.exit(0);
     } catch (error) {
+      // Update report to failed if reporter exists
+      if (reporter && workingFolderPath) {
+        try {
+          reporter.updateReport('Failed', error instanceof Error ? error.message : 'Unknown error');
+        } catch {
+          // Ignore errors updating report
+        }
+      }
+
       if (error instanceof Error) {
         console.error(`Error: ${error.message}`);
       } else {
