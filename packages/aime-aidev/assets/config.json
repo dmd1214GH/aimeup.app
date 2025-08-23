@@ -1,31 +1,39 @@
 {
-  "version": "1.0.0",
-  "issuePrefixes": ["AM", "BUG", "FEAT"],
-  "operations": [
-    {
-      "name": "Task",
-      "linearStatus": "Tasking",
-      "description": "Break down a Linear issue into actionable tasks"
+  "version": 1,
+  "workroot": "${REPO_PATH}/.linear-watcher",
+  "generalPrompt": "lc-runner-general-prompt.md",
+  "linear": {
+    "apiUrl": "https://api.linear.app/graphql",
+    "apiKeyEnvVar": "LINEAR_API_KEY",
+    "issuePrefix": "AM-"
+  },
+  "lc-runner-operations": {
+    "Tasking": {
+      "operationName": "Task",
+      "linearIssueStatus": "Tasking-ai",
+      "promptFile": "tasking-prompt.md",
+      "transitions": {
+        "success": "Delivery-Ready",
+        "blocked": "Tasking-BLOCKED"
+      }
     },
-    {
-      "name": "Deliver",
-      "linearStatus": "Delivery",
-      "description": "Deliver the implementation for a Linear issue"
+    "Delivery": {
+      "operationName": "Deliver",
+      "linearIssueStatus": "Delivery-ai",
+      "promptFile": "delivery-prompt.md",
+      "transitions": {
+        "success": "Smoke-ai",
+        "blocked": "Delivery-BLOCKED"
+      }
     },
-    {
-      "name": "Review",
-      "linearStatus": "Review",
-      "description": "Review the delivered implementation"
-    },
-    {
-      "name": "Test",
-      "linearStatus": "Testing",
-      "description": "Test the implementation"
+    "Smoketesting": {
+      "operationName": "Smoke",
+      "linearIssueStatus": "Smoke-ai",
+      "promptFile": "smoke-prompt.md",
+      "transitions": {
+        "success": "Smoke-ai",
+        "blocked": "Smoke-FAILED"
+      }
     }
-  ],
-  "settings": {
-    "workingFolder": ".linear-watcher/work",
-    "timeout": 300000,
-    "debug": false
   }
 }

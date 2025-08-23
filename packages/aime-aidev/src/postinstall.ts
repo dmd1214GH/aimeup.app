@@ -27,6 +27,12 @@ function copyAssets(): void {
   const targetDir = path.join(repoRoot, '.linear-watcher');
   const sourceDir = path.join(__dirname, 'assets');
 
+  // Validate source directory exists
+  if (!fs.existsSync(sourceDir)) {
+    console.error(`Source assets directory not found: ${sourceDir}`);
+    process.exit(1);
+  }
+
   // Create target directory if it doesn't exist
   if (!fs.existsSync(targetDir)) {
     fs.mkdirSync(targetDir, { recursive: true });
@@ -40,6 +46,9 @@ function copyAssets(): void {
   if (fs.existsSync(configSource)) {
     fs.copyFileSync(configSource, configTarget);
     console.log(`Copied config.json to ${configTarget}`);
+  } else {
+    console.error(`Config file not found: ${configSource}`);
+    process.exit(1);
   }
 
   // Copy prompts directory
@@ -52,16 +61,30 @@ function copyAssets(): void {
     }
 
     const promptFiles = fs.readdirSync(promptsSource);
+    let copiedCount = 0;
     promptFiles.forEach((file) => {
-      const sourceFile = path.join(promptsSource, file);
-      const targetFile = path.join(promptsTarget, file);
-      fs.copyFileSync(sourceFile, targetFile);
-      console.log(`Copied prompt file: ${file}`);
+      if (file.endsWith('.md')) {
+        const sourceFile = path.join(promptsSource, file);
+        const targetFile = path.join(promptsTarget, file);
+        fs.copyFileSync(sourceFile, targetFile);
+        console.log(`Copied prompt file: ${file}`);
+        copiedCount++;
+      }
     });
+
+    if (copiedCount === 0) {
+      console.warn('Warning: No prompt files (.md) found to copy');
+    }
+  } else {
+    console.error(`Prompts directory not found: ${promptsSource}`);
+    process.exit(1);
   }
 
   console.log('AI Dev assets installation complete');
 }
+
+// Export for testing
+export { findRepoRoot, copyAssets };
 
 // Run postinstall
 if (require.main === module) {

@@ -2,6 +2,7 @@
 
 import { Command } from 'commander';
 import { ConfigLoader } from './config';
+import { LinearClient } from './linear-client';
 
 const program = new Command();
 
@@ -16,9 +17,12 @@ program
       const configLoader = new ConfigLoader();
       const config = configLoader.loadConfig();
 
-      // Validate operation
-      if (!configLoader.validateOperation(operation, config)) {
-        const validOperations = config.operations.map((op) => op.name).join(', ');
+      // Get operation mapping from CLI operation name
+      const operationMapping = configLoader.getOperationByCliName(operation, config);
+      if (!operationMapping) {
+        const validOperations = Object.values(config['lc-runner-operations'])
+          .map((op) => op.operationName)
+          .join(', ');
         console.error(`Error: Invalid operation '${operation}'.`);
         console.error(`Valid operations are: ${validOperations}`);
         process.exit(1);
@@ -26,14 +30,43 @@ program
 
       // Validate issue ID prefix
       if (!configLoader.validateIssuePrefix(issueId, config)) {
-        const validPrefixes = config.issuePrefixes.join(', ');
-        console.error(`Error: Issue ID '${issueId}' does not match any configured prefix.`);
-        console.error(`Valid prefixes are: ${validPrefixes}`);
+        console.error(`Error: Issue ID '${issueId}' does not match configured prefix.`);
+        console.error(`Expected prefix: ${config.linear.issuePrefix}`);
         process.exit(1);
       }
 
-      // Success - return Hello World message
+      // Validate prompt files exist
+      try {
+        configLoader.validatePromptFiles(config);
+      } catch (error) {
+        if (error instanceof Error) {
+          console.error(`Error: ${error.message}`);
+        }
+        process.exit(1);
+      }
+
+      // Load prompts (for future use when implementing actual operations)
+      configLoader.loadPrompt(config.generalPrompt);
+      configLoader.loadPrompt(operationMapping.promptFile);
+
+      // Initialize Linear client and validate issue status
+      const linearClient = new LinearClient(config.linear);
+      const issueStatus = linearClient.validateIssueStatus(
+        issueId,
+        operationMapping.linearIssueStatus
+      );
+
+      if (!issueStatus) {
+        console.error(
+          `Error: Issue ${issueId} is not in the required status '${operationMapping.linearIssueStatus}' for operation '${operation}'.`
+        );
+        process.exit(1);
+      }
+
+      // Success - return Hello World message with operation details
       console.log(`Hello World (${issueId} : ${operation})`);
+      console.log(`Operation mapping found: ${operationMapping.linearIssueStatus}`);
+      console.log(`Prompts loaded successfully`);
       process.exit(0);
     } catch (error) {
       if (error instanceof Error) {
