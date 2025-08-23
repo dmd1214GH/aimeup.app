@@ -2,6 +2,7 @@
 
 import { Command } from 'commander';
 import * as path from 'path';
+import * as fs from 'fs';
 import { ConfigLoader } from './config';
 import { LinearClient } from './linear-client';
 import { WorkingFolderManager } from './working-folder';
@@ -17,7 +18,7 @@ program
   .version('0.0.1')
   .argument('<operation>', 'The operation name to execute')
   .argument('<issueId>', 'The Linear issue ID')
-  .action((operation: string, issueId: string) => {
+  .action(async (operation: string, issueId: string) => {
     let workingFolderPath: string | undefined;
     let reporter: OperationReporter | undefined;
 
@@ -53,25 +54,11 @@ program
         process.exit(1);
       }
 
-      // Initialize Linear client and validate issue status
-      const linearClient = new LinearClient(config.linear);
-      const issueStatus = linearClient.validateIssueStatus(
-        issueId,
-        operationMapping.linearIssueStatus
-      );
-
-      if (!issueStatus) {
-        console.error(
-          `Error: Issue ${issueId} is not in the required status '${operationMapping.linearIssueStatus}' for operation '${operation}'.`
-        );
-        process.exit(1);
-      }
-
       // Get the workroot from config - use ConfigLoader's repo root finding logic
       const repoRoot = configLoader['repoRoot'];
       const workroot = path.join(repoRoot, '.linear-watcher', 'work');
 
-      // Create WorkingFolder
+      // Create WorkingFolder first (so we have a place to log issues)
       const folderManager = new WorkingFolderManager(workroot);
       workingFolderPath = folderManager.createWorkingFolder(issueId, operation);
       console.log(`Created working folder: ${workingFolderPath}`);
@@ -81,6 +68,47 @@ program
       const folderName = folderManager.generateFolderName(issueId, operation);
       reporter.createInitialReport(issueId, operation, folderName);
       console.log(`Created initial operation report`);
+
+      // Initialize Linear client and validate issue status
+      const linearClient = new LinearClient(config.linear);
+      let issueStatus = false;
+      let validationError: string | null = null;
+
+      try {
+        issueStatus = await linearClient.validateIssueStatus(
+          issueId,
+          operationMapping.linearIssueStatus
+        );
+      } catch (error) {
+        // Handle validation errors (e.g., network issues, API errors)
+        validationError = error instanceof Error ? error.message : 'Unknown validation error';
+        issueStatus = false;
+      }
+
+      if (!issueStatus) {
+        const errorMessage =
+          validationError ||
+          `Issue ${issueId} is not in the required status '${operationMapping.linearIssueStatus}' for operation '${operation}'.`;
+
+        // Update operation report to show blocked status
+        if (reporter) {
+          reporter.updateReport('Blocked', errorMessage);
+        }
+
+        // Log the validation failure
+        const logger = new OperationLogger(workroot);
+        const failureLogEntry = {
+          timestamp: OperationLogger.getCurrentTimestamp(),
+          operation,
+          status: validationError ? 'Blocked - Validation Error' : 'Blocked - Wrong Status',
+          folderPath: folderName,
+        };
+        logger.appendLogEntry(issueId, failureLogEntry);
+
+        console.error(`Error: ${errorMessage}`);
+        console.log(`Operation marked as blocked in: ${workingFolderPath}`);
+        process.exit(1);
+      }
 
       // Append to operation log
       const logger = new OperationLogger(workroot);
@@ -92,6 +120,67 @@ program
       };
       logger.appendLogEntry(issueId, logEntry);
       console.log(`Appended entry to operation log`);
+
+      // Extract issue body from Linear
+      console.log(`Extracting issue body from Linear...`);
+      let issueBody = '';
+
+      try {
+        const issue = await linearClient.getIssue(issueId);
+
+        // Format the full issue content with metadata
+        const fullIssueContent = `# ${issue.title}
+
+${issue.description}
+
+## Metadata
+- URL: ${issue.url}
+- Identifier: ${issue.identifier}
+- Status: ${issue.status}
+- Priority: ${issue.priority ? `Priority ${issue.priority}` : 'No priority'}
+- Assignee: ${issue.assignee || 'Unassigned'}
+- Created: ${issue.createdAt}
+- Updated: ${issue.updatedAt}
+`;
+
+        // Save to original-issue.md
+        const originalIssuePath = path.join(workingFolderPath, 'original-issue.md');
+        fs.writeFileSync(originalIssuePath, fullIssueContent, 'utf8');
+        console.log(`Saved original issue to: ${originalIssuePath}`);
+
+        // Create exact copy as updated-issue.md
+        const updatedIssuePath = path.join(workingFolderPath, 'updated-issue.md');
+        fs.writeFileSync(updatedIssuePath, fullIssueContent, 'utf8');
+        console.log(`Created working copy at: ${updatedIssuePath}`);
+
+        // Store for use in prompt
+        issueBody = fullIssueContent;
+
+        // Log successful extraction
+        const extractionLogEntry = {
+          timestamp: OperationLogger.getCurrentTimestamp(),
+          operation,
+          status: 'Issue Extracted',
+          folderPath: folderName,
+        };
+        logger.appendLogEntry(issueId, extractionLogEntry);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error(`Failed to extract issue from Linear: ${errorMessage}`);
+
+        // Log extraction failure
+        const failureLogEntry = {
+          timestamp: OperationLogger.getCurrentTimestamp(),
+          operation,
+          status: 'Issue Extraction Failed',
+          folderPath: folderName,
+          error: errorMessage,
+        };
+        logger.appendLogEntry(issueId, failureLogEntry);
+
+        // Continue with empty issue body to maintain backwards compatibility
+        console.warn('Continuing with empty issue body...');
+      }
 
       // Assemble master prompt
       const promptAssembler = new PromptAssembler();
@@ -119,7 +208,8 @@ program
         generalPromptPath,
         operationPromptPath,
         replacements,
-        masterPromptPath
+        masterPromptPath,
+        issueBody
       );
       console.log(`Assembled master prompt at: ${masterPromptPath}`);
 

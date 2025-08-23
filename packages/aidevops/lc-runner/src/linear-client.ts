@@ -1,19 +1,19 @@
 import type { LinearConfig } from './types';
+import { LinearApiService, type IssueDetails, type LinearApiError } from './linear-api-service';
 
 /**
- * LinearClient provides a foundation for Linear API integration.
- * This is a placeholder implementation - actual API calls are out of scope.
+ * LinearClient provides Linear API integration using the Linear SDK.
  */
 export class LinearClient {
   private config: LinearConfig;
-  private apiKey: string | undefined;
+  private apiService: LinearApiService;
 
   constructor(config: LinearConfig) {
     this.config = config;
+    this.apiService = new LinearApiService(config.apiKeyEnvVar);
 
-    // Check for API key environment variable
-    this.apiKey = process.env[config.apiKeyEnvVar];
-    if (!this.apiKey) {
+    // Check if API key is configured
+    if (!this.apiService.isConfigured()) {
       console.warn(
         `Warning: Linear API key not found in environment variable '${config.apiKeyEnvVar}'.`
       );
@@ -22,76 +22,149 @@ export class LinearClient {
 
   /**
    * Validates that an issue is in the expected status.
-   * This is a placeholder - actual Linear API validation is out of scope.
    *
    * @param issueId - The Linear issue ID
    * @param expectedStatus - The expected status for the operation
-   * @returns true if validation passes (placeholder always returns true)
+   * @returns true if validation passes
+   * @throws LinearApiError if API call fails
    */
-  public validateIssueStatus(issueId: string, expectedStatus: string): boolean {
-    // Placeholder implementation
-    // In production, this would make an API call to Linear to check the issue status
-    console.log(`[Placeholder] Would validate issue ${issueId} is in status '${expectedStatus}'`);
-
-    // For now, always return true to allow operations to proceed
-    return true;
+  public async validateIssueStatus(issueId: string, expectedStatus: string): Promise<boolean> {
+    try {
+      return await this.apiService.validateIssueStatus(issueId, expectedStatus);
+    } catch (error) {
+      const apiError = error as LinearApiError;
+      if (apiError.code === 'API_KEY_MISSING') {
+        // For backwards compatibility, log warning and return true if no API key
+        console.warn(`[Linear API] Skipping validation - ${apiError.message}`);
+        return true;
+      }
+      // Re-throw other errors for proper handling
+      throw error;
+    }
   }
 
   /**
    * Updates an issue's status after an operation completes.
-   * This is a placeholder - actual Linear API updates are out of scope.
    *
    * @param issueId - The Linear issue ID
    * @param newStatus - The new status to set
-   * @param success - Whether the operation was successful
    */
-  public updateIssueStatus(issueId: string, newStatus: string, success: boolean): void {
-    // Placeholder implementation
-    console.log(
-      `[Placeholder] Would update issue ${issueId} to status '${newStatus}' (success: ${success})`
-    );
+  public async updateIssueStatus(issueId: string, newStatus: string): Promise<void> {
+    try {
+      await this.apiService.updateIssueStatus(issueId, newStatus);
+      console.log(`Successfully updated issue ${issueId} to status '${newStatus}'`);
+    } catch (error) {
+      const apiError = error as LinearApiError;
+      if (apiError.code === 'API_KEY_MISSING') {
+        console.warn(`[Linear API] Skipping status update - ${apiError.message}`);
+        return;
+      }
+      console.error(`Failed to update issue status: ${apiError.message}`);
+      // Don't re-throw to avoid breaking the operation flow
+    }
   }
 
   /**
-   * Fetches issue details from Linear.
-   * This is a placeholder - actual Linear API calls are out of scope.
+   * Fetches full issue details from Linear including body content.
    *
    * @param issueId - The Linear issue ID
-   * @returns Placeholder issue data
+   * @returns Issue details with full body content
+   * @throws LinearApiError if API call fails
    */
-  public async getIssue(issueId: string): Promise<any> {
-    // Placeholder implementation
-    console.log(`[Placeholder] Would fetch issue details for ${issueId}`);
-    return {
-      id: issueId,
-      title: 'Placeholder Issue',
-      status: 'Unknown',
-      description: 'This is a placeholder issue object',
-    };
+  public async getIssue(issueId: string): Promise<IssueDetails> {
+    try {
+      return await this.apiService.getIssueBody(issueId);
+    } catch (error) {
+      const apiError = error as LinearApiError;
+      if (apiError.code === 'API_KEY_MISSING') {
+        // Return a placeholder for backwards compatibility
+        console.warn(`[Linear API] Using placeholder - ${apiError.message}`);
+        return {
+          id: issueId,
+          identifier: issueId,
+          title: 'Placeholder Issue',
+          description:
+            'This is a placeholder issue object - configure LINEAR_API_KEY to fetch real data',
+          status: 'Unknown',
+          priority: null,
+          assignee: null,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          url: '#',
+        };
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Gets just the issue body/description content.
+   *
+   * @param issueId - The Linear issue ID
+   * @returns The issue body content
+   * @throws LinearApiError if API call fails
+   */
+  public async getIssueBody(issueId: string): Promise<string> {
+    const issue = await this.getIssue(issueId);
+    return issue.description;
+  }
+
+  /**
+   * Gets the current status of an issue.
+   *
+   * @param issueId - The Linear issue ID
+   * @returns The current status name
+   * @throws LinearApiError if API call fails
+   */
+  public async getIssueStatus(issueId: string): Promise<string> {
+    try {
+      return await this.apiService.getIssueStatus(issueId);
+    } catch (error) {
+      const apiError = error as LinearApiError;
+      if (apiError.code === 'API_KEY_MISSING') {
+        console.warn(`[Linear API] Cannot fetch status - ${apiError.message}`);
+        return 'Unknown';
+      }
+      throw error;
+    }
   }
 
   /**
    * Adds a comment to a Linear issue.
-   * This is a placeholder - actual Linear API calls are out of scope.
    *
    * @param issueId - The Linear issue ID
    * @param comment - The comment text to add
    */
   public async addComment(issueId: string, comment: string): Promise<void> {
-    // Placeholder implementation
-    console.log(`[Placeholder] Would add comment to issue ${issueId}`);
-    console.log(`Comment: ${comment.substring(0, 100)}...`);
+    try {
+      await this.apiService.addComment(issueId, comment);
+      console.log(`Successfully added comment to issue ${issueId}`);
+    } catch (error) {
+      const apiError = error as LinearApiError;
+      if (apiError.code === 'API_KEY_MISSING') {
+        console.warn(`[Linear API] Skipping comment - ${apiError.message}`);
+        return;
+      }
+      console.error(`Failed to add comment: ${apiError.message}`);
+      // Don't re-throw to avoid breaking the operation flow
+    }
   }
 
   /**
    * Checks if the Linear API is accessible.
-   * This is a placeholder - actual Linear API calls are out of scope.
    *
-   * @returns true if API is accessible (placeholder always returns true)
+   * @returns true if API is accessible
    */
   public async checkConnection(): Promise<boolean> {
-    // Placeholder implementation
-    console.log(`[Placeholder] Would check connection to ${this.config.apiUrl}`);
-    return true;
+    try {
+      const connected = await this.apiService.checkConnection();
+      if (connected) {
+        console.log(`Successfully connected to Linear API`);
+      }
+      return connected;
+    } catch {
+      console.warn(`Linear API connection check failed`);
+      return false;
+    }
   }
 }

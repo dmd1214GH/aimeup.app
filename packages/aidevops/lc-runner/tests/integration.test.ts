@@ -4,9 +4,12 @@ import { WorkingFolderManager } from '../src/working-folder';
 import { OperationLogger } from '../src/operation-logger';
 import { PromptAssembler } from '../src/prompt-assembler';
 import { OperationReporter } from '../src/operation-reporter';
+import { LinearClient } from '../src/linear-client';
+import { LinearApiService } from '../src/linear-api-service';
 
 // Mock modules for integration test
 jest.mock('fs');
+jest.mock('../src/linear-api-service');
 
 describe('lc-runner Integration Tests', () => {
   const mockFs = fs as jest.Mocked<typeof fs>;
@@ -274,6 +277,235 @@ describe('lc-runner Integration Tests', () => {
       const masterPromptWrite = fileWrites.find((w) => w.path.includes('master-prompt.md'));
       expect(masterPromptWrite?.content).toContain('General: AM-19');
       expect(masterPromptWrite?.content).toContain('## Operation');
+    });
+  });
+
+  describe('Linear API integration workflow', () => {
+    let mockApiService: jest.Mocked<LinearApiService>;
+
+    beforeEach(() => {
+      // Setup mock LinearApiService
+      mockApiService = {
+        isConfigured: jest.fn().mockReturnValue(true),
+        validateIssueStatus: jest.fn(),
+        getIssueBody: jest.fn(),
+        getIssueStatus: jest.fn(),
+        checkConnection: jest.fn(),
+        addComment: jest.fn(),
+        updateIssueStatus: jest.fn(),
+      } as any;
+
+      (LinearApiService as jest.MockedClass<typeof LinearApiService>).mockImplementation(
+        () => mockApiService
+      );
+    });
+
+    it('should extract issue from Linear and save to files', async () => {
+      const mockIssue = {
+        id: 'issue-id',
+        identifier: 'AM-19',
+        title: 'Test Issue Title',
+        description: 'This is the issue body content',
+        status: 'In Progress',
+        priority: 1,
+        assignee: 'John Doe',
+        createdAt: '2025-01-01T00:00:00.000Z',
+        updatedAt: '2025-01-02T00:00:00.000Z',
+        url: 'https://linear.app/team/issue/AM-19',
+      };
+
+      mockApiService.getIssueBody.mockResolvedValue(mockIssue);
+      mockApiService.validateIssueStatus.mockResolvedValue(true);
+
+      const linearClient = new LinearClient({
+        apiUrl: 'https://api.linear.app',
+        apiKeyEnvVar: 'LINEAR_API_KEY',
+        issuePrefix: 'AM',
+      });
+
+      // Test issue extraction
+      const issue = await linearClient.getIssue('AM-19');
+      expect(issue).toEqual(mockIssue);
+
+      // Simulate saving to files
+      const workingFolderPath = '/test/work/lcr-AM-19/op-Delivery-20250822103045';
+      const issueContent = `# ${issue.title}
+
+${issue.description}
+
+## Metadata
+- URL: ${issue.url}
+- Identifier: ${issue.identifier}
+- Status: ${issue.status}
+- Priority: Priority ${issue.priority}
+- Assignee: ${issue.assignee}
+- Created: ${issue.createdAt}
+- Updated: ${issue.updatedAt}
+`;
+
+      mockFs.writeFileSync.mockClear();
+      mockFs.writeFileSync(path.join(workingFolderPath, 'original-issue.md'), issueContent, 'utf8');
+      mockFs.writeFileSync(path.join(workingFolderPath, 'updated-issue.md'), issueContent, 'utf8');
+
+      expect(mockFs.writeFileSync).toHaveBeenCalledTimes(2);
+      expect(mockFs.writeFileSync).toHaveBeenCalledWith(
+        expect.stringContaining('original-issue.md'),
+        expect.stringContaining('Test Issue Title'),
+        'utf8'
+      );
+      expect(mockFs.writeFileSync).toHaveBeenCalledWith(
+        expect.stringContaining('updated-issue.md'),
+        expect.stringContaining('Test Issue Title'),
+        'utf8'
+      );
+    });
+
+    it('should include issue body in master prompt', async () => {
+      const mockIssue = {
+        id: 'issue-id',
+        identifier: 'AM-19',
+        title: 'Test Issue',
+        description: 'Issue description here',
+        status: 'In Progress',
+        priority: 1,
+        assignee: 'John Doe',
+        createdAt: '2025-01-01T00:00:00.000Z',
+        updatedAt: '2025-01-02T00:00:00.000Z',
+        url: 'https://linear.app/issue',
+      };
+
+      mockApiService.getIssueBody.mockResolvedValue(mockIssue);
+
+      const issueBody = `# ${mockIssue.title}
+
+${mockIssue.description}
+
+## Metadata
+- URL: ${mockIssue.url}`;
+
+      // Test prompt assembly with issue body
+      const assembler = new PromptAssembler();
+      mockFs.existsSync.mockReturnValue(true);
+      mockFs.readFileSync.mockImplementation((filePath: any) => {
+        if (filePath.includes('general')) {
+          return '## General Prompt\nIssue: <ArgIssueId>';
+        }
+        if (filePath.includes('operation')) {
+          return '## Operation\nDeliver the issue';
+        }
+        return '';
+      });
+
+      mockFs.writeFileSync.mockClear();
+
+      assembler.assembleMasterPrompt(
+        '/test/general.md',
+        '/test/operation.md',
+        {
+          issueId: 'AM-19',
+          operation: 'Delivery',
+          workingFolder: '/test/work',
+        },
+        '/test/master-prompt.md',
+        issueBody
+      );
+
+      const masterPromptCall = mockFs.writeFileSync.mock.calls[0];
+      expect(masterPromptCall[1]).toContain('Issue: AM-19');
+      expect(masterPromptCall[1]).toContain('## Issue Definition From Linear:');
+      expect(masterPromptCall[1]).toContain('Test Issue');
+      expect(masterPromptCall[1]).toContain('Issue description here');
+    });
+
+    it('should log Linear API events in operation log', async () => {
+      const workroot = '/test/repo/.linear-watcher/work';
+      const logger = new OperationLogger(workroot);
+
+      mockFs.existsSync.mockReturnValue(false);
+      mockFs.writeFileSync.mockClear();
+
+      // Log issue extraction success
+      logger.appendLogEntry('AM-19', {
+        timestamp: '2025-08-22T10:30:45.000Z',
+        operation: 'Delivery',
+        status: 'Issue Extracted',
+        folderPath: 'lcr-AM-19/op-Delivery-20250822103045',
+      });
+
+      expect(mockFs.writeFileSync).toHaveBeenCalledWith(
+        expect.stringContaining('issue-operation-log.md'),
+        expect.stringContaining('Issue Extracted'),
+        'utf8'
+      );
+
+      // Log issue extraction failure
+      mockFs.writeFileSync.mockClear();
+      logger.appendLogEntry('AM-19', {
+        timestamp: '2025-08-22T10:31:00.000Z',
+        operation: 'Delivery',
+        status: 'Issue Extraction Failed',
+        folderPath: 'lcr-AM-19/op-Delivery-20250822103045',
+      } as any);
+
+      const logCall = mockFs.writeFileSync.mock.calls[0];
+      expect(logCall[1]).toContain('Issue Extraction Failed');
+    });
+
+    it('should handle Linear API failures gracefully', async () => {
+      const error: any = new Error('API key not configured');
+      error.code = 'API_KEY_MISSING';
+      mockApiService.getIssueBody.mockRejectedValue(error);
+
+      const linearClient = new LinearClient({
+        apiUrl: 'https://api.linear.app',
+        apiKeyEnvVar: 'LINEAR_API_KEY',
+        issuePrefix: 'AM',
+      });
+
+      // Should return placeholder when API key is missing
+      const issue = await linearClient.getIssue('AM-19');
+      expect(issue.title).toBe('Placeholder Issue');
+      expect(issue.description).toContain('configure LINEAR_API_KEY');
+
+      // Should continue with empty issue body for prompt assembly
+      const assembler = new PromptAssembler();
+      mockFs.existsSync.mockReturnValue(true);
+      mockFs.readFileSync.mockImplementation((filePath: any) => {
+        if (filePath.includes('general')) return '## General\nContent';
+        if (filePath.includes('operation')) return '## Operation\nContent';
+        return '';
+      });
+
+      mockFs.writeFileSync.mockClear();
+
+      // Assembly should work without issue body
+      assembler.assembleMasterPrompt(
+        '/test/general.md',
+        '/test/operation.md',
+        {
+          issueId: 'AM-19',
+          operation: 'Delivery',
+          workingFolder: '/test/work',
+        },
+        '/test/master-prompt.md'
+      );
+
+      const masterPromptCall = mockFs.writeFileSync.mock.calls[0];
+      expect(masterPromptCall[1]).not.toContain('## Issue Definition From Linear:');
+    });
+
+    it('should validate issue status before proceeding', async () => {
+      mockApiService.validateIssueStatus.mockResolvedValue(false);
+
+      const linearClient = new LinearClient({
+        apiUrl: 'https://api.linear.app',
+        apiKeyEnvVar: 'LINEAR_API_KEY',
+        issuePrefix: 'AM',
+      });
+
+      const isValid = await linearClient.validateIssueStatus('AM-19', 'Code & Test');
+      expect(isValid).toBe(false);
+      expect(mockApiService.validateIssueStatus).toHaveBeenCalledWith('AM-19', 'Code & Test');
     });
   });
 

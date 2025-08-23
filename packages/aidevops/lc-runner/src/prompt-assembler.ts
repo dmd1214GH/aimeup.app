@@ -5,6 +5,7 @@ export interface PromptReplacements {
   issueId: string;
   operation: string;
   workingFolder: string;
+  issueBody?: string;
 }
 
 export class PromptAssembler {
@@ -15,7 +16,8 @@ export class PromptAssembler {
     generalPromptPath: string,
     operationPromptPath: string,
     replacements: PromptReplacements,
-    outputPath: string
+    outputPath: string,
+    issueBody?: string
   ): void {
     try {
       // Load general prompt
@@ -30,8 +32,14 @@ export class PromptAssembler {
       // Perform replacements in general prompt
       const processedGeneralPrompt = this.performReplacements(generalPrompt, replacements);
 
-      // Combine prompts
-      const masterPrompt = processedGeneralPrompt + '\n' + operationPrompt;
+      // Add issue body if provided
+      let issueSection = '';
+      if (issueBody) {
+        issueSection = '\n## Issue Definition From Linear:\n' + issueBody + '\n';
+      }
+
+      // Combine prompts with issue body
+      const masterPrompt = processedGeneralPrompt + issueSection + '\n' + operationPrompt;
 
       // Ensure output directory exists
       const outputDir = path.dirname(outputPath);

@@ -42,7 +42,7 @@ function main() {
     }
 
     // Get all .md files from source directory
-    const files = fs.readdirSync(sourceDir).filter(file => file.endsWith('.md'));
+    const files = fs.readdirSync(sourceDir).filter((file) => file.endsWith('.md'));
 
     if (files.length === 0) {
       console.warn('No markdown files found in source directory');
@@ -52,16 +52,16 @@ function main() {
     console.log(`\nDeploying ${files.length} prompt files:`);
 
     // Copy each file
-    files.forEach(file => {
+    files.forEach((file) => {
       const sourcePath = path.join(sourceDir, file);
       const targetPath = path.join(targetDir, file);
-      
+
       // Read source file
       const content = fs.readFileSync(sourcePath, 'utf8');
-      
+
       // Write to target
       fs.writeFileSync(targetPath, content, 'utf8');
-      
+
       console.log(`  ✓ ${file}`);
     });
 

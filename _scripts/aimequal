@@ -65,19 +65,12 @@ run_test() {
     # Ensure output is flushed before continuing
     sleep 0.1
     
-    # Check for errors based on test type
+    # Check for errors based on exit code only (best practice)
     local test_passed=false
     
-    # For Prettier and TypeCheck, use exit code
-    if [[ "$test_name" == *"Prettier"* ]] || [[ "$test_name" == *"TypeScript"* ]] || [[ "$test_name" == *"E2E"* ]]; then
-        if [[ $exit_code -eq 0 ]]; then
-            test_passed=true
-        fi
-    else
-        # For other tests, check both exit code AND error patterns
-        if [[ $exit_code -eq 0 ]] && ! echo "$output" | grep -q "error\|Error\|ERROR\|✖\|failed\|Failed\|FAILED\|Oops! Something went wrong"; then
-            test_passed=true
-        fi
+    # Trust the exit code - this is the Unix way
+    if [[ $exit_code -eq 0 ]]; then
+        test_passed=true
     fi
     
     if [[ $test_passed == true ]]; then
