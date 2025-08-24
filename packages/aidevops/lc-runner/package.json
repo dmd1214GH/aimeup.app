@@ -4,7 +4,7 @@
   "description": "Linear/ClaudeCode runner CLI for AI-assisted development",
   "main": "dist/index.js",
   "bin": {
-    "lc-runner": "dist/lc-runner.js"
+    "lc-runner": "dist/cli.js"
   },
   "scripts": {
     "build": "tsc && npm run deploy-prompts",

@@ -44,7 +44,23 @@ export class ConfigLoader {
 
       // Validate configuration with Zod
       const validatedConfig = ConfigSchema.parse(configData);
-      return validatedConfig;
+
+      // Map lc-runner-operations to operations for easier access
+      const configWithOperations: Config = {
+        ...validatedConfig,
+        operations: {},
+      };
+
+      // Create operations mapping with linearIssueStatusSuccess and linearIssueStatusBlocked
+      for (const [key, operation] of Object.entries(validatedConfig['lc-runner-operations'])) {
+        configWithOperations.operations[operation.operationName] = {
+          ...operation,
+          linearIssueStatusSuccess: operation.transitions.success,
+          linearIssueStatusBlocked: operation.transitions.blocked,
+        };
+      }
+
+      return configWithOperations;
     } catch (error) {
       if (error instanceof SyntaxError) {
         throw new Error(`Invalid JSON in configuration file: ${this.configPath}`);

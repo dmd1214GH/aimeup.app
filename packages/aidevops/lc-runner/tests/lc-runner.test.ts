@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import type { Config } from '../src/types';
+import type { Config, OperationMapping } from '../src/types';
 
 // Mock fs module for integration tests
 jest.mock('fs');
@@ -18,6 +18,26 @@ describe('lc-runner CLI Integration', () => {
       issuePrefix: 'AM-',
     },
     'lc-runner-operations': {
+      Tasking: {
+        operationName: 'Task',
+        linearIssueStatus: 'Tasking-ai',
+        promptFile: 'tasking-prompt.md',
+        transitions: {
+          success: 'Delivery-Ready',
+          blocked: 'Tasking-BLOCKED',
+        },
+      },
+      Delivery: {
+        operationName: 'Deliver',
+        linearIssueStatus: 'Delivery-ai',
+        promptFile: 'delivery-prompt.md',
+        transitions: {
+          success: 'Smoke-ai',
+          blocked: 'Delivery-BLOCKED',
+        },
+      },
+    },
+    operations: {
       Tasking: {
         operationName: 'Task',
         linearIssueStatus: 'Tasking-ai',
@@ -84,7 +104,9 @@ describe('lc-runner CLI Integration', () => {
     it('should map CLI Task operation to Tasking config entry', () => {
       // This is a unit test for the mapping logic
       const operations = mockConfig['lc-runner-operations'];
-      const taskOperation = Object.values(operations).find((op) => op.operationName === 'Task');
+      const taskOperation = Object.values(operations).find(
+        (op: OperationMapping) => op.operationName === 'Task'
+      );
 
       expect(taskOperation).toBeDefined();
       expect(taskOperation?.linearIssueStatus).toBe('Tasking-ai');
@@ -94,7 +116,7 @@ describe('lc-runner CLI Integration', () => {
     it('should map CLI Deliver operation to Delivery config entry', () => {
       const operations = mockConfig['lc-runner-operations'];
       const deliverOperation = Object.values(operations).find(
-        (op) => op.operationName === 'Deliver'
+        (op: OperationMapping) => op.operationName === 'Deliver'
       );
 
       expect(deliverOperation).toBeDefined();
@@ -105,7 +127,7 @@ describe('lc-runner CLI Integration', () => {
     it('should handle invalid operation gracefully', () => {
       const operations = mockConfig['lc-runner-operations'];
       const invalidOperation = Object.values(operations).find(
-        (op) => op.operationName === 'Invalid'
+        (op: OperationMapping) => op.operationName === 'Invalid'
       );
 
       expect(invalidOperation).toBeUndefined();
@@ -214,7 +236,9 @@ describe('lc-runner CLI Integration', () => {
 
     it('should validate operation exists in config', () => {
       const operations = mockConfig['lc-runner-operations'];
-      const validOperations = Object.values(operations).map((op) => op.operationName);
+      const validOperations = Object.values(operations).map(
+        (op: OperationMapping) => op.operationName
+      );
 
       expect(validOperations).toContain('Task');
       expect(validOperations).toContain('Deliver');

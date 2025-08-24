@@ -225,6 +225,36 @@ export class LinearApiService {
   }
 
   /**
+   * Updates the issue body/description
+   */
+  async updateIssueBody(issueId: string, newBody: string): Promise<void> {
+    try {
+      const client = this.ensureClient();
+      const issue = await client.issue(issueId);
+
+      if (!issue) {
+        const error = new Error(`Issue ${issueId} not found in Linear`) as LinearApiError;
+        error.code = 'ISSUE_NOT_FOUND';
+        throw error;
+      }
+
+      await issue.update({
+        description: newBody,
+      });
+    } catch (error) {
+      if ((error as LinearApiError).code) {
+        throw error;
+      }
+
+      const apiError = new Error(
+        `Failed to update issue body: ${error instanceof Error ? error.message : 'Unknown error'}`
+      ) as LinearApiError;
+      apiError.code = 'UNKNOWN_ERROR';
+      throw apiError;
+    }
+  }
+
+  /**
    * Returns whether the API key is configured
    */
   isConfigured(): boolean {

@@ -26,6 +26,7 @@ describe('LinearClient', () => {
       checkConnection: jest.fn(),
       addComment: jest.fn(),
       updateIssueStatus: jest.fn(),
+      updateIssueBody: jest.fn(),
     } as any;
 
     (LinearApiService as jest.MockedClass<typeof LinearApiService>).mockImplementation(
@@ -242,6 +243,44 @@ describe('LinearClient', () => {
       await client.addComment('AM-20', 'Test comment');
 
       expect(console.error).toHaveBeenCalledWith(expect.stringContaining('Failed to add comment'));
+    });
+  });
+
+  describe('updateIssueBody', () => {
+    it('should update issue body successfully', async () => {
+      mockApiService.updateIssueBody.mockResolvedValue(undefined);
+
+      await client.updateIssueBody('AM-20', '# New Body Content\n\nUpdated description');
+
+      expect(mockApiService.updateIssueBody).toHaveBeenCalledWith(
+        'AM-20',
+        '# New Body Content\n\nUpdated description'
+      );
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('Successfully updated issue AM-20 body')
+      );
+    });
+
+    it('should skip update when API key is missing', async () => {
+      const error: any = new Error('API key missing');
+      error.code = 'API_KEY_MISSING';
+      mockApiService.updateIssueBody.mockRejectedValue(error);
+
+      await client.updateIssueBody('AM-20', 'New body content');
+
+      expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('Skipping body update'));
+    });
+
+    it('should log error but not throw for other failures', async () => {
+      const error: any = new Error('Update failed');
+      error.code = 'UNKNOWN_ERROR';
+      mockApiService.updateIssueBody.mockRejectedValue(error);
+
+      await client.updateIssueBody('AM-20', 'New body content');
+
+      expect(console.error).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to update issue body')
+      );
     });
   });
 

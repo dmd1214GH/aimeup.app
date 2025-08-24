@@ -8,7 +8,7 @@ describe('ConfigLoader', () => {
   const mockFs = fs as jest.Mocked<typeof fs>;
   let configLoader: ConfigLoader;
 
-  const mockConfig: Config = {
+  const mockConfig: any = {
     version: 1,
     workroot: '${REPO_PATH}/.linear-watcher',
     generalPrompt: 'lc-runner-general-prompt.md',
@@ -84,7 +84,25 @@ describe('ConfigLoader', () => {
 
       const config = configLoader.loadConfig();
 
-      expect(config).toEqual(mockConfig);
+      // Check that operations mapping was created
+      expect(config.operations).toBeDefined();
+      expect(config.operations['Task']).toEqual({
+        operationName: 'Task',
+        linearIssueStatus: 'Tasking-ai',
+        promptFile: 'tasking-prompt.md',
+        transitions: {
+          success: 'Delivery-Ready',
+          blocked: 'Tasking-BLOCKED',
+        },
+        linearIssueStatusSuccess: 'Delivery-Ready',
+        linearIssueStatusBlocked: 'Tasking-BLOCKED',
+      });
+
+      // Check original fields are preserved
+      expect(config.version).toBe(mockConfig.version);
+      expect(config.linear).toEqual(mockConfig.linear);
+      expect(config['lc-runner-operations']).toEqual(mockConfig['lc-runner-operations']);
+
       expect(mockFs.readFileSync).toHaveBeenCalledWith(
         expect.stringContaining('.linear-watcher/config.json'),
         'utf-8'

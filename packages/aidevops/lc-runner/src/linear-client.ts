@@ -151,6 +151,27 @@ export class LinearClient {
   }
 
   /**
+   * Updates the issue body/description.
+   *
+   * @param issueId - The Linear issue ID
+   * @param newBody - The new body content to set
+   */
+  public async updateIssueBody(issueId: string, newBody: string): Promise<void> {
+    try {
+      await this.apiService.updateIssueBody(issueId, newBody);
+      console.log(`Successfully updated issue ${issueId} body`);
+    } catch (error) {
+      const apiError = error as LinearApiError;
+      if (apiError.code === 'API_KEY_MISSING') {
+        console.warn(`[Linear API] Skipping body update - ${apiError.message}`);
+        return;
+      }
+      console.error(`Failed to update issue body: ${apiError.message}`);
+      // Don't re-throw to avoid breaking the operation flow
+    }
+  }
+
+  /**
    * Checks if the Linear API is accessible.
    *
    * @returns true if API is accessible

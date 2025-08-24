@@ -68,22 +68,89 @@ The tool uses configuration from `.linear-watcher/config.json`:
 
 ## Usage
 
-### Basic Command
+### Command Structure
+
+All commands follow the pattern:
 
 ```bash
-pnpm lc-runner <operation> <issueId>
+pnpm lc-runner <operation> <issueId> [options]
 ```
 
-**Parameters:**
+**Required Parameters:**
 
-- `operation`: The operation to perform (e.g., "Delivery", "Task", "Smoke")
-- `issueId`: The Linear issue identifier (e.g., "AM-20")
+- `operation`: The operation to perform (e.g., "Deliver", "Task", "Review")
+- `issueId`: The Linear issue identifier (e.g., "AM-25")
 
-### Example
+### Running Operations
 
 ```bash
-# Extract issue AM-20 from Linear and prepare for Delivery operation
-pnpm lc-runner Delivery AM-20
+# Run an operation (extracts issue, creates working folder, invokes ClaudeCode)
+pnpm lc-runner Deliver AM-25
+
+# Run without ClaudeCode
+pnpm lc-runner Deliver AM-25 --no-claude
+
+# Run with timeout
+pnpm lc-runner Deliver AM-25 --claude-timeout 10
+```
+
+**Operation Options:**
+
+- `--no-claude`: Skip ClaudeCode invocation
+- `--claude-timeout <minutes>`: Set ClaudeCode timeout in minutes
+- `--headed`: Run Claude in headed/interactive mode for debugging
+- `--seek-permissions`: Seek permission prompts in headed mode
+
+### Uploading Results to Linear
+
+After an operation completes, upload the results:
+
+```bash
+# Upload using folder tag (e.g., from a completed operation)
+pnpm lc-runner Deliver AM-25 --upload-only op-Deliver-20250824060442
+
+# Dry run to validate without uploading
+pnpm lc-runner Deliver AM-25 --upload-only op-Deliver-20250824060442 --dry-run
+```
+
+**Upload Options:**
+
+- `--upload-only <folderTag>`: Upload existing results from specified working folder
+- `--dry-run`: Validate without performing actual upload
+
+### Listing Working Folders
+
+```bash
+# List all working folders for an issue
+pnpm lc-runner Deliver AM-25 --list-uploads
+
+# Show details for a specific folder
+pnpm lc-runner Deliver AM-25 --list-uploads op-Deliver-20250824060442
+```
+
+**List Options:**
+
+- `--list-uploads`: Show all available working folders
+- `--list-uploads <folderTag>`: Show details for specific folder
+
+### Examples
+
+```bash
+# 1. Run a Delivery operation
+pnpm lc-runner Deliver AM-25
+
+# 2. List available working folders
+pnpm lc-runner Deliver AM-25 --list-uploads
+# Output: ✓ op-Deliver-20250824060442 (8/24/2025, 6:04:42 AM)
+
+# 3. Upload the results
+pnpm lc-runner Deliver AM-25 --upload-only op-Deliver-20250824060442
+
+# 4. Or just check what would be uploaded (dry run)
+pnpm lc-runner Deliver AM-25 --upload-only op-Deliver-20250824060442 --dry-run
+
+# 5. View details of a specific folder
+pnpm lc-runner Deliver AM-25 --list-uploads op-Deliver-20250824060442
 ```
 
 This will:
@@ -94,6 +161,7 @@ This will:
 4. Save issue content to `original-issue.md` and `updated-issue.md`
 5. Generate a master prompt including the issue content
 6. Log all operations for tracking
+7. (After upload) Push operation reports as comments, update issue body, and transition status
 
 ### Output Structure
 
@@ -106,6 +174,41 @@ This will:
         ├── updated-issue.md         # Working copy for updates
         └── master-prompt.md         # Combined prompt with issue
 ```
+
+## Upload Feature
+
+The upload command allows you to push operation results back to Linear after processing:
+
+### What Gets Uploaded
+
+1. **Operation Reports**: All `operation-report-*.md` files are uploaded as Linear comments
+2. **Issue Body**: The `updated-issue.md` content replaces the Linear issue body
+3. **Status Transition**: Issue status is updated based on operation result:
+   - `Complete` → Configured success status
+   - `Blocked/Failed` → Configured blocked status
+
+### Pre-Upload Validation
+
+Before uploading, the tool validates:
+
+- `updated-issue.md` differs from `original-issue.md`
+- At least one operation report exists
+- Latest report has a terminal status (Complete/Blocked/Failed)
+- Linear issue is still in expected status
+
+### Upload Process
+
+1. Validates all pre-conditions
+2. Uploads operation reports as comments (in sequence)
+3. Updates issue body with `updated-issue.md` content
+4. Transitions issue status based on result
+
+### Error Handling
+
+- Failed uploads generate an `UploadFailure` report
+- Partial failures continue with remaining uploads
+- All failures transition issue to blocked status
+- Detailed logging for troubleshooting
 
 ## Linear Integration Features
 

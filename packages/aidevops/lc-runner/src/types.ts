@@ -8,6 +8,8 @@ export const TransitionSchema = z.object({
 export const OperationMappingSchema = z.object({
   operationName: z.string(),
   linearIssueStatus: z.string(),
+  linearIssueStatusSuccess: z.string().optional(),
+  linearIssueStatusBlocked: z.string().optional(),
   promptFile: z.string(),
   transitions: TransitionSchema,
 });
@@ -29,4 +31,6 @@ export const ConfigSchema = z.object({
 export type Transition = z.infer<typeof TransitionSchema>;
 export type OperationMapping = z.infer<typeof OperationMappingSchema>;
 export type LinearConfig = z.infer<typeof LinearConfigSchema>;
-export type Config = z.infer<typeof ConfigSchema>;
+export type Config = z.infer<typeof ConfigSchema> & {
+  operations: Record<string, OperationMapping>;
+};

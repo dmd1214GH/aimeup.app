@@ -277,6 +277,43 @@ describe('LinearApiService', () => {
     });
   });
 
+  describe('updateIssueBody', () => {
+    it('should update issue body successfully', async () => {
+      const mockIssue = {
+        id: 'issue-id',
+        update: jest.fn().mockResolvedValue(undefined),
+      };
+
+      mockClient.issue.mockResolvedValue(mockIssue as any);
+
+      await service.updateIssueBody('AM-20', '# Updated Body\n\nNew content here');
+
+      expect(mockIssue.update).toHaveBeenCalledWith({
+        description: '# Updated Body\n\nNew content here',
+      });
+    });
+
+    it('should throw error when issue not found', async () => {
+      mockClient.issue.mockResolvedValue(null as any);
+
+      await expect(service.updateIssueBody('AM-999', 'New body')).rejects.toThrow(
+        'Issue AM-999 not found in Linear'
+      );
+    });
+
+    it('should throw API_KEY_MISSING when no client', async () => {
+      delete process.env.LINEAR_API_KEY;
+      const serviceWithoutKey = new LinearApiService();
+
+      try {
+        await serviceWithoutKey.updateIssueBody('AM-20', 'New body');
+        throw new Error('Should have thrown an error');
+      } catch (error: any) {
+        expect(error.code).toBe('API_KEY_MISSING');
+      }
+    });
+  });
+
   describe('error handling', () => {
     it('should handle authentication errors', async () => {
       const authError = new Error('Unauthorized');
