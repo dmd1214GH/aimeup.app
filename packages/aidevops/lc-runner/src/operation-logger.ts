@@ -6,6 +6,13 @@ export interface LogEntry {
   operation: string;
   status: string;
   folderPath: string;
+  error?: string;
+  outputFiles?: {
+    updatedIssue?: string;
+    comments: string[];
+    contextDump?: string;
+    operationReports: string[];
+  };
 }
 
 export class OperationLogger {
@@ -87,13 +94,35 @@ export class OperationLogger {
    * Format a log entry as markdown
    */
   private formatLogEntry(entry: LogEntry): string {
-    const { timestamp, operation, status, folderPath } = entry;
-    return (
+    const { timestamp, operation, status, folderPath, error, outputFiles } = entry;
+    let markdown =
       `## ${timestamp}\n` +
       `- **Operation**: ${operation}\n` +
       `- **Status**: ${status}\n` +
-      `- **Folder**: ${folderPath}\n\n`
-    );
+      `- **Folder**: ${folderPath}\n`;
+
+    if (error) {
+      markdown += `- **Error**: ${error}\n`;
+    }
+
+    if (outputFiles) {
+      markdown += `- **Output Files**:\n`;
+      if (outputFiles.updatedIssue) {
+        markdown += `  - Updated Issue: ${outputFiles.updatedIssue}\n`;
+      }
+      if (outputFiles.comments.length > 0) {
+        markdown += `  - Comments: ${outputFiles.comments.join(', ')}\n`;
+      }
+      if (outputFiles.contextDump) {
+        markdown += `  - Context Dump: ${outputFiles.contextDump}\n`;
+      }
+      if (outputFiles.operationReports.length > 0) {
+        markdown += `  - Operation Reports: ${outputFiles.operationReports.join(', ')}\n`;
+      }
+    }
+
+    markdown += '\n';
+    return markdown;
   }
 
   /**

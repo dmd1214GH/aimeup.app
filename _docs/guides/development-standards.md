@@ -21,6 +21,12 @@
 
 - use $REPO_PATH as the root of all commands. Fail if not set. Never use absolute path or relative path if the current directory is not known.
 
+## Output Parsing
+
+- Never parse stdout/stderr for operation results or status determination
+- Operation status must come from structured files (e.g., operation-report*.md) written to the working folder
+- Use exit codes for basic success/failure, files for detailed status
+
 ## Monorepo Structure Changes
 
 Any new folder or dependency change in the monorepo must comply with these standards:
