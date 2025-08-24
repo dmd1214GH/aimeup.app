@@ -32,14 +32,13 @@ export class PromptAssembler {
       // Perform replacements in general prompt
       const processedGeneralPrompt = this.performReplacements(generalPrompt, replacements);
 
-      // Add issue body if provided
-      let issueSection = '';
-      if (issueBody) {
-        issueSection = '\n## Issue Definition From Linear:\n' + issueBody + '\n';
-      }
+      // Combine prompts with issue body if provided
+      let masterPrompt = processedGeneralPrompt + '\n' + operationPrompt;
 
-      // Combine prompts with issue body
-      const masterPrompt = processedGeneralPrompt + issueSection + '\n' + operationPrompt;
+      // Append issue body if provided
+      if (issueBody) {
+        masterPrompt += '\n\n## Issue Definition From Linear:\n' + issueBody;
+      }
 
       // Ensure output directory exists
       const outputDir = path.dirname(outputPath);
