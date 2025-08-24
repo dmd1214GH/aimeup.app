@@ -8,7 +8,6 @@ import { LinearClient } from './linear-client';
 import { WorkingFolderManager } from './working-folder';
 import { OperationLogger } from './operation-logger';
 import { PromptAssembler } from './prompt-assembler';
-import { OperationReporter } from './operation-reporter';
 
 const program = new Command();
 
@@ -20,7 +19,6 @@ program
   .argument('<issueId>', 'The Linear issue ID')
   .action(async (operation: string, issueId: string) => {
     let workingFolderPath: string | undefined;
-    let reporter: OperationReporter | undefined;
 
     try {
       const configLoader = new ConfigLoader();
@@ -63,11 +61,7 @@ program
       workingFolderPath = folderManager.createWorkingFolder(issueId, operation);
       console.log(`Created working folder: ${workingFolderPath}`);
 
-      // Create initial operation report
-      reporter = new OperationReporter(workingFolderPath);
       const folderName = folderManager.generateFolderName(issueId, operation);
-      reporter.createInitialReport(issueId, operation, folderName);
-      console.log(`Created initial operation report`);
 
       // Initialize Linear client and validate issue status
       const linearClient = new LinearClient(config.linear);
@@ -89,11 +83,6 @@ program
         const errorMessage =
           validationError ||
           `Issue ${issueId} is not in the required status '${operationMapping.linearIssueStatus}' for operation '${operation}'.`;
-
-        // Update operation report to show blocked status
-        if (reporter) {
-          reporter.updateReport('Blocked', errorMessage);
-        }
 
         // Log the validation failure
         const logger = new OperationLogger(workroot);
@@ -213,13 +202,6 @@ ${issue.description}
       );
       console.log(`Assembled master prompt at: ${masterPromptPath}`);
 
-      // Update report to completed
-      reporter.updateReport('Completed', 'Successfully initialized working folder and prompts', {
-        updatedIssue: 'updated-issue.md',
-        commentFiles: [],
-        contextDump: 'context-dump.md',
-      });
-
       // Update operation log with completion
       const completionEntry = {
         timestamp: OperationLogger.getCurrentTimestamp(),
@@ -237,15 +219,6 @@ ${issue.description}
       console.log(`Master prompt: ${masterPromptPath}`);
       process.exit(0);
     } catch (error) {
-      // Update report to failed if reporter exists
-      if (reporter && workingFolderPath) {
-        try {
-          reporter.updateReport('Failed', error instanceof Error ? error.message : 'Unknown error');
-        } catch {
-          // Ignore errors updating report
-        }
-      }
-
       if (error instanceof Error) {
         console.error(`Error: ${error.message}`);
       } else {

@@ -104,8 +104,7 @@ This will:
     └── op-Delivery-20250823123045/  # Timestamped working folder
         ├── original-issue.md        # Original issue from Linear
         ├── updated-issue.md         # Working copy for updates
-        ├── master-prompt.md         # Combined prompt with issue
-        └── operation-report.json    # Operation status report
+        └── master-prompt.md         # Combined prompt with issue
 ```
 
 ## Linear Integration Features

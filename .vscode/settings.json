@@ -22,5 +22,6 @@
   "editor.formatOnSave": true,
   "files.associations": {
     "*.mdx": "markdown"
-  }
+  },
+  "cSpell.words": ["desireable"]
 }

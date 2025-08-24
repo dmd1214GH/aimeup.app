@@ -29,18 +29,7 @@ echo "Contents:"
 ls -la "$FOLDER"
 
 echo ""
-echo "3. Verifying operation report was created"
-echo "----------------------------------------------"
-if [ -f "$FOLDER/operation-report.json" ]; then
-    echo "✓ operation-report.json exists"
-    echo "Content:"
-    cat "$FOLDER/operation-report.json" | python3 -m json.tool
-else
-    echo "✗ operation-report.json not found"
-fi
-
-echo ""
-echo "4. Verifying master prompt was assembled"
+echo "3. Verifying master prompt was assembled"
 echo "----------------------------------------------"
 if [ -f "$FOLDER/master-prompt.md" ]; then
     echo "✓ master-prompt.md exists"
@@ -51,7 +40,7 @@ else
 fi
 
 echo ""
-echo "5. Verifying operation log entry was created"
+echo "4. Verifying operation log entry was created"
 echo "----------------------------------------------"
 LOG_FILE=".linear-watcher/work/lcr-AM-19/issue-operation-log.md"
 if [ -f "$LOG_FILE" ]; then
@@ -63,31 +52,31 @@ else
 fi
 
 echo ""
-echo "6. Testing validation - Invalid operation"
+echo "5. Testing validation - Invalid operation"
 echo "----------------------------------------------"
 echo "Running: pnpm lc-runner InvalidOp AM-19"
 pnpm lc-runner InvalidOp AM-19 2>&1 || true
 
 echo ""
-echo "7. Testing validation - Invalid issue prefix"
+echo "6. Testing validation - Invalid issue prefix"
 echo "----------------------------------------------"
 echo "Running: pnpm lc-runner Delivery WRONG-123"
 pnpm lc-runner Delivery WRONG-123 2>&1 || true
 
 echo ""
-echo "8. Running another operation to show log accumulation"
+echo "7. Running another operation to show log accumulation"
 echo "----------------------------------------------"
 echo "Running: pnpm lc-runner Task AM-19"
 pnpm lc-runner Task AM-19
 
 echo ""
-echo "9. Showing accumulated operation log"
+echo "8. Showing accumulated operation log"
 echo "----------------------------------------------"
 echo "Full operation log for AM-19:"
 cat "$LOG_FILE"
 
 echo ""
-echo "10. Unit test results"
+echo "9. Unit test results"
 echo "----------------------------------------------"
 echo "Running: cd packages/aidevops/lc-runner && pnpm test"
 cd packages/aidevops/lc-runner && pnpm test --silent
@@ -102,5 +91,4 @@ echo "✓ Validation errors shown with clear, actionable messages"
 echo "✓ Operation log maintains history across attempts"
 echo "✓ Master prompt combines general and operation prompts"
 echo "✓ Prompt format validation ensures well-formed markdown"
-echo "✓ Operation report tracks start/end times and status"
 echo ""

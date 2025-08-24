@@ -1,14 +1,11 @@
 ## Instructions for Tasking Linear issues with ClaudeCode (v0.1)
 
 ### Pre-Tasking checklist
+Include this check with the standard pre-check tests
+- [ ] `<working-folder>/updated-issue.md` contains a clearly stated Requirement and Acceptance Criteria (indicating Tasking readiness)
 
-- [ ] `<working-folder>/updated-issue.md` contains a clearly stated Process Flow and Acceptance Criteria (indicating Tasking readiness)
-- [ ] Any failure to meet these standards should be considered to be a blocker
-
-### Create Task List
-
-Create a task list for delivering all acceptance criteria on the Issue definition
-
+### Step 3: Create Task List
+Create a task list for delivering all requirements and meeting all acceptance criteria stated in `updated-issue.md`.  This is a tasking operation to breakdown the work, not deliver it.
 - Create or reuse a `## Task List` section of `updated-issue.md`
 - List must be comprehensive, and sequenced based on dependencies.
 - Include, but don't limit to: setup, coding, testing, documentation, demonstration
@@ -18,7 +15,6 @@ Create a task list for delivering all acceptance criteria on the Issue definitio
 - Include `<repo-root>/_docs/guides/steps-of-doneness.md` when tasking
 
 Task list will have this format, and will be appended to the original issue definition.
-
 ```markdown
 ## Task list for AM-XX
 
@@ -32,28 +28,26 @@ Task list will have this format, and will be appended to the original issue defi
    - Task N component N
 ```
 
-### Clarify Assumptions
-
-Transparently state material assumptions made while tasking:
-
+#### Clarify Assumptions
+Transparently record material assumptions made while tasking:
 - Create or reuse a `## Assumptions` section in `updated-issue.md`
 - Highlight things that might change the design, tech-debt profile, or delivery quality.
+- Do not restate obvious assumptions or things included in the requirements.  Only include non-obvious, non-stated assumptions.  If none, omit the section.
 
-### Operation Constraints
+#### Blocking Questions
+If any requirements questions must be answered to ensure an accurate understanding:
+- Create or reuse a `## Blocking Questions` section in `updated-issue.md`
+- Clearly state the question, and reference the section of `updated-issue.md` that relates to the question
+- Consider the operation to be blocked.
 
-- If blockers are found regarding Issue content, continue processing to surface as many problems as possible
-
-### Tasking Operation Success Criteria
-
+### Step 4: Tasking Operation Success Criteria
 All of these criteria must be true in order to consider a tasking operation to be Complete.
-
 - [ ] `updated-issue.md` requirements are not ambiguous and it is fully explained by its contents alone
 - [ ] Tasks are defined to fully deliver all acceptance criteria
 - [ ] Tasks have been validated to comply with `<repo-root>/_docs/guides/steps-of-doneness.md`
 - [ ] Automated testing tasks are included for both positive and negative conditions where feasible
 - [ ] Tasks do not do things beyond explicit AC scope
 - [ ] No unresolved blocking questions remain in the updated-issue.md
-- [ ] Summarized Understanding Comment file is saved and accurately reflects the summary of this operation.
 - [ ] Each task is explicitly understandable within `updated-issue.md` without relying on context.
 - [ ] The result of each task must be independently verifiable.
 

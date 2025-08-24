@@ -3,7 +3,6 @@ import * as path from 'path';
 import { WorkingFolderManager } from '../src/working-folder';
 import { OperationLogger } from '../src/operation-logger';
 import { PromptAssembler } from '../src/prompt-assembler';
-import { OperationReporter } from '../src/operation-reporter';
 import { LinearClient } from '../src/linear-client';
 import { LinearApiService } from '../src/linear-api-service';
 
@@ -127,47 +126,11 @@ describe('lc-runner Integration Tests', () => {
         'utf8'
       );
 
-      // Create and verify operation report
-      const reporter = new OperationReporter(workingFolderPath);
-
-      mockFs.writeFileSync.mockClear();
-      reporter.createInitialReport(
-        testIssueId,
-        testOperation,
-        'lcr-AM-19/op-Delivery-20250822103045'
-      );
-
-      expect(mockFs.writeFileSync).toHaveBeenCalledWith(
-        path.join(workingFolderPath, 'operation-report.json'),
-        expect.stringContaining('"operationStatus": "Inprog"'),
-        'utf8'
-      );
-
-      // Update report to completed
-      mockFs.existsSync.mockReturnValue(true);
-      mockFs.readFileSync.mockReturnValue(
-        JSON.stringify({
-          issueId: testIssueId,
-          operation: testOperation,
-          workingFolder: 'lcr-AM-19/op-Delivery-20250822103045',
-          operationStatus: 'Inprog',
-          'start-timestamp': '2025-08-22T10:30:45.000Z',
-          'end-timestamp': null,
-          summary: 'Operation in progress',
-          outputs: {},
-        })
-      );
-
-      reporter.updateReport('Completed', 'All tasks completed successfully', {
-        updatedIssue: 'updated-issue.md',
-        commentFiles: ['comment-001.md'],
-        contextDump: 'context-dump.md',
-      });
-
+      // Verify master prompt was written with correct content
       const lastWriteCall =
         mockFs.writeFileSync.mock.calls[mockFs.writeFileSync.mock.calls.length - 1];
-      expect(lastWriteCall[1]).toContain('"operationStatus": "Completed"');
-      expect(lastWriteCall[1]).toContain('"summary": "All tasks completed successfully"');
+      expect(lastWriteCall[0]).toContain('master-prompt.md');
+      expect(lastWriteCall[1]).toContain('Delivery Instructions');
     });
 
     it('should handle errors gracefully and update report to Failed', () => {
@@ -243,13 +206,6 @@ describe('lc-runner Integration Tests', () => {
         folderPath: 'lcr-AM-19/op-Delivery-20250822103045',
       });
 
-      const reporter = new OperationReporter(workingFolderPath);
-      reporter.createInitialReport(
-        testIssueId,
-        testOperation,
-        'lcr-AM-19/op-Delivery-20250822103045'
-      );
-
       // Reset to track prompt assembly
       mockFs.existsSync.mockReturnValue(true);
 
@@ -266,7 +222,7 @@ describe('lc-runner Integration Tests', () => {
       );
 
       // Verify all expected files were created
-      const expectedFiles = ['issue-operation-log.md', 'operation-report.json', 'master-prompt.md'];
+      const expectedFiles = ['issue-operation-log.md', 'master-prompt.md'];
 
       expectedFiles.forEach((fileName) => {
         const fileCreated = fileWrites.some((write) => write.path.includes(fileName));
