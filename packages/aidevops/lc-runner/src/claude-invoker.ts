@@ -73,7 +73,7 @@ export class ClaudeInvoker {
 
       // Run Claude interactively and pipe the prompt content
       const claudeProcess = spawn(this.claudePath, args, {
-        stdio: ['pipe', 'inherit', 'inherit'], // pipe stdin, inherit stdout/stderr
+        stdio: ['pipe', 'inherit', 'inherit'], // pipe stdin, inherit stdout/stderr for TTY
         env: { ...process.env },
         shell: false,
       });
