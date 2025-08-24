@@ -74,10 +74,15 @@ describe('ClaudeInvoker', () => {
 
       const result = await resultPromise;
 
-      expect(mockSpawn).toHaveBeenCalledWith(expect.any(String), ['--print'], {
-        env: expect.any(Object),
-        shell: false,
-      });
+      expect(mockSpawn).toHaveBeenCalledWith(
+        expect.any(String),
+        ['--print', '--dangerously-skip-permissions'],
+        {
+          stdio: ['pipe', 'pipe', 'pipe'],
+          env: expect.any(Object),
+          shell: false,
+        }
+      );
       expect(mockProcess.stdin.write).toHaveBeenCalledWith('Test prompt content');
       expect(mockProcess.stdin.end).toHaveBeenCalled();
       expect(result.success).toBe(true);

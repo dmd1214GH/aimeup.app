@@ -44,7 +44,7 @@ export class OutputManager {
         try {
           const reportJson = JSON.parse(jsonMatch[1]);
           const status = reportJson.operationStatus || reportJson.status;
-          
+
           // Map status to our expected values
           if (status === 'Complete' || status === 'Completed') {
             return 'Completed';

@@ -20,9 +20,15 @@ program
   .argument('<operation>', 'The operation name to execute')
   .argument('<issueId>', 'The Linear issue ID')
   .option('--no-claude', 'Skip ClaudeCode invocation')
-  .option('--claude-timeout <minutes>', 'ClaudeCode timeout in minutes (no timeout if not specified)')
+  .option(
+    '--claude-timeout <minutes>',
+    'ClaudeCode timeout in minutes (no timeout if not specified)'
+  )
   .option('--headed', 'Run Claude in headed/interactive mode for debugging')
-  .option('--seek-permissions', 'Seek permission prompts in headed mode (default: skip permissions)')
+  .option(
+    '--seek-permissions',
+    'Seek permission prompts in headed mode (default: skip permissions)'
+  )
   .action(async (operation: string, issueId: string, options) => {
     let workingFolderPath: string | undefined;
 
@@ -212,110 +218,114 @@ ${issue.description}
       if (!options.claude) {
         console.log(`\nSkipping ClaudeCode invocation (--no-claude flag set)`);
       } else {
-        console.log(`\nInvoking ClaudeCode${options.headed ? ' in headed/interactive mode' : ' in headless mode'}...`);
+        console.log(
+          `\nInvoking ClaudeCode${options.headed ? ' in headed/interactive mode' : ' in headless mode'}...`
+        );
         const claudeInvoker = new ClaudeInvoker();
 
         // Check if ClaudeCode is available
         if (!claudeInvoker.isClaudeCodeAvailable()) {
-        console.warn('ClaudeCode CLI not found. Skipping automatic invocation.');
-        console.log('To enable automatic invocation, ensure ClaudeCode CLI is installed.');
+          console.warn('ClaudeCode CLI not found. Skipping automatic invocation.');
+          console.log('To enable automatic invocation, ensure ClaudeCode CLI is installed.');
 
-        // Update operation log
-        const skipEntry = {
-          timestamp: OperationLogger.getCurrentTimestamp(),
-          operation,
-          status: 'ClaudeCode Skipped - CLI Not Found',
-          folderPath: folderName,
-        };
-        logger.appendLogEntry(issueId, skipEntry);
-      } else {
-        try {
-          // Log ClaudeCode invocation start
-          const invocationStartEntry = {
+          // Update operation log
+          const skipEntry = {
             timestamp: OperationLogger.getCurrentTimestamp(),
             operation,
-            status: 'ClaudeCode Invocation Started',
+            status: 'ClaudeCode Skipped - CLI Not Found',
             folderPath: folderName,
           };
-          logger.appendLogEntry(issueId, invocationStartEntry);
+          logger.appendLogEntry(issueId, skipEntry);
+        } else {
+          try {
+            // Log ClaudeCode invocation start
+            const invocationStartEntry = {
+              timestamp: OperationLogger.getCurrentTimestamp(),
+              operation,
+              status: 'ClaudeCode Invocation Started',
+              folderPath: folderName,
+            };
+            logger.appendLogEntry(issueId, invocationStartEntry);
 
-          // Invoke ClaudeCode with optional timeout
-          const timeoutMs = options.claudeTimeout ? parseInt(options.claudeTimeout, 10) * 60 * 1000 : undefined;
-          const invocationResult = await claudeInvoker.invokeClaudeCode(
-            masterPromptPath,
-            timeoutMs,
-            options.headed,
-            !options.seekPermissions // Skip permissions by default, unless --seek-permissions is used
-          );
+            // Invoke ClaudeCode with optional timeout
+            const timeoutMs = options.claudeTimeout
+              ? parseInt(options.claudeTimeout, 10) * 60 * 1000
+              : undefined;
+            const invocationResult = await claudeInvoker.invokeClaudeCode(
+              masterPromptPath,
+              timeoutMs,
+              options.headed,
+              !options.seekPermissions // Skip permissions by default, unless --seek-permissions is used
+            );
 
-          if (invocationResult.success) {
-            console.log('ClaudeCode execution completed successfully.');
+            if (invocationResult.success) {
+              console.log('ClaudeCode execution completed successfully.');
 
-            // Create output manager to check for operation reports
-            const outputManager = new OutputManager(workingFolderPath);
-            
-            // Get status from operation-report files written by Claude
-            const operationStatus = outputManager.getLatestOperationStatus();
-            
-            // Determine the final status
-            let finalStatus: 'Completed' | 'Blocked' | 'Failed';
-            if (operationStatus !== 'Unknown') {
-              finalStatus = operationStatus;
+              // Create output manager to check for operation reports
+              const outputManager = new OutputManager(workingFolderPath);
+
+              // Get status from operation-report files written by Claude
+              const operationStatus = outputManager.getLatestOperationStatus();
+
+              // Determine the final status
+              let finalStatus: 'Completed' | 'Blocked' | 'Failed';
+              if (operationStatus !== 'Unknown') {
+                finalStatus = operationStatus;
+              } else {
+                // Fallback: if no operation report found, assume success based on exit code
+                finalStatus = 'Completed';
+                console.log('No operation-report found, assuming success based on exit code.');
+              }
+
+              // Log ClaudeCode completion
+              const completionStatus =
+                finalStatus === 'Completed'
+                  ? 'ClaudeCode Completed'
+                  : finalStatus === 'Blocked'
+                    ? 'ClaudeCode Blocked'
+                    : 'ClaudeCode Failed';
+
+              const claudeCompletionEntry = {
+                timestamp: OperationLogger.getCurrentTimestamp(),
+                operation,
+                status: completionStatus,
+                folderPath: folderName,
+              };
+              logger.appendLogEntry(issueId, claudeCompletionEntry);
+
+              console.log(`ClaudeCode status: ${finalStatus}`);
             } else {
-              // Fallback: if no operation report found, assume success based on exit code
-              finalStatus = 'Completed';
-              console.log('No operation-report found, assuming success based on exit code.');
+              console.error('ClaudeCode execution failed.');
+              if (invocationResult.stderr) {
+                console.error('Error output:', invocationResult.stderr);
+              }
+
+              // Log failure
+              const failureEntry = {
+                timestamp: OperationLogger.getCurrentTimestamp(),
+                operation,
+                status: 'ClaudeCode Failed',
+                folderPath: folderName,
+                error: invocationResult.stderr || 'Unknown error',
+              };
+              logger.appendLogEntry(issueId, failureEntry);
             }
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            console.error(`Error invoking ClaudeCode: ${errorMessage}`);
 
-            // Log ClaudeCode completion
-            const completionStatus =
-              finalStatus === 'Completed'
-                ? 'ClaudeCode Completed'
-                : finalStatus === 'Blocked'
-                  ? 'ClaudeCode Blocked'
-                  : 'ClaudeCode Failed';
-
-            const claudeCompletionEntry = {
+            // Log error
+            const errorEntry = {
               timestamp: OperationLogger.getCurrentTimestamp(),
               operation,
-              status: completionStatus,
+              status: 'ClaudeCode Error',
               folderPath: folderName,
+              error: errorMessage,
             };
-            logger.appendLogEntry(issueId, claudeCompletionEntry);
-
-            console.log(`ClaudeCode status: ${finalStatus}`);
-          } else {
-            console.error('ClaudeCode execution failed.');
-            if (invocationResult.stderr) {
-              console.error('Error output:', invocationResult.stderr);
-            }
-
-            // Log failure
-            const failureEntry = {
-              timestamp: OperationLogger.getCurrentTimestamp(),
-              operation,
-              status: 'ClaudeCode Failed',
-              folderPath: folderName,
-              error: invocationResult.stderr || 'Unknown error',
-            };
-            logger.appendLogEntry(issueId, failureEntry);
+            logger.appendLogEntry(issueId, errorEntry);
           }
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-          console.error(`Error invoking ClaudeCode: ${errorMessage}`);
-
-          // Log error
-          const errorEntry = {
-            timestamp: OperationLogger.getCurrentTimestamp(),
-            operation,
-            status: 'ClaudeCode Error',
-            folderPath: folderName,
-            error: errorMessage,
-          };
-          logger.appendLogEntry(issueId, errorEntry);
         }
       }
-    }
 
       // Update operation log with completion
       const completionEntry = {

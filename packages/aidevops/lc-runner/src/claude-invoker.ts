@@ -49,7 +49,7 @@ export class ClaudeInvoker {
     // If in headed mode, run interactively but pipe the prompt content
     if (headed) {
       const promptContent = fs.readFileSync(masterPromptPath, 'utf8');
-      
+
       console.log('\n╔════════════════════════════════════════════════════════╗');
       console.log('║     Running Claude in HEADED/INTERACTIVE mode         ║');
       console.log('╚════════════════════════════════════════════════════════╝');
@@ -59,16 +59,18 @@ export class ClaudeInvoker {
       console.log('\nStarting Claude with piped prompt content...');
       console.log('You will see the Claude interface directly.');
       console.log('─'.repeat(60));
-      
+
       // Build command arguments WITHOUT --print for interactive mode
       const args = [];
       if (skipPermissions) {
         args.push('--dangerously-skip-permissions');
       }
-      
-      console.log(`Running Claude with flags: ${skipPermissions ? '--dangerously-skip-permissions' : '(no flags)'}`);
+
+      console.log(
+        `Running Claude with flags: ${skipPermissions ? '--dangerously-skip-permissions' : '(no flags)'}`
+      );
       console.log('Note: Type "exit" or press Ctrl+D when tasks are complete.');
-      
+
       // Run Claude interactively and pipe the prompt content
       const claudeProcess = spawn(this.claudePath, args, {
         stdio: ['pipe', 'inherit', 'inherit'], // pipe stdin, inherit stdout/stderr
@@ -130,7 +132,7 @@ export class ClaudeInvoker {
       } else {
         console.log(`Timeout: None (will run until completion)`);
       }
-      
+
       // Spawn ClaudeCode process with --print flag for headless mode
       const claudeProcess = spawn(this.claudePath, args, {
         stdio: ['pipe', 'pipe', 'pipe'], // Explicitly set stdio for pipes

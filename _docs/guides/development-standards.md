@@ -24,7 +24,7 @@
 ## Output Parsing
 
 - Never parse stdout/stderr for operation results or status determination
-- Operation status must come from structured files (e.g., operation-report*.md) written to the working folder
+- Operation status must come from structured files (e.g., operation-report\*.md) written to the working folder
 - Use exit codes for basic success/failure, files for detailed status
 
 ## Monorepo Structure Changes
