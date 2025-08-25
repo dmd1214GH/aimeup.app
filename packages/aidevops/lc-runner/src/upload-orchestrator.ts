@@ -40,6 +40,7 @@ export class UploadOrchestrator {
   private validator: UploadValidator;
   private reportGenerator: OperationReportGenerator;
   private operationLogger: OperationLogger;
+  private failedUploads: string[] = [];
 
   constructor(workroot: string, workingFolder: string) {
     this.validator = new UploadValidator(workingFolder);
@@ -112,10 +113,22 @@ export class UploadOrchestrator {
       );
       result.uploadedAssets.comments = uploadedComments;
 
+      // Track if any comments failed
+      const allCommentsUploaded =
+        uploadedComments.length === validationResult.assets.operationReports.length;
+      if (!allCommentsUploaded) {
+        result.errors.push(
+          `Failed to upload ${validationResult.assets.operationReports.length - uploadedComments.length} comment(s)`
+        );
+      }
+
       // Step 4: Update issue body (final mutation)
       console.log('Updating issue body...');
       const bodyUpdated = await this.updateIssueBody(options);
       result.uploadedAssets.issueBody = bodyUpdated;
+      if (!bodyUpdated) {
+        result.errors.push('Failed to update issue body');
+      }
 
       // Step 5: Update issue status based on terminal status
       console.log('Updating issue status...');
@@ -124,8 +137,12 @@ export class UploadOrchestrator {
         validationResult.assets.terminalStatus!
       );
       result.uploadedAssets.statusUpdate = statusUpdated;
+      if (!statusUpdated) {
+        result.errors.push('Failed to update issue status');
+      }
 
-      result.success = true;
+      // Only mark as success if ALL uploads succeeded
+      result.success = allCommentsUploaded && bodyUpdated && statusUpdated;
 
       // Step 6: Log upload completion
       this.logUploadCompletion(options, result);
@@ -151,6 +168,7 @@ export class UploadOrchestrator {
     reportFilenames: string[]
   ): Promise<string[]> {
     const uploaded: string[] = [];
+    const failed: string[] = [];
 
     for (const filename of reportFilenames) {
       try {
@@ -158,14 +176,25 @@ export class UploadOrchestrator {
         const content = fs.readFileSync(reportPath, 'utf8');
         const cleanedContent = cleanCommentContent(content);
 
-        await options.linearClient.addComment(options.issueId, cleanedContent);
-        uploaded.push(filename);
-        console.log(`  ✓ Uploaded ${filename}`);
+        const success = await options.linearClient.addComment(options.issueId, cleanedContent);
+        if (success) {
+          uploaded.push(filename);
+          console.log(`  ✓ Uploaded ${filename}`);
+        } else {
+          failed.push(filename);
+          console.error(`  ✗ Failed to upload ${filename}`);
+        }
       } catch (error) {
+        failed.push(filename);
         console.error(
           `  ✗ Failed to upload ${filename}: ${error instanceof Error ? error.message : 'Unknown error'}`
         );
       }
+    }
+
+    // Store failed uploads in the result
+    if (failed.length > 0) {
+      this.failedUploads = failed;
     }
 
     return uploaded;
@@ -180,9 +209,14 @@ export class UploadOrchestrator {
       const content = fs.readFileSync(updatedIssuePath, 'utf8');
       const cleanedContent = cleanIssueBody(content);
 
-      await options.linearClient.updateIssueBody(options.issueId, cleanedContent);
-      console.log('  ✓ Issue body updated');
-      return true;
+      const success = await options.linearClient.updateIssueBody(options.issueId, cleanedContent);
+      if (success) {
+        console.log('  ✓ Issue body updated');
+        return true;
+      } else {
+        console.error('  ✗ Failed to update issue body');
+        return false;
+      }
     } catch (error) {
       console.error(
         `  ✗ Failed to update issue body: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -218,9 +252,14 @@ export class UploadOrchestrator {
         return false;
       }
 
-      await options.linearClient.updateIssueStatus(options.issueId, targetStatus);
-      console.log(`  ✓ Issue status updated to '${targetStatus}'`);
-      return true;
+      const success = await options.linearClient.updateIssueStatus(options.issueId, targetStatus);
+      if (success) {
+        console.log(`  ✓ Issue status updated to '${targetStatus}'`);
+        return true;
+      } else {
+        console.error(`  ✗ Failed to update issue status to '${targetStatus}'`);
+        return false;
+      }
     } catch (error) {
       console.error(
         `  ✗ Failed to update issue status: ${error instanceof Error ? error.message : 'Unknown error'}`

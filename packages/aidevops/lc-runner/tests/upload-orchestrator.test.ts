@@ -105,9 +105,9 @@ describe('UploadOrchestrator', () => {
 
     // Setup mock Linear client
     mockLinearClient = {
-      addComment: jest.fn().mockResolvedValue(undefined),
-      updateIssueBody: jest.fn().mockResolvedValue(undefined),
-      updateIssueStatus: jest.fn().mockResolvedValue(undefined),
+      addComment: jest.fn().mockResolvedValue(true),
+      updateIssueBody: jest.fn().mockResolvedValue(true),
+      updateIssueStatus: jest.fn().mockResolvedValue(true),
     } as any;
 
     // Setup fs mocks
@@ -269,32 +269,37 @@ describe('UploadOrchestrator', () => {
     });
 
     it('should continue on comment upload failure', async () => {
-      mockLinearClient.addComment.mockRejectedValueOnce(new Error('API error'));
+      mockLinearClient.addComment.mockResolvedValueOnce(false);
 
       const result = await orchestrator.upload(mockOptions);
 
-      expect(result.success).toBe(true);
+      expect(result.success).toBe(false); // Failed because comment upload failed
       expect(result.uploadedAssets.comments).toEqual([]);
       expect(result.uploadedAssets.issueBody).toBe(true);
+      expect(result.uploadedAssets.statusUpdate).toBe(true);
+      expect(result.errors).toContain('Failed to upload 1 comment(s)');
     });
 
     it('should handle issue body update failure', async () => {
-      mockLinearClient.updateIssueBody.mockRejectedValue(new Error('Update failed'));
+      mockLinearClient.updateIssueBody.mockResolvedValue(false);
 
       const result = await orchestrator.upload(mockOptions);
 
-      expect(result.success).toBe(true);
+      expect(result.success).toBe(false); // Failed because issue body update failed
       expect(result.uploadedAssets.issueBody).toBe(false);
       expect(result.uploadedAssets.statusUpdate).toBe(true);
+      expect(result.errors).toContain('Failed to update issue body');
     });
 
     it('should handle status update failure', async () => {
-      mockLinearClient.updateIssueStatus.mockRejectedValue(new Error('Status update failed'));
+      mockLinearClient.updateIssueStatus.mockResolvedValue(false);
 
       const result = await orchestrator.upload(mockOptions);
 
-      expect(result.success).toBe(true);
+      expect(result.success).toBe(false); // Failed because status update failed
       expect(result.uploadedAssets.statusUpdate).toBe(false);
+      expect(result.uploadedAssets.issueBody).toBe(true);
+      expect(result.errors).toContain('Failed to update issue status');
     });
   });
 
@@ -347,8 +352,9 @@ describe('UploadOrchestrator', () => {
 
       const result = await orchestrator.upload(optionsWithBadOp);
 
-      expect(result.success).toBe(true);
+      expect(result.success).toBe(false); // Failed because status update couldn't happen
       expect(result.uploadedAssets.statusUpdate).toBe(false);
+      expect(result.errors).toContain('Failed to update issue status');
       expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('No status mapping found'));
     });
 
@@ -388,8 +394,9 @@ describe('UploadOrchestrator', () => {
 
       const result = await orchestrator.upload(optionsWithBadConfig);
 
-      expect(result.success).toBe(true);
+      expect(result.success).toBe(false); // Failed because status update couldn't happen
       expect(result.uploadedAssets.statusUpdate).toBe(false);
+      expect(result.errors).toContain('Failed to update issue status');
       expect(console.warn).toHaveBeenCalledWith(
         expect.stringContaining('No target status configured')
       );

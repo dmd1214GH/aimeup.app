@@ -194,10 +194,32 @@ export async function uploadCommand(
       console.log('❌ UPLOAD FAILED');
       console.log('='.repeat(60));
 
+      // Show what succeeded (if anything)
+      const hasPartialSuccess =
+        uploadResult.uploadedAssets.comments.length > 0 ||
+        uploadResult.uploadedAssets.issueBody ||
+        uploadResult.uploadedAssets.statusUpdate;
+
+      if (hasPartialSuccess) {
+        console.log('\nPartially uploaded:');
+        if (uploadResult.uploadedAssets.comments.length > 0) {
+          console.log(`  Comments (${uploadResult.uploadedAssets.comments.length}):`);
+          uploadResult.uploadedAssets.comments.forEach((comment) => {
+            console.log(`    ✓ ${comment}`);
+          });
+        }
+        if (uploadResult.uploadedAssets.issueBody) {
+          console.log('  Issue body: ✓ Updated');
+        }
+        if (uploadResult.uploadedAssets.statusUpdate) {
+          console.log('  Issue status: ✓ Updated');
+        }
+      }
+
       if (uploadResult.errors.length > 0) {
         console.log('\nErrors:');
         uploadResult.errors.forEach((error) => {
-          console.log(`  - ${error}`);
+          console.log(`  ✗ ${error}`);
         });
       }
 

@@ -49,18 +49,19 @@ export class LinearClient {
    * @param issueId - The Linear issue ID
    * @param newStatus - The new status to set
    */
-  public async updateIssueStatus(issueId: string, newStatus: string): Promise<void> {
+  public async updateIssueStatus(issueId: string, newStatus: string): Promise<boolean> {
     try {
       await this.apiService.updateIssueStatus(issueId, newStatus);
       console.log(`Successfully updated issue ${issueId} to status '${newStatus}'`);
+      return true;
     } catch (error) {
       const apiError = error as LinearApiError;
       if (apiError.code === 'API_KEY_MISSING') {
         console.warn(`[Linear API] Skipping status update - ${apiError.message}`);
-        return;
+        return false;
       }
       console.error(`Failed to update issue status: ${apiError.message}`);
-      // Don't re-throw to avoid breaking the operation flow
+      return false;
     }
   }
 
@@ -135,18 +136,19 @@ export class LinearClient {
    * @param issueId - The Linear issue ID
    * @param comment - The comment text to add
    */
-  public async addComment(issueId: string, comment: string): Promise<void> {
+  public async addComment(issueId: string, comment: string): Promise<boolean> {
     try {
       await this.apiService.addComment(issueId, comment);
       console.log(`Successfully added comment to issue ${issueId}`);
+      return true;
     } catch (error) {
       const apiError = error as LinearApiError;
       if (apiError.code === 'API_KEY_MISSING') {
         console.warn(`[Linear API] Skipping comment - ${apiError.message}`);
-        return;
+        return false;
       }
       console.error(`Failed to add comment: ${apiError.message}`);
-      // Don't re-throw to avoid breaking the operation flow
+      return false;
     }
   }
 
@@ -156,18 +158,19 @@ export class LinearClient {
    * @param issueId - The Linear issue ID
    * @param newBody - The new body content to set
    */
-  public async updateIssueBody(issueId: string, newBody: string): Promise<void> {
+  public async updateIssueBody(issueId: string, newBody: string): Promise<boolean> {
     try {
       await this.apiService.updateIssueBody(issueId, newBody);
       console.log(`Successfully updated issue ${issueId} body`);
+      return true;
     } catch (error) {
       const apiError = error as LinearApiError;
       if (apiError.code === 'API_KEY_MISSING') {
         console.warn(`[Linear API] Skipping body update - ${apiError.message}`);
-        return;
+        return false;
       }
       console.error(`Failed to update issue body: ${apiError.message}`);
-      // Don't re-throw to avoid breaking the operation flow
+      return false;
     }
   }
 
