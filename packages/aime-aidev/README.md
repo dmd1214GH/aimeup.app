@@ -5,13 +5,16 @@ AI Dev profile package that deploys configuration and prompt files for lc-runner
 ## Problem
 
 This package's postinstall script doesn't run automatically during `pnpm install` because:
+
 - No other package depends on it
 - pnpm only runs postinstall for packages that are actually installed as dependencies
 
 ## Solutions
 
 ### Option 1: Make it a dev dependency of the root (Recommended)
+
 Add to root `package.json`:
+
 ```json
 {
   "devDependencies": {
@@ -21,7 +24,9 @@ Add to root `package.json`:
 ```
 
 ### Option 2: Make it a dependency of lc-runner
+
 Add to `packages/aidevops/lc-runner/package.json`:
+
 ```json
 {
   "dependencies": {
@@ -31,7 +36,9 @@ Add to `packages/aidevops/lc-runner/package.json`:
 ```
 
 ### Option 3: Add a prepare script
+
 Add to root `package.json`:
+
 ```json
 {
   "scripts": {
@@ -41,7 +48,9 @@ Add to root `package.json`:
 ```
 
 ### Option 4: Manual deployment
+
 Run manually when needed:
+
 ```bash
 cd packages/aime-aidev && pnpm run postinstall
 ```
@@ -49,6 +58,7 @@ cd packages/aime-aidev && pnpm run postinstall
 ## Current Workaround
 
 The files have been deployed manually. To redeploy after changes:
+
 ```bash
 cd packages/aime-aidev
 pnpm run build
