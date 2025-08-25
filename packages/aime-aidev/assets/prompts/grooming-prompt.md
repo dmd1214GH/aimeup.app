@@ -99,7 +99,7 @@ All of these criteria must be true in order to consider a tasking operation to b
 - [ ] There are no Blocking Questions, and the Blocking Questions section indicates that no blocking questions remain.
 - [ ] All content independently understandable within `updated-issue.md` without relying on context.
 - [ ] Operator agrees that grooming is complete and the issue should move along to `Tasking`
-- [ ] Issue must not contain Breakout Issues
+- [ ] There are no Breakout Issues listed in the document
 
 If all conditions are true, the operation should be identified as a success.
 

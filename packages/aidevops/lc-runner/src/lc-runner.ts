@@ -246,22 +246,26 @@ ${issue.description}
           if (invocationResult.success) {
             console.log('ClaudeCode execution completed successfully.');
 
+            // Wait a moment for files to be fully written to disk
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // Debug: List files BEFORE creating OutputManager
+            console.log(`DEBUG: Checking for operation reports in: ${workingFolderPath}`);
+            const filesInFolder = fs.readdirSync(workingFolderPath);
+            const reportFiles = filesInFolder.filter(f => f.startsWith('operation-report-') && f.endsWith('.md'));
+            if (reportFiles.length > 0) {
+              console.log(`DEBUG: Found ${reportFiles.length} operation report file(s): ${reportFiles.join(', ')}`);
+            } else {
+              console.log(`DEBUG: No operation report files found!`);
+              console.log(`DEBUG: All files in folder: ${filesInFolder.join(', ')}`);
+            }
+
             // Create output manager to check for operation reports
             const outputManager = new OutputManager(workingFolderPath);
 
             // Get status from operation-report files written by Claude
             const operationStatus = outputManager.getLatestOperationStatus();
-
-            // Debug: List files in working folder to see what's available
-            const filesInFolder = fs.readdirSync(workingFolderPath);
-            const reportFiles = filesInFolder.filter(f => f.startsWith('operation-report-') && f.endsWith('.md'));
-            if (reportFiles.length > 0) {
-              console.log(`DEBUG: Found ${reportFiles.length} operation report file(s) in folder: ${reportFiles.join(', ')}`);
-              console.log(`DEBUG: OutputManager returned status: ${operationStatus}`);
-            } else {
-              console.log(`DEBUG: No operation report files found in ${workingFolderPath}`);
-              console.log(`DEBUG: Files in folder: ${filesInFolder.join(', ')}`);
-            }
+            console.log(`DEBUG: OutputManager.getLatestOperationStatus() returned: ${operationStatus}`);
 
             // Determine the final status
             let finalStatus: 'Completed' | 'Blocked' | 'Failed';
