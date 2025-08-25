@@ -2,7 +2,7 @@
 
 ### Pre-Tasking checklist
 Include this check with the standard pre-check tests
-- [ ] `<working-folder>/updated-issue.md` contains a clearly stated Requirement and Acceptance Criteria (indicating Tasking readiness)
+- [ ] `<ArgWorkingFolder>/updated-issue.md` contains a clearly stated Requirement and Acceptance Criteria (indicating Tasking readiness)
 
 ### Step 3: Create Task List
 Create a task list for delivering all requirements and meeting all acceptance criteria stated in `updated-issue.md`.  This is a tasking operation to breakdown the work, not deliver it.

@@ -12,6 +12,7 @@ export const OperationMappingSchema = z.object({
   linearIssueStatusBlocked: z.string().optional(),
   promptFile: z.string(),
   transitions: TransitionSchema,
+  defaultArguments: z.string().optional(),
 });
 
 export const LinearConfigSchema = z.object({

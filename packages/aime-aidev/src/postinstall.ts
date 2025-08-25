@@ -44,8 +44,19 @@ function copyAssets(): void {
   const configTarget = path.join(targetDir, 'config.json');
 
   if (fs.existsSync(configSource)) {
+    // If target exists and is read-only, make it writable first
+    if (fs.existsSync(configTarget)) {
+      try {
+        fs.chmodSync(configTarget, 0o644);
+      } catch (e) {
+        // Ignore errors if file doesn't exist or we can't change permissions
+      }
+    }
+    
     fs.copyFileSync(configSource, configTarget);
-    console.log(`Copied config.json to ${configTarget}`);
+    // Make config.json read-only to prevent accidental edits
+    fs.chmodSync(configTarget, 0o444);
+    console.log(`Copied config.json to ${configTarget} (read-only)`);
   } else {
     console.error(`Config file not found: ${configSource}`);
     process.exit(1);
@@ -66,8 +77,20 @@ function copyAssets(): void {
       if (file.endsWith('.md')) {
         const sourceFile = path.join(promptsSource, file);
         const targetFile = path.join(promptsTarget, file);
+        
+        // If target exists and is read-only, make it writable first
+        if (fs.existsSync(targetFile)) {
+          try {
+            fs.chmodSync(targetFile, 0o644);
+          } catch (e) {
+            // Ignore errors if file doesn't exist or we can't change permissions
+          }
+        }
+        
         fs.copyFileSync(sourceFile, targetFile);
-        console.log(`Copied prompt file: ${file}`);
+        // Make prompt files read-only to prevent accidental edits
+        fs.chmodSync(targetFile, 0o444);
+        console.log(`Copied prompt file: ${file} (read-only)`);
         copiedCount++;
       }
     });

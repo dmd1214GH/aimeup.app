@@ -20,7 +20,7 @@ This prompt will instruct you to perform a specific `operation` on a specific `l
 ### Conventions
 #### Operation Reporting
 You will be required to produce `operation-report-<Action>-XXX.md` files.  Use this specification to create the file:
-- **location**: WorkingFolder
+- **location**: <ArgWorkingFolder>
 - **file name**: `operation-report-<Action>-XXX.md`, where XXX is a padded numeric sequence, unique within the folder, and Action is the `operation-action` which must be identified when the Operation Report was requested
 - **template**:
 ````markdown
@@ -30,7 +30,7 @@ You will be required to produce `operation-report-<Action>-XXX.md` files.  Use t
   "issueId": "<issue-id>",
   "operation": "<operation-name>",
   "action": "<operation-action>",
-  "workingFolder": "<WorkingFolder>",
+  "workingFolder": "<ArgWorkingFolder>",
   "operationStatus": "InProgress|Failed|Blocked|Complete",
   "timestamp": "<Timestamp in current timezone e.g. 2025-08-23T11:24:00-04:00>",
   "summary": "<1 sentence summary of the action being reported>"
@@ -56,7 +56,7 @@ Blockers are unclear or incomplete requirements for performing the operation.  I
 ### Operation Step 1: Pre-operation Checklist
 First, perform all pre-operation checks mentioned anywhwere in this prompt.  If any required element is missing or contains unexpected content, Fail the operation with <operation-action> = `Precheck` and a `### Precheck` payload section reporting the passed and failed prechecks.  **CRITICAL** Do not progress into the operation if any precheck fails
 - [ ] Check folder exists: `working-folder`
-- [ ] Read and understand the main requirement document in `<working-folder>/updated-issue.md`
+- [ ] Read and understand the main requirement document in `<ArgWorkingFolder>/updated-issue.md`
 - [ ] Read `<repo-root>/_docs/guides/steps-of-doneness.md`
 - [ ] Read `<repo-root>/_docs/guides/development-standards.md`
 - [ ] Read `<repo-root>/_docs/guides/monorepo.md`
@@ -76,6 +76,6 @@ As the final step of the operation, after the operation-specific instructions (a
 - `### Task Summary`: Payload List of planned tasks, and their complete / blocked status.  If blocked, clearly identify them and suggest path to unblock.
 - `### Process Feedback`: If compelling, any feedback to the prompt that may help to improve efficiency or quality of delivery.
 
-Then, dump context to `<working-folder>/context.dump.md`:
+Then, dump context to `<ArgWorkingFolder>/context.dump.md`:
 - Objective is to enable re-entry if needed with maximal context
 - Include maximal detail

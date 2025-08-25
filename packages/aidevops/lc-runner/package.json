@@ -7,13 +7,11 @@
     "lc-runner": "dist/cli.js"
   },
   "scripts": {
-    "build": "tsc && npm run deploy-prompts",
+    "build": "tsc",
     "dev": "tsc --watch",
     "test": "jest",
     "typecheck": "tsc --noEmit",
-    "hygiene": "eslint . --ext .ts,.tsx,.js,.jsx --ignore-pattern node_modules --max-warnings 0 || true",
-    "deploy-prompts": "node scripts/deploy-prompts.js",
-    "postinstall": "npm run deploy-prompts"
+    "hygiene": "eslint . --ext .ts,.tsx,.js,.jsx --ignore-pattern node_modules --max-warnings 0 || true"
   },
   "dependencies": {
     "@linear/sdk": "57.0.0",

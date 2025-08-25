@@ -10,6 +10,7 @@ import { OperationLogger } from './operation-logger';
 import { PromptAssembler } from './prompt-assembler';
 import { ClaudeInvoker } from './claude-invoker';
 import { OutputManager } from './output-manager';
+import { uploadCommand } from './commands/upload';
 
 /**
  * Runs a Linear/ClaudeCode operation
@@ -194,8 +195,7 @@ ${issue.description}
       generalPromptPath,
       operationPromptPath,
       replacements,
-      masterPromptPath,
-      issueBody
+      masterPromptPath
     );
     console.log(`Assembled master prompt at: ${masterPromptPath}`);
 
@@ -252,6 +252,17 @@ ${issue.description}
             // Get status from operation-report files written by Claude
             const operationStatus = outputManager.getLatestOperationStatus();
 
+            // Debug: List files in working folder to see what's available
+            const filesInFolder = fs.readdirSync(workingFolderPath);
+            const reportFiles = filesInFolder.filter(f => f.startsWith('operation-report-') && f.endsWith('.md'));
+            if (reportFiles.length > 0) {
+              console.log(`DEBUG: Found ${reportFiles.length} operation report file(s) in folder: ${reportFiles.join(', ')}`);
+              console.log(`DEBUG: OutputManager returned status: ${operationStatus}`);
+            } else {
+              console.log(`DEBUG: No operation report files found in ${workingFolderPath}`);
+              console.log(`DEBUG: Files in folder: ${filesInFolder.join(', ')}`);
+            }
+
             // Determine the final status
             let finalStatus: 'Completed' | 'Blocked' | 'Failed';
             if (operationStatus !== 'Unknown') {
@@ -279,6 +290,18 @@ ${issue.description}
             logger.appendLogEntry(issueId, claudeCompletionEntry);
 
             console.log(`ClaudeCode status: ${finalStatus}`);
+            
+            // Auto-upload to Linear if operation completed or was blocked
+            if (finalStatus === 'Completed' || finalStatus === 'Blocked') {
+              console.log('\nAutomatically uploading results to Linear...');
+              try {
+                await uploadCommand(issueId, operation, workingFolderPath);
+                console.log('Upload to Linear completed successfully!');
+              } catch (uploadError) {
+                console.error('Failed to upload to Linear:', uploadError instanceof Error ? uploadError.message : 'Unknown error');
+                console.log(`You can manually upload later using: pnpm lc-runner ${operation} ${issueId} --upload-only ${folderName}`);
+              }
+            }
           } else {
             console.error('ClaudeCode execution failed.');
             if (invocationResult.stderr) {

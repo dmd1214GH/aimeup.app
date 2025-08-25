@@ -8,10 +8,21 @@
     "issuePrefix": "AM-"
   },
   "lc-runner-operations": {
+    "Grooming": {
+      "operationName": "Groom",
+      "linearIssueStatus": "Grooming",
+      "promptFile": "grooming-prompt.md",
+      "defaultArguments": "--headed",
+      "transitions": {
+        "success": "Tasking-ai",
+        "blocked": "Grooming"
+      }
+    },
     "Tasking": {
       "operationName": "Task",
       "linearIssueStatus": "Tasking-ai",
       "promptFile": "tasking-prompt.md",
+      "defaultArguments": "",
       "transitions": {
         "success": "Delivery-Ready",
         "blocked": "Tasking-BLOCKED"
@@ -21,6 +32,7 @@
       "operationName": "Deliver",
       "linearIssueStatus": "Delivery-ai",
       "promptFile": "delivery-prompt.md",
+      "defaultArguments": "--headed",
       "transitions": {
         "success": "Smoke-ai",
         "blocked": "Delivery-BLOCKED"

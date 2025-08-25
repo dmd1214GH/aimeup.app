@@ -18,9 +18,9 @@ term-color mediumgray
 echo "==================================== Git Status ===================================="
 git status
 
-# Check Claude usage
+# Check Claude usage (optional - continues on error)
 echo -e "\n==================================== Claude Usage ===================================="
-npx ccusage@latest monthly
+npx ccusage@latest monthly 2>/dev/null || echo "Claude usage stats unavailable (ccusage tool error)"
 
 # Warning about permissions
 echo -e "\n==================================== Starting Claude ===================================="

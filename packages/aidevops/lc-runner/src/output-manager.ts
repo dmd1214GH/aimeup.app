@@ -26,14 +26,18 @@ export class OutputManager {
       const files = fs.readdirSync(this.workingFolder);
       const reportFiles = files
         .filter((f) => f.startsWith('operation-report-') && f.endsWith('.md'))
-        .sort()
-        .reverse(); // Get most recent first
+        .sort((a, b) => {
+          // Extract the sequence number from filenames like operation-report-Action-XXX.md
+          const seqA = parseInt(a.match(/(\d+)\.md$/)?.[1] || '0', 10);
+          const seqB = parseInt(b.match(/(\d+)\.md$/)?.[1] || '0', 10);
+          return seqB - seqA; // Descending order (highest number first)
+        });
 
       if (reportFiles.length === 0) {
         return 'Unknown';
       }
 
-      // Read the most recent report file
+      // Read the most recent report file (highest sequence number)
       const latestReport = reportFiles[0];
       const reportPath = path.join(this.workingFolder, latestReport);
       const content = fs.readFileSync(reportPath, 'utf8');
