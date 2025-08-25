@@ -57,15 +57,11 @@ Blockers are unclear or incomplete requirements for performing the operation.  I
 First, perform all pre-operation checks mentioned anywhwere in this prompt.  If any required element is missing or contains unexpected content, Fail the operation with <operation-action> = `Precheck` and a `### Precheck` payload section reporting the passed and failed prechecks.  **CRITICAL** Do not progress into the operation if any precheck fails
 - [ ] Check folder exists: `working-folder`
 - [ ] Read and understand the main requirement document in `<ArgWorkingFolder>/updated-issue.md`
-- [ ] Read `<repo-root>/_docs/guides/steps-of-doneness.md`
-- [ ] Read `<repo-root>/_docs/guides/development-standards.md`
-- [ ] Read `<repo-root>/_docs/guides/monorepo.md`
 
 ### Operation Step 2: Starting Operation Report
 If all pre-checks have passed, create a Starting Operation Report:
 - <operation-action> = `Start`
 - <operationStatus> = `Inprog`
-- `### Prechecks`: payload section listing of the pre-checks performed and passed
 - `### Understandings`: payload section, briefly recapping the unique objectives of this issue/operation
 
 
@@ -73,8 +69,8 @@ If all pre-checks have passed, create a Starting Operation Report:
 As the final step of the operation, after the operation-specific instructions (appended below) are processed, create the Finished Operation Report:
 - <operation-action> = `Finished`
 - <operationStatus> = Either Blocked (if any blockers were encountered) or Complete, if all tasks completed successfully
-- `### Task Summary`: Payload List of planned tasks, and their complete / blocked status.  If blocked, clearly identify them and suggest path to unblock.
-- `### Process Feedback`: If compelling, any feedback to the prompt that may help to improve efficiency or quality of delivery.
+- `### Operation Summary`: If any tasks didn't work out as planned, note the here.  Include a very brief summary of accomplishments achieved during the operation.
+- `### Process Feedback`: If problems were encountered during the operation which could have been avoided by process improvements, identify them in a Process Feedback paylod section.  Otherwise, omit this section
 
 Then, dump context to `<ArgWorkingFolder>/context.dump.md`:
 - Objective is to enable re-entry if needed with maximal context

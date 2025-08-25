@@ -94,14 +94,9 @@ Groomed issues should be presented in this standard format:
 ```
 
 ### Step 4: Grooming Operation Success Criteria
-All of these criteria must be true in order to consider a tasking operation to be Complete.
-- [ ] `updated-issue.md` fully describes the requirement, suggested solution, and acceptance criteria according to the standards and guidance described in the Template
+All of these criteria must be true in order to consider a tasking operation to be Complete.  If any are untrue, the operation must result with a status of Blocked
+- [ ] `updated-issue.md` fully describes the requirement, suggested solution, and acceptance criteria according to the standards and guidance described in the Template, without any reliance on context
 - [ ] There are no Blocking Questions, and the Blocking Questions section indicates that no blocking questions remain.
-- [ ] All content independently understandable within `updated-issue.md` without relying on context.
 - [ ] Operator agrees that grooming is complete and the issue should move along to `Tasking`
-- [ ] There are no Breakout Issues listed in the document
+- [ ] There are no Breakout Issues listed in the document.  All breakout issues have been broken out into their own issues, and those sections have been removed from the issue
 
-If all conditions are true, the operation should be identified as a success.
-
-Otherwise, repeat the tasking process to address remaining unfinished work, or end with a BLOCKED status.
-All BLOCKED statuses must be accompanied by BLOCKING QUESTIONS.

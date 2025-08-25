@@ -5,13 +5,14 @@ Include these check with the standard pre-check tests
 - [ ] `updated-issue.md` contains a clearly stated and actionable Task List
 - [ ] ensure `git status` is clean (no pending commits)
 - [ ] confirm that the standard health-check `<repo-root>/_scripts/aimequal` (Jest, Prettier, Lint, Playwright) completes fully and successfully
+- [ ] Read `<repo-root>/_docs/guides/development-standards.md`
 
 ### Step 3: Deliver the Issue
 
 #### Prime Delivery Directives
 **High priority instructions which MUST be followed**
 1. Never begin a Delivery with blocking questions or inadequate definition be successful
-2. **CRITICAL**: Update the task list as task status changes, not in batches
+2. **CRITICAL**: Update the task list **as task status changes**, do not wait until the end of the operation
   - Report status accurately and honestly
   - key: `(X)`=Done, `(O)`=In Progress, `(-)`=Blocked, `(D)`=Deleted/Not Needed
   - DO NOT start a task without updating to `(O)`.

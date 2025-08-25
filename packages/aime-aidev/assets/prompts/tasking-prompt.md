@@ -3,6 +3,8 @@
 ### Pre-Tasking checklist
 Include this check with the standard pre-check tests
 - [ ] `<ArgWorkingFolder>/updated-issue.md` contains a clearly stated Requirement and Acceptance Criteria (indicating Tasking readiness)
+- [ ] Read `<repo-root>/_docs/guides/steps-of-doneness.md`
+- [ ] Read `<repo-root>/_docs/guides/monorepo.md`
 
 ### Step 3: Create Task List
 Create a task list for delivering all requirements and meeting all acceptance criteria stated in `updated-issue.md`.  This is a tasking operation to breakdown the work, not deliver it.
@@ -10,9 +12,9 @@ Create a task list for delivering all requirements and meeting all acceptance cr
 - List must be comprehensive, and sequenced based on dependencies.
 - Include, but don't limit to: setup, coding, testing, documentation, demonstration
 - Path to delivering each task must be well validated against the code base
-- Tasks must be clearly articulated so they can be completed using only the issue definition
-- Tasks should mention what standards, or commit-readiness objective it meets
-- Include `<repo-root>/_docs/guides/steps-of-doneness.md` when tasking
+- Check existing code to determine what should be created new, reused, or modified
+- Tasks must be clearly articulated so they can be completed using only the issue definition without context
+- Address `<repo-root>/_docs/guides/steps-of-doneness.md` requirements when tasking
 
 Task list will have this format, and will be appended to the original issue definition.
 ```markdown

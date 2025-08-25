@@ -4,6 +4,7 @@
   "description": "AI Dev profile package with runtime configuration and prompts",
   "main": "dist/index.js",
   "scripts": {
+    "prepare": "npm run build",
     "build": "tsc && npm run copy-assets",
     "copy-assets": "cp -r assets dist/",
     "postinstall": "node dist/postinstall.js",
