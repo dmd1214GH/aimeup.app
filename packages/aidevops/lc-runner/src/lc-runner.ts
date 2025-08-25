@@ -247,14 +247,18 @@ ${issue.description}
             console.log('ClaudeCode execution completed successfully.');
 
             // Wait a moment for files to be fully written to disk
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise((resolve) => setTimeout(resolve, 1000));
 
             // Debug: List files BEFORE creating OutputManager
             console.log(`DEBUG: Checking for operation reports in: ${workingFolderPath}`);
             const filesInFolder = fs.readdirSync(workingFolderPath);
-            const reportFiles = filesInFolder.filter(f => f.startsWith('operation-report-') && f.endsWith('.md'));
+            const reportFiles = filesInFolder.filter(
+              (f) => f.startsWith('operation-report-') && f.endsWith('.md')
+            );
             if (reportFiles.length > 0) {
-              console.log(`DEBUG: Found ${reportFiles.length} operation report file(s): ${reportFiles.join(', ')}`);
+              console.log(
+                `DEBUG: Found ${reportFiles.length} operation report file(s): ${reportFiles.join(', ')}`
+              );
             } else {
               console.log(`DEBUG: No operation report files found!`);
               console.log(`DEBUG: All files in folder: ${filesInFolder.join(', ')}`);
@@ -265,7 +269,9 @@ ${issue.description}
 
             // Get status from operation-report files written by Claude
             const operationStatus = outputManager.getLatestOperationStatus();
-            console.log(`DEBUG: OutputManager.getLatestOperationStatus() returned: ${operationStatus}`);
+            console.log(
+              `DEBUG: OutputManager.getLatestOperationStatus() returned: ${operationStatus}`
+            );
 
             // Determine the final status
             let finalStatus: 'Completed' | 'Blocked' | 'Failed';
@@ -294,7 +300,7 @@ ${issue.description}
             logger.appendLogEntry(issueId, claudeCompletionEntry);
 
             console.log(`ClaudeCode status: ${finalStatus}`);
-            
+
             // Auto-upload to Linear if operation completed or was blocked
             if (finalStatus === 'Completed' || finalStatus === 'Blocked') {
               console.log('\nAutomatically uploading results to Linear...');
@@ -302,8 +308,13 @@ ${issue.description}
                 await uploadCommand(issueId, operation, workingFolderPath);
                 console.log('Upload to Linear completed successfully!');
               } catch (uploadError) {
-                console.error('Failed to upload to Linear:', uploadError instanceof Error ? uploadError.message : 'Unknown error');
-                console.log(`You can manually upload later using: pnpm lc-runner ${operation} ${issueId} --upload-only ${folderName}`);
+                console.error(
+                  'Failed to upload to Linear:',
+                  uploadError instanceof Error ? uploadError.message : 'Unknown error'
+                );
+                console.log(
+                  `You can manually upload later using: pnpm lc-runner ${operation} ${issueId} --upload-only ${folderName}`
+                );
               }
             }
           } else {

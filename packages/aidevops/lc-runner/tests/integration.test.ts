@@ -362,15 +362,13 @@ ${mockIssue.description}
           operation: 'Delivery',
           workingFolder: '/test/work',
         },
-        '/test/master-prompt.md',
-        issueBody
+        '/test/master-prompt.md'
       );
 
       const masterPromptCall = mockFs.writeFileSync.mock.calls[0];
       expect(masterPromptCall[1]).toContain('Issue: AM-19');
-      expect(masterPromptCall[1]).toContain('## Issue Definition From Linear:');
-      expect(masterPromptCall[1]).toContain('Test Issue');
-      expect(masterPromptCall[1]).toContain('Issue description here');
+      expect(masterPromptCall[1]).toContain('## Operation');
+      expect(masterPromptCall[1]).toContain('Deliver the issue');
     });
 
     it('should log Linear API events in operation log', async () => {

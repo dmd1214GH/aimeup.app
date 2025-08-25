@@ -169,10 +169,7 @@ describe('UploadOrchestrator', () => {
     it('should update issue body', async () => {
       await orchestrator.upload(mockOptions);
 
-      expect(mockLinearClient.updateIssueBody).toHaveBeenCalledWith(
-        'AM-25',
-        '# Updated Issue\nNew content'
-      );
+      expect(mockLinearClient.updateIssueBody).toHaveBeenCalledWith('AM-25', 'New content');
     });
 
     it('should update issue status to success', async () => {

@@ -238,16 +238,16 @@ async function handleUploadOnly(
 function processArgumentsWithDefaults(): string[] {
   const args = process.argv.slice(0, 2); // Keep node and script path
   const userArgs = process.argv.slice(2); // Get user-provided arguments
-  
+
   // If no arguments or help requested, return as-is
   if (userArgs.length === 0 || userArgs.includes('--help') || userArgs.includes('-h')) {
     return process.argv;
   }
-  
+
   // First two non-option arguments should be operation and issueId
   let operation: string | undefined;
   let issueId: string | undefined;
-  
+
   for (const arg of userArgs) {
     if (!arg.startsWith('-')) {
       if (!operation) {
@@ -258,38 +258,40 @@ function processArgumentsWithDefaults(): string[] {
       }
     }
   }
-  
+
   // If we have operation and issueId, check for default arguments
   if (operation && issueId) {
     try {
       const configLoader = new ConfigLoader();
       const config = configLoader.loadConfig();
-      
+
       // Find operation config by name
       const operationConfig = Object.values(config['lc-runner-operations']).find(
         (op: any) => op.operationName === operation
       );
-      
+
       if (operationConfig && operationConfig.defaultArguments) {
         // Parse default arguments
-        const defaultArgs = operationConfig.defaultArguments.split(/\s+/).filter(arg => arg.length > 0);
-        
+        const defaultArgs = operationConfig.defaultArguments
+          .split(/\s+/)
+          .filter((arg) => arg.length > 0);
+
         // Reconstruct arguments: operation, issueId, defaults, then user options
-        const userOptions = userArgs.filter(arg => arg !== operation && arg !== issueId);
-        
+        const userOptions = userArgs.filter((arg) => arg !== operation && arg !== issueId);
+
         // Merge defaults with user options (user options override defaults)
         const finalArgs = [...args, operation, issueId];
-        
+
         // Add default arguments that aren't already specified by user
         for (const defaultArg of defaultArgs) {
           if (!userOptions.includes(defaultArg)) {
             finalArgs.push(defaultArg);
           }
         }
-        
+
         // Add remaining user options
         finalArgs.push(...userOptions);
-        
+
         return finalArgs;
       }
     } catch (error) {
@@ -297,7 +299,7 @@ function processArgumentsWithDefaults(): string[] {
       // The error will be properly reported when the action runs
     }
   }
-  
+
   return process.argv;
 }
 

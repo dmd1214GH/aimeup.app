@@ -52,7 +52,7 @@ function copyAssets(): void {
         // Ignore errors if file doesn't exist or we can't change permissions
       }
     }
-    
+
     fs.copyFileSync(configSource, configTarget);
     // Make config.json read-only to prevent accidental edits
     fs.chmodSync(configTarget, 0o444);
@@ -77,7 +77,7 @@ function copyAssets(): void {
       if (file.endsWith('.md')) {
         const sourceFile = path.join(promptsSource, file);
         const targetFile = path.join(promptsTarget, file);
-        
+
         // If target exists and is read-only, make it writable first
         if (fs.existsSync(targetFile)) {
           try {
@@ -86,7 +86,7 @@ function copyAssets(): void {
             // Ignore errors if file doesn't exist or we can't change permissions
           }
         }
-        
+
         fs.copyFileSync(sourceFile, targetFile);
         // Make prompt files read-only to prevent accidental edits
         fs.chmodSync(targetFile, 0o444);

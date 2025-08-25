@@ -4,6 +4,7 @@ import { LinearClient } from './linear-client';
 import { OperationReportGenerator } from './operation-report-generator';
 import { UploadValidator } from './upload-validator';
 import { OperationLogger } from './operation-logger';
+import { cleanIssueBody, cleanCommentContent } from './content-cleaner';
 import type { Config } from './types';
 
 export interface UploadOptions {
@@ -155,8 +156,9 @@ export class UploadOrchestrator {
       try {
         const reportPath = path.join(options.workingFolder, filename);
         const content = fs.readFileSync(reportPath, 'utf8');
+        const cleanedContent = cleanCommentContent(content);
 
-        await options.linearClient.addComment(options.issueId, content);
+        await options.linearClient.addComment(options.issueId, cleanedContent);
         uploaded.push(filename);
         console.log(`  ✓ Uploaded ${filename}`);
       } catch (error) {
@@ -176,8 +178,9 @@ export class UploadOrchestrator {
     try {
       const updatedIssuePath = path.join(options.workingFolder, 'updated-issue.md');
       const content = fs.readFileSync(updatedIssuePath, 'utf8');
+      const cleanedContent = cleanIssueBody(content);
 
-      await options.linearClient.updateIssueBody(options.issueId, content);
+      await options.linearClient.updateIssueBody(options.issueId, cleanedContent);
       console.log('  ✓ Issue body updated');
       return true;
     } catch (error) {
@@ -236,8 +239,9 @@ export class UploadOrchestrator {
     try {
       const reportPath = path.join(options.workingFolder, failureReportFilename);
       const content = fs.readFileSync(reportPath, 'utf8');
+      const cleanedContent = cleanCommentContent(content);
 
-      await options.linearClient.addComment(options.issueId, content);
+      await options.linearClient.addComment(options.issueId, cleanedContent);
       console.log(`Uploaded failure report: ${failureReportFilename}`);
     } catch (error) {
       console.error(
