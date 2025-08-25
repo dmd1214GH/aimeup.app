@@ -1,4 +1,4 @@
-package com.eatgpt.app
+package com.aimeup.harness
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

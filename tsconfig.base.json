@@ -21,7 +21,7 @@
       "@aimeup/account": ["packages/account"],
       "@eatgpt/nutrition": ["packages/eatgpt/nutrition"],
       "@eatgpt/healthconnect": ["packages/eatgpt/healthconnect"],
-      "@eatgpt/app": ["apps/eatgpt"],
+      "@aimeup/aimeharness": ["apps/aimeHarness"],
       "@aimeup/service": ["services/aimeup-service"]
     }
   }

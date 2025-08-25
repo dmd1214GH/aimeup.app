@@ -11,7 +11,7 @@ test.describe('Smoke Test - App Navigation', () => {
     await page.waitForLoadState('networkidle');
 
     // Verify we're on the home page with title
-    await expect(page.getByRole('heading', { name: 'EatGPT' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'aimeHarness' })).toBeVisible();
     await expect(page.getByText('React Native + Web App')).toBeVisible();
 
     // Verify all navigation buttons are present
@@ -62,6 +62,6 @@ test.describe('Smoke Test - App Navigation', () => {
     // Final verification - we can navigate back to home
     await page.goBack();
     await page.waitForURL('**/');
-    await expect(page.getByRole('heading', { name: 'EatGPT' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'aimeHarness' })).toBeVisible();
   });
 });

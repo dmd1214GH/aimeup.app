@@ -1,4 +1,4 @@
-package com.eatgpt.app
+package com.aimeup.harness
 
 import android.app.Application
 import android.content.res.Configuration

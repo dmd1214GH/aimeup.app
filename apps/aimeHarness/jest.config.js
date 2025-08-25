@@ -5,5 +5,5 @@ module.exports = {
     '/__tests__/e2e/', // Exclude Playwright E2E tests
     '\\.spec\\.ts$', // Exclude .spec.ts files (Playwright convention)
   ],
-  displayName: '@eatgpt/app',
+  displayName: '@aimeup/aimeharness',
 };

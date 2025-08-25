@@ -12,7 +12,7 @@ appId: host.exp.exponent # Expo Go bundle ID for development testing
 
 # Verify home page
 - assertVisible:
-    text: 'EatGPT'
+    text: 'aimeHarness'
 - assertVisible:
     id: 'home.title.text'
 - assertVisible:
@@ -80,6 +80,6 @@ appId: host.exp.exponent # Expo Go bundle ID for development testing
 # Final verification - navigate back to home
 - pressKey: back
 - assertVisible:
-    text: 'EatGPT'
+    text: 'aimeHarness'
 - assertVisible:
     id: 'home.title.text'

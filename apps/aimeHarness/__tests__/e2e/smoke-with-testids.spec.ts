@@ -24,7 +24,7 @@ test.describe('Smoke Test with TestIDs - App Navigation', () => {
     await page.waitForLoadState('networkidle');
 
     // Verify home page - try testID first, fallback to text
-    const homeTitle = await getElement(page, 'home.title.text', 'EatGPT');
+    const homeTitle = await getElement(page, 'home.title.text', 'aimeHarness');
     await expect(homeTitle).toBeVisible();
 
     const homeSubtitle = await getElement(page, 'home.subtitle.text', 'React Native + Web App');
@@ -92,7 +92,7 @@ test.describe('Smoke Test with TestIDs - App Navigation', () => {
     // Final verification - navigate back to home
     await page.goBack();
     await page.waitForURL('**/');
-    const finalHomeTitle = await getElement(page, 'home.title.text', 'EatGPT');
+    const finalHomeTitle = await getElement(page, 'home.title.text', 'aimeHarness');
     await expect(finalHomeTitle).toBeVisible();
   });
 });

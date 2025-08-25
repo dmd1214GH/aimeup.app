@@ -1,6 +1,7 @@
 {
-  "name": "@eatgpt/app",
+  "name": "@aimeup/aimeharness",
   "version": "0.0.0",
+  "description": "Test harness application for AimeUp development and testing",
   "private": true,
   "main": "index.ts",
   "scripts": {

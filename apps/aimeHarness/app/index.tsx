@@ -7,7 +7,7 @@ export default function HomePage() {
   return (
     <View style={styles.container}>
       <Text h1 style={styles.title} testID="home.title.text">
-        EatGPT
+        aimeHarness
       </Text>
       <Text style={styles.subtitle} testID="home.subtitle.text">
         React Native + Web App

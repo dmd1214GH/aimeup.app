@@ -2,14 +2,14 @@ require('dotenv').config({ path: '.env.local' });
 
 export default {
   expo: {
-    name: 'EatGPT',
-    slug: 'eatgpt',
+    name: 'aimeHarness',
+    slug: 'aimeharness',
     version: '0.0.0',
     orientation: 'portrait',
     icon: './assets/icon.png',
     userInterfaceStyle: 'light',
     newArchEnabled: true,
-    scheme: 'eatgpt',
+    scheme: 'aimeharness',
     splash: {
       image: './assets/splash-icon.png',
       resizeMode: 'contain',
@@ -17,14 +17,14 @@ export default {
     },
     ios: {
       supportsTablet: true,
-      bundleIdentifier: 'com.eatgpt.app',
+      bundleIdentifier: 'com.aimeup.harness',
     },
     android: {
       adaptiveIcon: {
         foregroundImage: './assets/adaptive-icon.png',
         backgroundColor: '#ffffff',
       },
-      package: 'com.eatgpt.app',
+      package: 'com.aimeup.harness',
       edgeToEdgeEnabled: true,
     },
     web: {

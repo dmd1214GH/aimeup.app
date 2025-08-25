@@ -4,7 +4,7 @@ set -euo pipefail
 # Android app launch automation for Maestro tests
 # Bundle ID and emulator configuration
 
-APP_BUNDLE_ID="com.eatgpt.app"
+APP_BUNDLE_ID="com.aimeup.harness"
 APP_ACTIVITY=".MainActivity"
 
 # Function to check if emulator is running
