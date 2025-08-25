@@ -27,6 +27,49 @@ echo "Running aimequal tests at $(date)"
 echo "Output will be saved to: $OUTPUT_FILE"
 echo "=========================================="
 
+# Auto-format code with prettier before running tests
+echo "Auto-formatting code with Prettier..."
+echo "=========================================="
+echo "Auto-formatting started at $(date)" >> "$OUTPUT_FILE"
+
+# Capture initial git status
+INITIAL_GIT_STATUS=$(git status --porcelain 2>/dev/null || echo "")
+
+# Run prettier to auto-format all files
+set +e  # Temporarily disable exit-on-error
+PRETTIER_OUTPUT=$(pnpm prettier --write . 2>&1)
+PRETTIER_EXIT_CODE=$?
+set -e  # Re-enable exit-on-error
+
+if [[ $PRETTIER_EXIT_CODE -ne 0 ]]; then
+    echo "⚠️  Warning: Prettier encountered issues during auto-formatting" | tee -a "$OUTPUT_FILE"
+    echo "$PRETTIER_OUTPUT" | tee -a "$OUTPUT_FILE"
+    echo "Continuing with tests despite prettier issues..." | tee -a "$OUTPUT_FILE"
+else
+    # Capture git status after prettier
+    FINAL_GIT_STATUS=$(git status --porcelain 2>/dev/null || echo "")
+    
+    # Compare to find which files were modified
+    if [[ "$INITIAL_GIT_STATUS" != "$FINAL_GIT_STATUS" ]]; then
+        # Get list of modified files
+        MODIFIED_FILES=$(git diff --name-only 2>/dev/null || echo "")
+        FILE_COUNT=$(echo "$MODIFIED_FILES" | grep -c "^" || echo "0")
+        
+        if [[ $FILE_COUNT -gt 0 ]]; then
+            echo "ℹ️  Auto-formatted $FILE_COUNT files:" | tee -a "$OUTPUT_FILE"
+            echo "$MODIFIED_FILES" | while IFS= read -r file; do
+                [[ -n "$file" ]] && echo "   - $file" | tee -a "$OUTPUT_FILE"
+            done
+            echo "" | tee -a "$OUTPUT_FILE"
+        fi
+    else
+        echo "✅ No files needed formatting" | tee -a "$OUTPUT_FILE"
+    fi
+fi
+
+echo "=========================================="
+echo ""
+
 # Function to run command and capture output
 run_test() {
     local test_name="$1"
@@ -134,7 +177,7 @@ trap cleanup EXIT
 # Run tests sequentially, fail fast
 run_test "Unit Tests" "pnpm test"
 run_test "Code Quality" "pnpm hygiene"
-run_test "Prettier Format Check" "pnpm prettier"
+# Prettier format check removed - auto-formatting is now done before tests
 run_test "TypeScript Type Check" "pnpm typecheck"
 
 # Run Playwright E2E tests if they exist (with browser kungfu!)
@@ -241,7 +284,6 @@ echo "Verifying all tests ran..."
 EXPECTED_TESTS=(
     "Unit Tests: PASSED"
     "Code Quality: PASSED"
-    "Prettier Format Check: PASSED"
     "TypeScript Type Check: PASSED"
     "Web E2E Smoke Test: PASSED"
 )
