@@ -1,0 +1,9 @@
+appId: com.aimeup.eatgpt
+---
+- launchApp:
+    appId: com.aimeup.eatgpt
+    clearState: true
+
+- waitForAnimationToEnd
+
+- assertVisible: 'Hello World'

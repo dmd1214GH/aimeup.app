@@ -23,6 +23,7 @@ This document must reflect the source of truth about the monorepos. Every modifi
   /_scripts          # developer facing scripts (mac, zsh for now)
   /apps
     /aimeHarness     (@aimeup/aimeharness)    # Test harness app for development and testing
+    /eatgpt          (@aimeup/eatgpt)         # EatGPT application (Hello World placeholder)
   /services
     /aimeup-service  (@aimeup/service)        # Firebase Cloud Functions (OpenAI proxy)
   /packages
@@ -180,6 +181,7 @@ Endpoint applications
 #### Includes
 
 - `@aimeup/aimeharness` - Test harness application for development and testing
+- `@aimeup/eatgpt` - EatGPT application (Hello World placeholder)
 - `@aimeup/service` - Firebase Cloud Functions service
 
 #### Allowed Dependencies

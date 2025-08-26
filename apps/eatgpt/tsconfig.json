@@ -1,0 +1,8 @@
+{
+  "extends": ["expo/tsconfig.base", "../../configs/tsconfig/tsconfig.app.json"],
+  "include": ["**/*.ts", "**/*.tsx"],
+  "compilerOptions": {
+    "skipLibCheck": true,
+    "noEmit": true
+  }
+}

@@ -2,7 +2,7 @@
 
 ### Pre-Delivery checklist
 Include these check with the standard pre-check tests
-- [ ] `updated-issue.md` contains a clearly stated and actionable Task List
+- [ ] `updated-issue.md` contains a clearly stated and actionable Task List, and along with clear, achievable requirement.
 - [ ] ensure `git status` is clean (no pending commits)
 - [ ] confirm that the standard health-check `<repo-root>/_scripts/aimequal` (Jest, Prettier, Lint, Playwright) completes fully and successfully
 - [ ] Read `<repo-root>/_docs/guides/development-standards.md`
@@ -11,16 +11,15 @@ Include these check with the standard pre-check tests
 
 #### Prime Delivery Directives
 **High priority instructions which MUST be followed**
-1. Never begin a Delivery with blocking questions or inadequate definition be successful
-2. **CRITICAL**: Update the task list **as task status changes**, do not wait until the end of the operation
-  - Report status accurately and honestly
+1. **CRITICAL**: Update the task list in the file as you work through it. 
   - key: `(X)`=Done, `(O)`=In Progress, `(-)`=Blocked, `(D)`=Deleted/Not Needed
   - DO NOT start a task without updating to `(O)`.
   - DO NOT start a new task without updating the prior task's status
-3. Do not resort to "hacky" solutions, consider the task blocked if a good solution cannot be found
-4. When a task is blocked, move on to other tasks that are not impacted by the blockage. End the operation when all work is blocked.
-5. Never commit to git. Operator will do this after accepting delivery.
-6. Stick to established patterns and standards in the codebase
+  - DO NOT Consider a task to e be complete which was not updated.
+2. Do not resort to "hacky" solutions, consider the task blocked if a good solution cannot be found
+3. When a task is blocked, move on to other tasks that are not impacted by the blockage. End the operation when all work is blocked.
+4. Never commit to git. Operator will do this after accepting delivery.
+5. Stick to established patterns and standards in the codebase
 
 **Task status examples**:
 ```

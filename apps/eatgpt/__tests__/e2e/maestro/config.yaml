@@ -1,0 +1,8 @@
+# Maestro Configuration for EatGPT
+flows:
+  - hello-world.flow.yaml
+
+# Test environment
+env:
+  APP_ID: com.aimeup.eatgpt
+  BUNDLE_ID: com.aimeup.eatgpt

@@ -13,7 +13,7 @@ describe('Monorepo Structure Validation', () => {
       subfolders: [],
     },
     apps: {
-      subfolders: ['aimeHarness'],
+      subfolders: ['aimeHarness', 'eatgpt'],
     },
     services: {
       subfolders: ['aimeup-service'],

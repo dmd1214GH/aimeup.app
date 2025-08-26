@@ -184,7 +184,41 @@ run_test "TypeScript Type Check" "pnpm typecheck"
 if [[ -f "apps/aimeHarness/playwright.config.ts" ]]; then
     check_and_start_web_server
     # Run smoke test only - single browser navigating all pages
-    run_test "Web E2E Smoke Test" "cd apps/aimeHarness && HEADED=true SLOW_MO=500 pnpm test:smoke:web"
+    run_test "Web E2E Smoke Test (aimeHarness)" "cd apps/aimeHarness && HEADED=true SLOW_MO=500 pnpm test:smoke:web"
+fi
+
+# Run EatGPT Playwright E2E tests if they exist
+if [[ -f "apps/eatgpt/playwright.config.ts" ]]; then
+    # Check if EatGPT web server is running, start if needed
+    if lsof -i :8082 > /dev/null 2>&1; then
+        echo "EatGPT web server already running on port 8082"
+        EATGPT_WEB_SERVER_PID=""
+    else
+        echo "Starting EatGPT web server for E2E tests..."
+        cd apps/eatgpt
+        BROWSER=none pnpm web > /dev/null 2>&1 &
+        EATGPT_WEB_SERVER_PID=$!
+        cd ../..
+        
+        # Wait for server to be ready
+        echo "Waiting for EatGPT server to start..."
+        for i in {1..30}; do
+            if lsof -i :8082 > /dev/null 2>&1; then
+                echo "EatGPT web server started successfully"
+                break
+            fi
+            sleep 1
+        done
+        
+        if ! lsof -i :8082 > /dev/null 2>&1; then
+            echo "Failed to start EatGPT web server"
+            [[ -n "${EATGPT_WEB_SERVER_PID:-}" ]] && kill $EATGPT_WEB_SERVER_PID 2>/dev/null || true
+        else
+            # Register PID for cleanup
+            trap "cleanup; [[ -n '${EATGPT_WEB_SERVER_PID:-}' ]] && kill $EATGPT_WEB_SERVER_PID 2>/dev/null || true" EXIT
+            run_test "Web E2E Test (EatGPT)" "cd apps/eatgpt && HEADED=true SLOW_MO=500 pnpm test:smoke:web"
+        fi
+    fi
 fi
 
 # Run Maestro Mobile tests if Android emulator is available
@@ -285,7 +319,8 @@ EXPECTED_TESTS=(
     "Unit Tests: PASSED"
     "Code Quality: PASSED"
     "TypeScript Type Check: PASSED"
-    "Web E2E Smoke Test: PASSED"
+    "Web E2E Smoke Test (aimeHarness): PASSED"
+    "Web E2E Test (EatGPT): PASSED"
 )
 
 # Add mobile test to expected list if it was attempted
