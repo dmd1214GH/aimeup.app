@@ -34,7 +34,12 @@ git status
 
 # Check Claude usage (optional - continues on error)
 echo -e "\n==================================== Claude Usage ===================================="
-npx ccusage@latest monthly 2>/dev/null || echo "Claude usage stats unavailable (ccusage tool error)"
+# Use globally installed ccusage if available, otherwise skip
+if command -v ccusage &> /dev/null; then
+    ccusage monthly 2>/dev/null || echo "Claude usage stats unavailable (ccusage tool error)"
+else
+    echo "Claude usage stats unavailable (ccusage not installed)"
+fi
 
 # YOLO warning with skull and fire
 echo -e "\n==================================== 🔥 YOLO MODE 🔥 ===================================="
