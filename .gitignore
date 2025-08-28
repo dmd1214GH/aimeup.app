@@ -16,3 +16,9 @@ playwright-report/
 playwright/.cache/
 .linear-watcher/
 
+# Docker local pnpm cache
+.pnpm-store/
+
+# Node.js compilation cache
+**/node-compile-cache/
+

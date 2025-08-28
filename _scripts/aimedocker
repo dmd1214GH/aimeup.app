@@ -1,0 +1,67 @@
+#!/usr/bin/env zsh
+set -euo pipefail
+
+# Repo root
+REPO_PATH="$(cd "$(dirname "$0")/.." && pwd)"
+export REPO_PATH
+
+# Load project env (aliases, PATH, NODE_OPTIONS, .env.local)
+source "$REPO_PATH/_scripts/aimeup-env.sh"
+
+# Change to monorepo directory
+cd "$REPO_PATH"
+
+# Set terminal color to medium gray (like aimeclaude)
+# Note: Terminal.app doesn't support separate title bar colors
+term-color mediumgray
+
+# Show Docker status
+echo "==================================== Docker Status ===================================="
+
+# Check if Docker is running
+if ! docker info &>/dev/null; then
+  echo "❌ Docker is not running!"
+  echo "Please start Docker Desktop and try again."
+  exit 1
+fi
+
+echo "✅ Docker is running"
+
+# Check if container exists and is running
+CONTAINER_STATUS=$(docker compose ps -q aimeup-dev 2>/dev/null || true)
+
+if [[ -z "$CONTAINER_STATUS" ]]; then
+  echo "🔄 Starting Docker container..."
+  docker compose up -d
+  echo "⏳ Waiting for container to be ready..."
+  sleep 2
+else
+  # Check if container is actually running (not just exists)
+  if ! docker compose ps | grep -q "aimeup-dev.*running"; then
+    echo "🔄 Container exists but is stopped. Starting..."
+    docker compose start aimeup-dev
+    sleep 2
+  else
+    echo "✅ Container is already running"
+  fi
+fi
+
+# Show container info
+echo -e "\n==================================== Container Info ===================================="
+docker compose ps
+
+echo -e "\n==================================== 🐳 Docker Container ===================================="
+echo "📍 Working directory: /aimeup"
+echo "📝 Quick commands: pnpm install, pnpm dev, pnpm build, pnpm test"
+echo "🔚 Type 'exit' to leave the container"
+echo -e "\n🔴 DOCKER ENVIRONMENT - Not your host machine!"
+echo ""
+
+# Attach to container with interactive zsh shell (with history support)
+# Use exec -it to get an interactive terminal
+docker compose exec -it aimeup-dev /bin/zsh
+
+# After exiting the container, restore terminal to white
+echo -e "\n==================================== Exited Docker ===================================="
+term-color white
+echo "✅ Returned to host machine"

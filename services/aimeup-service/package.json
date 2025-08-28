@@ -5,8 +5,8 @@
   "main": "lib/index.js",
   "scripts": {
     "build": "tsc",
-    "dev": "npm run build && firebase emulators:start --only functions",
-    "deploy": "firebase deploy --only functions",
+    "dev": "echo 'Service placeholder - no dev server needed'",
+    "deploy": "echo 'Service placeholder - deployment not configured'",
     "hygiene": "eslint . --ext .ts,.tsx,.js,.jsx --ignore-pattern node_modules --max-warnings 0 || true",
     "typecheck": "tsc --noEmit",
     "test": "jest --passWithNoTests",

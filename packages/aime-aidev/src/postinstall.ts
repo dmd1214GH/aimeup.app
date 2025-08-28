@@ -2,6 +2,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { execSync } from 'child_process';
 
 function findRepoRoot(startPath: string): string | null {
   let currentPath = startPath;
@@ -44,17 +45,18 @@ function copyAssets(): void {
   const configTarget = path.join(targetDir, 'config.json');
 
   if (fs.existsSync(configSource)) {
-    // If target exists and is read-only, make it writable first
+    // Force remove existing file if it exists using rm -f (handles read-only files)
     if (fs.existsSync(configTarget)) {
       try {
-        fs.chmodSync(configTarget, 0o644);
-      } catch (e) {
-        // Ignore errors if file doesn't exist or we can't change permissions
+        execSync(`rm -f "${configTarget}"`);
+      } catch (rmError) {
+        console.error(`Failed to remove existing config.json: ${rmError}`);
+        process.exit(1);
       }
     }
-
+    
     fs.copyFileSync(configSource, configTarget);
-    // Make config.json read-only to prevent accidental edits
+    // Make the file read-only to prevent accidental editing
     fs.chmodSync(configTarget, 0o444);
     console.log(`Copied config.json to ${configTarget} (read-only)`);
   } else {
@@ -78,17 +80,18 @@ function copyAssets(): void {
         const sourceFile = path.join(promptsSource, file);
         const targetFile = path.join(promptsTarget, file);
 
-        // If target exists and is read-only, make it writable first
+        // Force remove existing file if it exists using rm -f (handles read-only files)
         if (fs.existsSync(targetFile)) {
           try {
-            fs.chmodSync(targetFile, 0o644);
-          } catch (e) {
-            // Ignore errors if file doesn't exist or we can't change permissions
+            execSync(`rm -f "${targetFile}"`);
+          } catch (rmError) {
+            console.error(`Failed to remove existing prompt file ${file}: ${rmError}`);
+            process.exit(1);
           }
         }
 
         fs.copyFileSync(sourceFile, targetFile);
-        // Make prompt files read-only to prevent accidental edits
+        // Make the file read-only to prevent accidental editing
         fs.chmodSync(targetFile, 0o444);
         console.log(`Copied prompt file: ${file} (read-only)`);
         copiedCount++;
