@@ -1,0 +1,15 @@
+{
+  "name": "AimeUp Dev Container",
+  "dockerComposeFile": ["../docker-compose.yml", "../docker-compose.claude.yml"],
+  "service": "aimeup-dev",
+  "workspaceFolder": "/aimeup",
+  "shutdownAction": "none",
+  "customizations": {
+    "vscode": {
+      "extensions": ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode", "ms-playwright.playwright"]
+    }
+  },
+  "forwardPorts": [8081, 19000, 19001, 19002],
+  "postCreateCommand": "pnpm install",
+  "remoteUser": "node"
+}

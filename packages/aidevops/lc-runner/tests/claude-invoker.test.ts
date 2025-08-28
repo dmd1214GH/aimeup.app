@@ -54,6 +54,8 @@ describe('ClaudeInvoker', () => {
     it('should successfully invoke ClaudeCode with --print flag', async () => {
       mockFs.existsSync.mockReturnValue(true);
       mockFs.readFileSync.mockReturnValue('Test prompt content');
+      (mockFs.writeFileSync as jest.Mock).mockImplementation(() => {}); // Mock writing temp file
+      (mockFs.unlinkSync as jest.Mock).mockImplementation(() => {}); // Mock cleanup
 
       const mockProcess = new EventEmitter() as any;
       mockProcess.stdout = new EventEmitter();
@@ -76,14 +78,20 @@ describe('ClaudeInvoker', () => {
 
       expect(mockSpawn).toHaveBeenCalledWith(
         expect.any(String),
-        ['--print', '--dangerously-skip-permissions'],
+        [
+          '--print',
+          '--dangerously-skip-permissions',
+          expect.stringContaining(
+            'Please read and execute the instructions in /tmp/claude-prompt-'
+          ),
+        ],
         {
           stdio: ['pipe', 'pipe', 'pipe'],
           env: expect.any(Object),
           shell: false,
         }
       );
-      expect(mockProcess.stdin.write).toHaveBeenCalledWith('Test prompt content');
+      // stdin.end is called but content is passed via file now
       expect(mockProcess.stdin.end).toHaveBeenCalled();
       expect(result.success).toBe(true);
       expect(result.exitCode).toBe(0);
@@ -93,6 +101,8 @@ describe('ClaudeInvoker', () => {
     it('should handle ClaudeCode execution failure', async () => {
       mockFs.existsSync.mockReturnValue(true);
       mockFs.readFileSync.mockReturnValue('Test prompt content');
+      (mockFs.writeFileSync as jest.Mock).mockImplementation(() => {}); // Mock writing temp file
+      (mockFs.unlinkSync as jest.Mock).mockImplementation(() => {}); // Mock cleanup
 
       const mockProcess = new EventEmitter() as any;
       mockProcess.stdout = new EventEmitter();
@@ -121,6 +131,8 @@ describe('ClaudeInvoker', () => {
     it('should handle spawn error', async () => {
       mockFs.existsSync.mockReturnValue(true);
       mockFs.readFileSync.mockReturnValue('Test prompt content');
+      (mockFs.writeFileSync as jest.Mock).mockImplementation(() => {}); // Mock writing temp file
+      (mockFs.unlinkSync as jest.Mock).mockImplementation(() => {}); // Mock cleanup
 
       const mockProcess = new EventEmitter() as any;
       mockProcess.stdout = new EventEmitter();

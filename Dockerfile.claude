@@ -15,6 +15,7 @@ RUN mkdir -p /home/node/.claude && \
     echo 'export SAVEHIST=2000' >> /home/node/.zshrc && \
     echo 'setopt HIST_IGNORE_DUPS' >> /home/node/.zshrc && \
     echo 'setopt SHARE_HISTORY' >> /home/node/.zshrc && \
+    echo 'export PATH="/aimeup/_scripts:$PATH"' >> /home/node/.zshrc && \
     chown node:node /home/node/.zshrc
 
 # Create entrypoint script for Git configuration
@@ -38,3 +39,10 @@ CMD ["tail", "-f", "/dev/null"]
 
 # Working directory remains /aimeup from base image
 WORKDIR /aimeup
+
+# Ensure Playwright environment variable is set (inherited from base)
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+
+# Document optional browser installation commands for Firefox and WebKit
+# Users can run these commands if needed:
+# docker-compose exec aimeup-dev npx playwright install firefox webkit

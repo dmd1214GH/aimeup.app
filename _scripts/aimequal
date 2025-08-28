@@ -132,31 +132,54 @@ run_test() {
 
 # Check if web server is running, start if needed
 check_and_start_web_server() {
-    if lsof -i :8081 > /dev/null 2>&1; then
-        echo "Web server already running on port 8081"
-        WEB_SERVER_PID=""
-    else
-        echo "Starting web server for E2E tests..."
-        cd apps/aimeHarness
-        BROWSER=none pnpm web > /dev/null 2>&1 &
-        WEB_SERVER_PID=$!
-        cd ../..
-        
-        # Wait for server to be ready
-        echo "Waiting for server to start..."
-        for i in {1..30}; do
-            if lsof -i :8081 > /dev/null 2>&1; then
-                echo "Web server started successfully"
-                break
-            fi
-            sleep 1
-        done
-        
-        if ! lsof -i :8081 > /dev/null 2>&1; then
-            echo "Failed to start web server"
-            exit 1
+    # Use a high random port to avoid conflicts
+    TEST_PORT=$(( 9000 + RANDOM % 1000 ))
+    export TEST_PORT  # Export for use in Playwright tests
+    echo "Using port ${TEST_PORT} for E2E tests"
+    
+    # Check if lsof is available
+    if command -v lsof &> /dev/null; then
+        if lsof -i :${TEST_PORT} > /dev/null 2>&1; then
+            echo "Web server already running on port ${TEST_PORT}"
+            WEB_SERVER_PID=""
+            return 0
         fi
     fi
+    
+    echo "Starting web server for E2E tests on port ${TEST_PORT}..."
+    cd apps/aimeHarness
+    # Use CI mode to avoid prompts and explicit port
+    CI=1 BROWSER=none npx expo start --web --port ${TEST_PORT} > /dev/null 2>&1 &
+    WEB_SERVER_PID=$!
+    cd ../..
+    
+    # Wait for server to be ready
+    echo "Waiting for server to start..."
+    for i in {1..30}; do
+        # Try to check if server is ready using curl if lsof isn't available
+        if command -v lsof &> /dev/null; then
+            if lsof -i :${TEST_PORT} > /dev/null 2>&1; then
+                echo "Web server started successfully on port ${TEST_PORT}"
+                return 0
+            fi
+        else
+            # Fallback to curl or wget check
+            if command -v curl &> /dev/null && curl -s http://localhost:${TEST_PORT} > /dev/null 2>&1; then
+                echo "Web server started successfully on port ${TEST_PORT} (verified via curl)"
+                return 0
+            elif command -v wget &> /dev/null && wget -q -O /dev/null http://localhost:${TEST_PORT} 2>&1; then
+                echo "Web server started successfully on port ${TEST_PORT} (verified via wget)"
+                return 0
+            fi
+        fi
+        sleep 1
+    done
+    
+    echo "Failed to start web server after 30 seconds"
+    if [[ -n "${WEB_SERVER_PID:-}" ]]; then
+        kill $WEB_SERVER_PID 2>/dev/null || true
+    fi
+    exit 1
 }
 
 # Cleanup function
@@ -181,42 +204,81 @@ run_test "Code Quality" "pnpm hygiene"
 run_test "TypeScript Type Check" "pnpm typecheck"
 
 # Run Playwright E2E tests if they exist (with browser kungfu!)
-if [[ -f "apps/aimeHarness/playwright.config.ts" ]]; then
+# Skip E2E tests if SKIP_E2E is set
+if [[ -n "${SKIP_E2E:-}" ]]; then
+    echo "ℹ️  Skipping E2E tests (SKIP_E2E is set)"
+elif [[ -f "apps/aimeHarness/playwright.config.ts" ]]; then
     check_and_start_web_server
-    # Run smoke test only - single browser navigating all pages
-    run_test "Web E2E Smoke Test (aimeHarness)" "cd apps/aimeHarness && HEADED=true SLOW_MO=500 pnpm test:smoke:web"
+    # Detect if running in Docker and adjust headed mode
+    if [[ -f /.dockerenv ]] || [[ -n "${DOCKER_CONTAINER:-}" ]]; then
+        echo "Running in Docker - using headless mode for E2E tests"
+        HEADED_MODE="false"
+        SLOW_MO_VALUE="0"
+    else
+        HEADED_MODE="true"
+        SLOW_MO_VALUE="500"
+    fi
+    # Run smoke test only - single browser navigating all pages  
+    # TEST_PORT is already exported from check_and_start_web_server
+    run_test "Web E2E Smoke Test (aimeHarness)" "cd apps/aimeHarness && TEST_PORT=${TEST_PORT} HEADED=${HEADED_MODE} SLOW_MO=${SLOW_MO_VALUE} pnpm test:smoke:web"
 fi
 
 # Run EatGPT Playwright E2E tests if they exist
-if [[ -f "apps/eatgpt/playwright.config.ts" ]]; then
+# Skip E2E tests if SKIP_E2E is set
+if [[ -z "${SKIP_E2E:-}" ]] && [[ -f "apps/eatgpt/playwright.config.ts" ]]; then
     # Check if EatGPT web server is running, start if needed
-    if lsof -i :8082 > /dev/null 2>&1; then
+    if command -v lsof &> /dev/null && lsof -i :8082 > /dev/null 2>&1; then
         echo "EatGPT web server already running on port 8082"
         EATGPT_WEB_SERVER_PID=""
     else
-        echo "Starting EatGPT web server for E2E tests..."
+        echo "Starting EatGPT web server for E2E tests on port 8082..."
         cd apps/eatgpt
-        BROWSER=none pnpm web > /dev/null 2>&1 &
+        # Use CI mode to avoid prompts and explicit port
+        CI=1 BROWSER=none npx expo start --web --port 8082 > /dev/null 2>&1 &
         EATGPT_WEB_SERVER_PID=$!
         cd ../..
         
         # Wait for server to be ready
         echo "Waiting for EatGPT server to start..."
         for i in {1..30}; do
-            if lsof -i :8082 > /dev/null 2>&1; then
-                echo "EatGPT web server started successfully"
-                break
+            if command -v lsof &> /dev/null; then
+                if lsof -i :8082 > /dev/null 2>&1; then
+                    echo "EatGPT web server started successfully"
+                    break
+                fi
+            else
+                # Fallback to curl check
+                if curl -s http://localhost:8082 > /dev/null 2>&1; then
+                    echo "EatGPT web server started successfully (verified via curl)"
+                    break
+                fi
             fi
             sleep 1
         done
         
-        if ! lsof -i :8082 > /dev/null 2>&1; then
+        # Final check
+        SERVER_STARTED=false
+        if command -v lsof &> /dev/null; then
+            lsof -i :8082 > /dev/null 2>&1 && SERVER_STARTED=true
+        else
+            curl -s http://localhost:8082 > /dev/null 2>&1 && SERVER_STARTED=true
+        fi
+        
+        if [[ "$SERVER_STARTED" != "true" ]]; then
             echo "Failed to start EatGPT web server"
             [[ -n "${EATGPT_WEB_SERVER_PID:-}" ]] && kill $EATGPT_WEB_SERVER_PID 2>/dev/null || true
         else
+            # Detect if running in Docker and adjust headed mode
+            if [[ -f /.dockerenv ]] || [[ -n "${DOCKER_CONTAINER:-}" ]]; then
+                HEADED_MODE="false"
+                SLOW_MO_VALUE="0"
+            else
+                HEADED_MODE="true"
+                SLOW_MO_VALUE="500"
+            fi
             # Register PID for cleanup
             trap "cleanup; [[ -n '${EATGPT_WEB_SERVER_PID:-}' ]] && kill $EATGPT_WEB_SERVER_PID 2>/dev/null || true" EXIT
-            run_test "Web E2E Test (EatGPT)" "cd apps/eatgpt && HEADED=true SLOW_MO=500 pnpm test:smoke:web"
+            run_test "Web E2E Test (EatGPT)" "cd apps/eatgpt && HEADED=${HEADED_MODE} SLOW_MO=${SLOW_MO_VALUE} pnpm test:smoke:web"
         fi
     fi
 fi

@@ -5,7 +5,11 @@ set -euo pipefail
 REPO_PATH="$(cd "$(dirname "$0")/.." && pwd)"
 export REPO_PATH
 
-# Load project env (aliases, PATH, NODE_OPTIONS, .env.local)
+# Set environment if not already set (allows overriding via AIME_ENV variable)
+: "${AIME_ENV:=sandbox}"
+export AIME_ENV
+
+# Load project env (includes everything: aliases, PATH, NODE_OPTIONS, .env.local, secrets)
 source "$REPO_PATH/_scripts/aimeup-env.sh"
 
 # Change to monorepo directory
@@ -14,10 +18,27 @@ cd "$REPO_PATH"
 # Set terminal color
 term-color lightgray
 
+# On macOS, increase window and font size for better visibility
+if [[ "$OSTYPE" == "darwin"* ]]; then
+  osascript <<OSA
+tell application "Terminal"
+  tell front window
+    set number of rows to 40
+    set number of columns to 120
+    set font size of current settings to 12
+  end tell
+end tell
+OSA
+fi
 
-echo -e "\n==================================== Terminal ===================================="
-# Drop you into the guides root with env ready
-echo "[aimeup] Environment loaded. You're at: $REPO_PATH"
-echo "[aimeup] Quick cmds: 'web' (dev server), 'ui' (build UI), 'pn' (pnpm)"
-exec $SHELL -i
+echo -e "\n==================================== AimeUp Terminal ===================================="
+echo "📍 Environment: $AIME_ENV"
+echo "📂 Working directory: $REPO_PATH"
+echo "👤 Running as: $(whoami)"
 
+# Start interactive shell and restore color on exit
+$SHELL -i
+
+# Restore terminal color to white when exiting
+term-color white
+echo "✅ Exited AimeUp terminal - restored to white"

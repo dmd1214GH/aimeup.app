@@ -23,8 +23,10 @@ export default defineConfig({
 
   // Shared settings for all browsers
   use: {
-    // Base URL for all tests
-    baseURL: 'http://localhost:8081',
+    // Base URL for all tests - use TEST_PORT env var if set, otherwise default to 8081
+    baseURL: process.env.TEST_PORT
+      ? `http://localhost:${process.env.TEST_PORT}`
+      : 'http://localhost:8081',
 
     // Timeout for each action
     actionTimeout: 10000,

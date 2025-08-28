@@ -74,12 +74,12 @@ export class ClaudeInvoker {
       // Write prompt to a temporary file for headed mode
       const tmpPromptFile = `/tmp/claude-prompt-${Date.now()}.md`;
       fs.writeFileSync(tmpPromptFile, promptContent);
-      
+
       // Run Claude interactively with instruction to read the prompt file
       const readFileInstruction = `Please read and execute the instructions in ${tmpPromptFile}`;
       console.log('Starting Claude with file read instruction...');
       console.log(`Prompt file: ${tmpPromptFile} (${promptContent.length} characters)`);
-      
+
       const claudeProcess = spawn(this.claudePath, [...args, readFileInstruction], {
         stdio: 'inherit', // Full TTY passthrough for interactive mode
         env: { ...process.env },

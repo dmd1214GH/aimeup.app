@@ -7,6 +7,9 @@ color="${1:-}"
 
 typeset -A COLORS=(
   black       "0,0,0"
+  darkred     "8224,0,0"
+  bloodred    "5140,0,0"
+  brightred   "26214,0,0"
   white       "65535,65535,65535"
   offwhite    "62965,62965,62965"
   red         "65535,0,0"
@@ -65,7 +68,7 @@ fi
 
 IFS=',' read -r r g b <<< "${COLORS[$color]}"
 
-# Convert to 0-255 range for luminance calculation
+# Convert to 0-255 range for calculations
 r8=$(( r / 257 ))
 g8=$(( g / 257 ))
 b8=$(( b / 257 ))
@@ -73,32 +76,35 @@ b8=$(( b / 257 ))
 # Calculate relative luminance (simple brightness approximation)
 brightness=$(( (299 * r8 + 587 * g8 + 114 * b8) / 1000 ))
 
-# Pick text color: black if bright background, white if dark
-# Lowered threshold from 128 to 100 to prefer white text more often
-if (( brightness > 100 )); then
-  text_color="{0, 0, 0}"
-else
-  text_color="{65535, 65535, 65535}"
-fi
-
-# Window size (characters)
-rows=50
-cols=140
-font_name="Menlo"
-font_size=12
-
-osascript <<OSA
+# Check if we're in Docker
+if [[ -f /.dockerenv ]] || [[ -d /aimeup ]]; then
+  # In Docker - colors can't be changed from inside container
+  # Just show what color would be set
+  echo "[term-color: would set $color if not in Docker]"
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+  # On macOS - use AppleScript for Terminal.app
+  if (( brightness > 100 )); then
+    text_color="{0, 0, 0}"
+  else
+    text_color="{65535, 65535, 65535}"
+  fi
+  
+  osascript <<OSA
 tell application "Terminal"
   if windows is {} then reopen
   tell selected tab of front window
     set background color of current settings to {$r, $g, $b}
     set normal text color of current settings to $text_color
   end tell
-  set number of rows of front window to $rows
-  set number of columns of front window to $cols
-  tell current settings of front window
-    set font name to "$font_name"
-    set font size to $font_size
-  end tell
 end tell
 OSA
+else
+  # On Linux (non-Docker) - try ANSI codes
+  printf '\033[48;2;%d;%d;%dm' "$r8" "$g8" "$b8"
+  if (( brightness > 100 )); then
+    printf '\033[38;2;0;0;0m'
+  else
+    printf '\033[38;2;255;255;255m'
+  fi
+  printf '\033[2J\033[H'
+fi

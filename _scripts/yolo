@@ -1,0 +1,79 @@
+#!/usr/bin/env zsh
+# WARNING: This script runs Claude with DANGEROUS permissions
+# Only use when you absolutely need full system access
+# 🔥 YOLO - You Only Live Once 🔥
+
+set -euo pipefail
+
+# Ensure we're in the repo directory
+# If REPO_PATH is set, use it; otherwise derive from script location
+if [[ -z "${REPO_PATH:-}" ]]; then
+  REPO_PATH="$(cd "$(dirname "$0")/.." && pwd)"
+fi
+cd "$REPO_PATH"
+
+# Set terminal color to bright red (for YOLO mode) - only works on host
+term-color brightred
+
+# On macOS host, set window and font size for better visibility
+if [[ "$OSTYPE" == "darwin"* ]] && [[ ! -f /.dockerenv ]]; then
+  osascript <<OSA
+tell application "Terminal"
+  tell front window
+    set number of rows to 40
+    set number of columns to 120
+    set font size of current settings to 12
+  end tell
+end tell
+OSA
+fi
+
+# Show git status
+echo "==================================== Git Status ===================================="
+git status
+
+# Check Claude usage (optional - continues on error)
+echo -e "\n==================================== Claude Usage ===================================="
+npx ccusage@latest monthly 2>/dev/null || echo "Claude usage stats unavailable (ccusage tool error)"
+
+# YOLO warning with skull and fire
+echo -e "\n==================================== 🔥 YOLO MODE 🔥 ===================================="
+echo "💀 WARNING: --dangerously-skip-permissions is enabled!"
+echo "🚨 Claude will have FULL ACCESS to:"
+echo "   • Execute ANY command on your system"
+echo "   • Read/write/delete ANY file"
+echo "   • Access ALL environment variables and secrets"
+echo ""
+echo "📍 Working directory: $REPO_PATH"
+echo "🎯 Running as user: $(whoami)"
+
+# Extra warning if NOT in Docker
+if [[ ! -f /.dockerenv ]] && [[ ! -d /aimeup ]]; then
+  echo ""
+  echo "🚨🚨🚨 EXTRA WARNING: You are NOT in a Docker container! 🚨🚨🚨"
+  echo "This means Claude will have access to your ENTIRE HOST SYSTEM!"
+  echo ""
+  echo "Type 'YOLO ON HOST' to confirm you want to run with dangerous permissions on host:"
+  read -r CONFIRM
+  if [[ "$CONFIRM" != "YOLO ON HOST" ]]; then
+    echo "❌ Aborted - you did not type 'YOLO ON HOST'"
+    exit 1
+  fi
+else
+  echo ""
+  echo "🐳 Running in Docker container (somewhat safer)"
+fi
+
+echo ""
+echo "⚠️  Only proceed if you understand and accept the risks!"
+echo "Press Enter to continue or Ctrl+C to abort..."
+
+read -r
+
+# Start Claude in YOLO mode
+echo -e "\n🔥 Starting Claude in YOLO mode..."
+claude --dangerously-skip-permissions
+
+# Restore terminal color to lightgray (same as aimeterm)
+term-color lightgray
+echo -e "\n✅ Exited YOLO mode - terminal restored to lightgray"

@@ -11,21 +11,52 @@ source "$REPO_PATH/_scripts/aimeup-env.sh"
 # Change to monorepo directory
 cd "$REPO_PATH"
 
-# Set terminal color to medium gray (like aimeclaude)
-# Note: Terminal.app doesn't support separate title bar colors
-term-color mediumgray
+# On macOS host, set window and font size for better visibility
+if [[ "$OSTYPE" == "darwin"* ]] && [[ ! -f /.dockerenv ]]; then
+  osascript <<OSA
+tell application "Terminal"
+  tell front window
+    set number of rows to 40
+    set number of columns to 120
+    set font size of current settings to 12
+  end tell
+end tell
+OSA
+fi
 
 # Show Docker status
 echo "==================================== Docker Status ===================================="
 
 # Check if Docker is running
 if ! docker info &>/dev/null; then
-  echo "❌ Docker is not running!"
-  echo "Please start Docker Desktop and try again."
-  exit 1
+  echo "⚠️  Docker is not running. Starting Docker Desktop..."
+  
+  # Start Docker Desktop on macOS
+  if [[ "$OSTYPE" == "darwin"* ]]; then
+    open -a Docker
+    
+    # Wait for Docker to be ready (max 60 seconds)
+    echo "⏳ Waiting for Docker to start..."
+    for i in {1..60}; do
+      if docker info &>/dev/null; then
+        echo "✅ Docker is now running"
+        break
+      fi
+      sleep 1
+      if [[ $i -eq 60 ]]; then
+        echo "❌ Docker failed to start after 60 seconds"
+        echo "Please check Docker Desktop manually"
+        exit 1
+      fi
+    done
+  else
+    echo "❌ Docker is not running!"
+    echo "Please start Docker manually and try again."
+    exit 1
+  fi
+else
+  echo "✅ Docker is running"
 fi
-
-echo "✅ Docker is running"
 
 # Check if container exists and is running
 CONTAINER_STATUS=$(docker compose -f docker-compose.yml -f docker-compose.claude.yml ps -q aimeup-dev 2>/dev/null || true)
@@ -57,8 +88,13 @@ echo "🔚 Type 'exit' to leave the container"
 echo -e "\n🔴 DOCKER ENVIRONMENT - Not your host machine!"
 echo ""
 
+# Set terminal color to medium gray right before entering Docker
+# Note: Terminal.app doesn't support separate title bar colors
+term-color mediumgray
+
 # Attach to container with interactive zsh shell (with history support)
 # Use exec -it to get an interactive terminal
+# Note: We can't filter stderr here as it would break interactive mode
 docker compose -f docker-compose.yml -f docker-compose.claude.yml exec -it aimeup-dev /bin/zsh
 
 # After exiting the container, restore terminal to white
