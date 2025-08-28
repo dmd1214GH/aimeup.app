@@ -54,7 +54,7 @@ function copyAssets(): void {
         process.exit(1);
       }
     }
-    
+
     fs.copyFileSync(configSource, configTarget);
     // Make the file read-only to prevent accidental editing
     fs.chmodSync(configTarget, 0o444);
