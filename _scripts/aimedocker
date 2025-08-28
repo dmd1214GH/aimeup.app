@@ -95,9 +95,18 @@ term-color mediumgray
 # Attach to container with interactive zsh shell (with history support)
 # Use exec -it to get an interactive terminal
 # Note: We can't filter stderr here as it would break interactive mode
+# IMPORTANT: Don't exit on error from docker exec to prevent terminal crashes
+set +e
 docker compose -f docker-compose.yml -f docker-compose.claude.yml exec -it aimeup-dev /bin/zsh
+DOCKER_EXIT_CODE=$?
+set -e
 
 # After exiting the container, restore terminal to white
 echo -e "\n==================================== Exited Docker ===================================="
 term-color white
-echo "✅ Returned to host machine"
+
+if [[ $DOCKER_EXIT_CODE -ne 0 ]]; then
+    echo "⚠️  Docker session ended with exit code: $DOCKER_EXIT_CODE"
+else
+    echo "✅ Returned to host machine"
+fi

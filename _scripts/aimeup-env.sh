@@ -1,5 +1,7 @@
 #!/usr/bin/env zsh
-set -euo pipefail
+# Don't use set -e in sourced files as it affects the entire shell session
+# Only use these for debugging when needed
+# set -euo pipefail
 
 # If REPO_PATH wasn't set by the caller, derive it from this script file's path
 : "${REPO_PATH:="$(cd "$(dirname "$0")/.." && pwd)"}"
