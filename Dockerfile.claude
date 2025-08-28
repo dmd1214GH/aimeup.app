@@ -1,0 +1,40 @@
+# Extend base Dockerfile with Claude Code and development tools
+FROM aimeup-aimeup-dev:latest
+
+# Install Claude Code CLI globally
+RUN npm install -g @anthropic-ai/claude-code
+
+# Setup non-root user (node user already exists from base image with UID 1000)
+# Give node user access to necessary directories and configure zsh
+RUN mkdir -p /home/node/.claude && \
+    chown -R node:node /home/node && \
+    chown -R node:node /aimeup || true && \
+    echo 'export PS1="🐳 docker:%~ %# "' >> /home/node/.zshrc && \
+    echo 'export HISTFILE=~/.zsh_history' >> /home/node/.zshrc && \
+    echo 'export HISTSIZE=1000' >> /home/node/.zshrc && \
+    echo 'export SAVEHIST=2000' >> /home/node/.zshrc && \
+    echo 'setopt HIST_IGNORE_DUPS' >> /home/node/.zshrc && \
+    echo 'setopt SHARE_HISTORY' >> /home/node/.zshrc && \
+    chown node:node /home/node/.zshrc
+
+# Create entrypoint script for Git configuration
+RUN echo '#!/bin/sh' > /entrypoint.sh && \
+    echo '# Configure Git from environment variables' >> /entrypoint.sh && \
+    echo 'if [ -n "$GIT_USER_NAME" ]; then' >> /entrypoint.sh && \
+    echo '  git config --global user.name "$GIT_USER_NAME"' >> /entrypoint.sh && \
+    echo 'fi' >> /entrypoint.sh && \
+    echo 'if [ -n "$GIT_USER_EMAIL" ]; then' >> /entrypoint.sh && \
+    echo '  git config --global user.email "$GIT_USER_EMAIL"' >> /entrypoint.sh && \
+    echo 'fi' >> /entrypoint.sh && \
+    echo '# Execute the original command' >> /entrypoint.sh && \
+    echo 'exec "$@"' >> /entrypoint.sh && \
+    chmod +x /entrypoint.sh
+
+# Set entrypoint
+ENTRYPOINT ["/entrypoint.sh"]
+
+# Maintain the same command as base image
+CMD ["tail", "-f", "/dev/null"]
+
+# Working directory remains /aimeup from base image
+WORKDIR /aimeup

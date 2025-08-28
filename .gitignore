@@ -22,3 +22,6 @@ playwright/.cache/
 # Node.js compilation cache
 **/node-compile-cache/
 
+# Claude Code
+.claude/
+

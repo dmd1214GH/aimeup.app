@@ -28,18 +28,18 @@ fi
 echo "✅ Docker is running"
 
 # Check if container exists and is running
-CONTAINER_STATUS=$(docker compose ps -q aimeup-dev 2>/dev/null || true)
+CONTAINER_STATUS=$(docker compose -f docker-compose.yml -f docker-compose.claude.yml ps -q aimeup-dev 2>/dev/null || true)
 
 if [[ -z "$CONTAINER_STATUS" ]]; then
   echo "🔄 Starting Docker container..."
-  docker compose up -d
+  docker compose -f docker-compose.yml -f docker-compose.claude.yml up -d
   echo "⏳ Waiting for container to be ready..."
   sleep 2
 else
   # Check if container is actually running (not just exists)
-  if ! docker compose ps | grep -q "aimeup-dev.*running"; then
+  if ! docker compose -f docker-compose.yml -f docker-compose.claude.yml ps | grep -q "aimeup-dev.*running"; then
     echo "🔄 Container exists but is stopped. Starting..."
-    docker compose start aimeup-dev
+    docker compose -f docker-compose.yml -f docker-compose.claude.yml start aimeup-dev
     sleep 2
   else
     echo "✅ Container is already running"
@@ -48,7 +48,7 @@ fi
 
 # Show container info
 echo -e "\n==================================== Container Info ===================================="
-docker compose ps
+docker compose -f docker-compose.yml -f docker-compose.claude.yml ps
 
 echo -e "\n==================================== 🐳 Docker Container ===================================="
 echo "📍 Working directory: /aimeup"
@@ -59,7 +59,7 @@ echo ""
 
 # Attach to container with interactive zsh shell (with history support)
 # Use exec -it to get an interactive terminal
-docker compose exec -it aimeup-dev /bin/zsh
+docker compose -f docker-compose.yml -f docker-compose.claude.yml exec -it aimeup-dev /bin/zsh
 
 # After exiting the container, restore terminal to white
 echo -e "\n==================================== Exited Docker ===================================="

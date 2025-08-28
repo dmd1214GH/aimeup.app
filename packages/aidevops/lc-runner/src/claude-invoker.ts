@@ -71,17 +71,32 @@ export class ClaudeInvoker {
       );
       console.log('Note: Type "exit" or press Ctrl+D when tasks are complete.');
 
-      // Run Claude interactively and pipe the prompt content
-      const claudeProcess = spawn(this.claudePath, args, {
-        stdio: ['pipe', 'inherit', 'inherit'], // pipe stdin, inherit stdout/stderr for TTY
+      // Write prompt to a temporary file for headed mode
+      const tmpPromptFile = `/tmp/claude-prompt-${Date.now()}.md`;
+      fs.writeFileSync(tmpPromptFile, promptContent);
+      
+      // Run Claude interactively with instruction to read the prompt file
+      const readFileInstruction = `Please read and execute the instructions in ${tmpPromptFile}`;
+      console.log('Starting Claude with file read instruction...');
+      console.log(`Prompt file: ${tmpPromptFile} (${promptContent.length} characters)`);
+      
+      const claudeProcess = spawn(this.claudePath, [...args, readFileInstruction], {
+        stdio: 'inherit', // Full TTY passthrough for interactive mode
         env: { ...process.env },
         shell: false,
       });
 
-      // Write the prompt content to stdin
-      console.log('Piping prompt content to Claude...');
-      claudeProcess.stdin.write(promptContent);
-      claudeProcess.stdin.end();
+      // Clean up temp file after Claude exits
+      claudeProcess.on('exit', () => {
+        setTimeout(() => {
+          try {
+            fs.unlinkSync(tmpPromptFile);
+            console.log(`Cleaned up temp file: ${tmpPromptFile}`);
+          } catch (e) {
+            // Ignore cleanup errors
+          }
+        }, 1000);
+      });
 
       return new Promise((resolve) => {
         claudeProcess.on('close', (code) => {
@@ -112,6 +127,10 @@ export class ClaudeInvoker {
       // Read the master prompt content
       const promptContent = fs.readFileSync(masterPromptPath, 'utf8');
 
+      // Write prompt to a temporary file for headless mode too
+      const tmpPromptFile = `/tmp/claude-prompt-${Date.now()}.md`;
+      fs.writeFileSync(tmpPromptFile, promptContent);
+
       // Build args for headless mode
       const args = ['--print'];
       if (skipPermissions) {
@@ -122,10 +141,13 @@ export class ClaudeInvoker {
         args.push('--verbose');
       }
 
+      // Use file read instruction for headless mode too
+      const readFileInstruction = `Please read and execute the instructions in ${tmpPromptFile}`;
+
       console.log(`\n╔════════════════════════════════════════════════════════╗`);
       console.log(`║     Starting Claude in HEADLESS mode (automated)      ║`);
       console.log(`╚════════════════════════════════════════════════════════╝`);
-      console.log(`Prompt size: ${promptContent.length} characters`);
+      console.log(`Prompt file: ${tmpPromptFile} (${promptContent.length} characters)`);
       console.log(`Using flags: ${args.join(' ')}`);
       if (timeoutMs) {
         console.log(`Timeout: ${timeoutMs / 60000} minutes`);
@@ -133,7 +155,8 @@ export class ClaudeInvoker {
         console.log(`Timeout: None (will run until completion)`);
       }
 
-      // Spawn ClaudeCode process with --print flag for headless mode
+      // Spawn ClaudeCode process with file read instruction
+      args.push(readFileInstruction);
       const claudeProcess = spawn(this.claudePath, args, {
         stdio: ['pipe', 'pipe', 'pipe'], // Explicitly set stdio for pipes
         env: { ...process.env },
@@ -177,10 +200,9 @@ export class ClaudeInvoker {
         process.stderr.write(chunk);
       });
 
-      // Write the prompt content to stdin
-      console.log(`Sending prompt to Claude...`);
+      // Don't write to stdin - prompt is passed via file instruction
+      console.log(`Claude reading prompt from: ${tmpPromptFile}`);
       console.log(`─`.repeat(60));
-      claudeProcess.stdin.write(promptContent);
       claudeProcess.stdin.end();
 
       // Handle process completion
@@ -189,6 +211,15 @@ export class ClaudeInvoker {
         if (timeoutHandle) {
           clearTimeout(timeoutHandle);
         }
+        // Clean up temp file
+        setTimeout(() => {
+          try {
+            fs.unlinkSync(tmpPromptFile);
+            console.log(`Cleaned up temp file: ${tmpPromptFile}`);
+          } catch (e) {
+            // Ignore cleanup errors
+          }
+        }, 1000);
         console.log(`─`.repeat(60));
         console.log(`Claude process exited with code ${code}`);
         resolve({

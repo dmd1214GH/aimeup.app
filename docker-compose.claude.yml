@@ -1,0 +1,45 @@
+# Extended docker-compose configuration for Claude Code development
+# Usage: docker-compose -f docker-compose.yml -f docker-compose.claude.yml up -d
+
+services:
+  aimeup-dev:
+    # Override the base image to use Claude-enabled Dockerfile
+    build:
+      context: .
+      dockerfile: Dockerfile.claude
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+
+    # Extend environment with API keys and Git configuration
+    environment:
+      # Pass through API keys from host environment
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      LINEAR_API_KEY: ${LINEAR_API_KEY}
+      # Git configuration
+      GIT_USER_NAME: ${GIT_USER_NAME}
+      GIT_USER_EMAIL: ${GIT_USER_EMAIL}
+      # Existing Expo configuration from base
+      EXPO_DEVTOOLS_LISTEN_ADDRESS: '0.0.0.0'
+
+    # Ensure working directory is /aimeup
+    working_dir: /aimeup
+    
+    # Run as non-root user for Claude Code compatibility
+    user: node
+
+    # Load environment variables from .env file
+    env_file:
+      - .env
+
+    # Add volume for Claude Code persistence
+    volumes:
+      # Inherit all volumes from base docker-compose.yml
+      - ./:/aimeup
+      - aimeup_node_modules:/aimeup/node_modules
+      - pnpm_store:/home/node/.local/share/pnpm/store
+      # Add new volume for Claude Code config persistence
+      - claude_config:/home/node/.claude
+
+# Define the Claude config volume
+volumes:
+  claude_config:
