@@ -10,12 +10,8 @@ Include these check with the standard pre-check tests
 ### Step 3: Deliver the Issue
 
 #### Prime Delivery Directives
-**High priority instructions which MUST be followed**
-1. **CRITICAL**: Update the task list in the file as you work through it. 
-  - key: `(X)`=Done, `(O)`=In Progress, `(-)`=Blocked, `(D)`=Deleted/Not Needed
-  - DO NOT start a task without updating to `(O)`.
-  - DO NOT start a new task without updating the prior task's status
-  - DO NOT Consider a task to e be complete which was not updated.
+1. **IMPORTANT**: Update the task list in `updated-issue.md` with every status change.
+  - key: `(X)`=Completed the task, `(O)`=Started the task, `(-)`=Blocked, `(D)`=Deleted/Not Needed
 2. Do not resort to "hacky" solutions, consider the task blocked if a good solution cannot be found
 3. When a task is blocked, move on to other tasks that are not impacted by the blockage. End the operation when all work is blocked.
 4. Never commit to git. Operator will do this after accepting delivery.

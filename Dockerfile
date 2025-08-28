@@ -1,8 +1,8 @@
 # Use Node.js 22.18 slim image for minimal size
 FROM node:22.18-slim
 
-# Install zsh for consistency with host environment and scripts
-RUN apt-get update && apt-get install -y zsh && rm -rf /var/lib/apt/lists/*
+# Install zsh for consistency with host environment and scripts, plus git for development
+RUN apt-get update && apt-get install -y zsh git && rm -rf /var/lib/apt/lists/*
 
 # Install pnpm 10.14.0 globally
 RUN npm install -g pnpm@10.14.0
