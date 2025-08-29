@@ -312,24 +312,20 @@ handle_failure() {
 }
 
 # Run tests sequentially, stop at first failure
-run_test "Unit Tests" "pnpm test"
-if [[ "$TEST_FAILED" == "true" ]]; then
+run_test "Unit Tests" "pnpm test" || {
     handle_failure
-    # Stop execution without crashing
     return 1 2>/dev/null || true
-fi
+}
 
-run_test "Code Quality" "pnpm hygiene"
-if [[ "$TEST_FAILED" == "true" ]]; then
+run_test "Code Quality" "pnpm hygiene" || {
     handle_failure
-    return 1
-fi
+    return 1 2>/dev/null || true
+}
 
-run_test "TypeScript Type Check" "pnpm typecheck"
-if [[ "$TEST_FAILED" == "true" ]]; then
+run_test "TypeScript Type Check" "pnpm typecheck" || {
     handle_failure
-    return 1
-fi
+    return 1 2>/dev/null || true
+}
 
 # Run Playwright E2E tests if they exist
 # Skip E2E tests if SKIP_E2E is set
@@ -348,11 +344,10 @@ elif [[ -f "apps/aimeHarness/playwright.config.ts" ]]; then
         fi
         # Run smoke test only - single browser navigating all pages  
         # TEST_PORT is already exported from check_and_start_web_server
-        run_test "Web E2E Smoke Test (aimeHarness)" "cd apps/aimeHarness && TEST_PORT=${TEST_PORT} HEADED=${HEADED_MODE} SLOW_MO=${SLOW_MO_VALUE} pnpm test:smoke:web"
-        if [[ "$TEST_FAILED" == "true" ]]; then
+        run_test "Web E2E Smoke Test (aimeHarness)" "cd apps/aimeHarness && TEST_PORT=${TEST_PORT} HEADED=${HEADED_MODE} SLOW_MO=${SLOW_MO_VALUE} npx playwright test smoke-with-testids.spec.ts --project=chromium --reporter=list" || {
             handle_failure
             return 1 2>/dev/null || true
-        fi
+        }
     else
         echo "⚠️  Web server startup failed"
         TEST_FAILED=true
@@ -422,7 +417,10 @@ if [[ -z "${SKIP_E2E:-}" ]] && [[ -f "apps/eatgpt/playwright.config.ts" ]]; then
             fi
             # Register PID for cleanup
             trap "cleanup; [[ -n '${EATGPT_WEB_SERVER_PID:-}' ]] && kill $EATGPT_WEB_SERVER_PID 2>/dev/null || true" EXIT
-            run_test "Web E2E Test (EatGPT)" "cd apps/eatgpt && HEADED=${HEADED_MODE} SLOW_MO=${SLOW_MO_VALUE} pnpm test:smoke:web"
+            run_test "Web E2E Test (EatGPT)" "cd apps/eatgpt && HEADED=${HEADED_MODE} SLOW_MO=${SLOW_MO_VALUE} npx playwright test hello-world.spec.ts --project=chromium --reporter=list" || {
+                handle_failure
+                return 1 2>/dev/null || true
+            }
         fi
     fi
 fi
@@ -485,10 +483,8 @@ check_and_run_mobile_tests() {
     fi
     
     # Run the mobile smoke test with timeout
-    set +e  # Don't exit on test failure, we want to clean up
     run_test "Mobile E2E Smoke Test" "cd apps/aimeHarness && timeout 120 pnpm test:smoke:mobile"
     TEST_RESULT=$?
-    set -e
     
     # Archive artifacts on failure
     if [[ $TEST_RESULT -ne 0 ]] && [[ -x "apps/aimeHarness/__tests__/e2e/maestro/cleanup-artifacts.sh" ]]; then
@@ -509,7 +505,12 @@ check_and_run_mobile_tests() {
         apps/aimeHarness/__tests__/e2e/maestro/cleanup-artifacts.sh prune
     fi
     
-    return $TEST_RESULT
+    # Return failure if test failed or if TEST_FAILED was set by run_test
+    if [[ $TEST_RESULT -ne 0 ]] || [[ "$TEST_FAILED" == "true" ]]; then
+        return 1
+    fi
+    
+    return 0
 }
 
 # Stop here if any test has failed
@@ -519,7 +520,10 @@ fi
 
 # Run mobile tests if available
 if [[ -d "apps/aimeHarness/__tests__/e2e/maestro" ]]; then
-    check_and_run_mobile_tests
+    check_and_run_mobile_tests || {
+        handle_failure
+        return 1 2>/dev/null || true
+    }
 fi
 
 echo "=========================================="

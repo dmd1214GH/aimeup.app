@@ -1,0 +1,62 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Start EatGPT & Debug",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "cd apps/eatgpt && pnpm dev",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Start EatGPT with Node Debug",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "cd apps/eatgpt && NODE_OPTIONS='--inspect=0.0.0.0:9229' pnpm dev",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Start AimeHarness & Debug",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "cd apps/aimeHarness && pnpm dev",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Start All (pnpm dev)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "pnpm dev",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Debug Expo Web in Chrome",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:8082",
+      "webRoot": "${workspaceFolder}/apps/eatgpt",
+      "sourceMaps": true,
+      "sourceMapPathOverrides": {
+        "webpack:///./*": "${webRoot}/*",
+        "webpack:///src/*": "${webRoot}/src/*"
+      }
+    },
+    {
+      "name": "Attach to Chrome",
+      "type": "chrome",
+      "request": "attach",
+      "port": 9222,
+      "url": "http://localhost:8082",
+      "webRoot": "${workspaceFolder}/apps/eatgpt"
+    },
+    {
+      "name": "Attach to Node.js",
+      "type": "node",
+      "request": "attach",
+      "port": 9229,
+      "restart": true,
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "/aimeup"
+    }
+  ]
+}

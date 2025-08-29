@@ -10,7 +10,11 @@ services:
       - aimeup_node_modules:/aimeup/node_modules
       # Use named volume for pnpm cache
       - pnpm_store:/root/.local/share/pnpm/store
+      # Persist Claude Code configuration across container rebuilds (aimedev user)
+      # Using bind mount for better persistence across docker-compose down/up cycles
+      - ./.claude-docker:/home/aimedev/.claude
     # Keep container running so developers can exec into it
+    # The entrypoint in Dockerfile will fix permissions before this runs
     command: tail -f /dev/null
     # Port mapping for Expo and development servers
     ports:

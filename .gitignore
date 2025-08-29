@@ -29,3 +29,5 @@ playwright/.cache/
 _scripts/aime-env-secrets.sh
 _scripts/aime-env-secrets-*.sh
 
+.claude-docker/
+.claude-backup/

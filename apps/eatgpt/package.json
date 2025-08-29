@@ -50,7 +50,7 @@
   "devDependencies": {
     "@babel/core": "^7.20.0",
     "@eslint/compat": "^1.2.3",
-    "@playwright/test": "1.49.0",
+    "@playwright/test": "1.54.2",
     "@testing-library/jest-native": "^5.4.3",
     "@testing-library/react-native": "^13.0.0",
     "@types/jest": "^29.5.14",

@@ -12,12 +12,13 @@ export class ClaudeInvoker {
   private claudePath: string;
 
   constructor(claudePath?: string) {
-    // Use provided path or default to the standard location
-    this.claudePath = claudePath || '/Users/dougdanoff/.claude/local/claude';
+    // Use provided path or default to claude in PATH
+    // Don't use hardcoded host paths that won't work in Docker
+    this.claudePath = claudePath || 'claude';
 
-    // Also check if it's available in PATH
-    if (!fs.existsSync(this.claudePath)) {
-      // Try to find claude in PATH
+    // Only check file existence if a specific path was provided
+    if (claudePath && !fs.existsSync(this.claudePath)) {
+      // Fall back to PATH if provided path doesn't exist
       this.claudePath = 'claude';
     }
   }
@@ -212,14 +213,19 @@ export class ClaudeInvoker {
           clearTimeout(timeoutHandle);
         }
         // Clean up temp file
-        setTimeout(() => {
+        const cleanupTimer = setTimeout(() => {
           try {
             fs.unlinkSync(tmpPromptFile);
-            console.log(`Cleaned up temp file: ${tmpPromptFile}`);
+            // Only log in non-test environments
+            if (process.env.NODE_ENV !== 'test') {
+              console.log(`Cleaned up temp file: ${tmpPromptFile}`);
+            }
           } catch (e) {
             // Ignore cleanup errors
           }
         }, 1000);
+        // Unref the timer so it doesn't keep the process alive
+        cleanupTimer.unref();
         console.log(`─`.repeat(60));
         console.log(`Claude process exited with code ${code}`);
         resolve({

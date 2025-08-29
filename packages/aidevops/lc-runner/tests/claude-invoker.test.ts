@@ -24,18 +24,17 @@ describe('ClaudeInvoker', () => {
       expect(invoker['claudePath']).toBe(customPath);
     });
 
-    it('should fall back to claude in PATH if default path does not exist', () => {
-      mockFs.existsSync.mockReturnValue(false);
-
+    it('should use claude in PATH when no path is provided', () => {
       const invoker = new ClaudeInvoker();
       expect(invoker['claudePath']).toBe('claude');
     });
 
-    it('should use default path if it exists', () => {
-      mockFs.existsSync.mockReturnValue(true);
+    it('should fall back to claude in PATH if provided path does not exist', () => {
+      const customPath = '/nonexistent/path/to/claude';
+      mockFs.existsSync.mockReturnValue(false);
 
-      const invoker = new ClaudeInvoker();
-      expect(invoker['claudePath']).toBe('/Users/dougdanoff/.claude/local/claude');
+      const invoker = new ClaudeInvoker(customPath);
+      expect(invoker['claudePath']).toBe('claude');
     });
   });
 
