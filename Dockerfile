@@ -118,6 +118,13 @@ USER aimedev
 # Ensure Claude authentication persists and permissions are correct
 # The bind mount from docker-compose.yml handles persistence
 ENTRYPOINT ["/bin/sh", "-c", "\
+    # Configure git from environment variables if provided \
+    if [ -n \"$GIT_USER_NAME\" ]; then \
+        git config --global user.name \"$GIT_USER_NAME\"; \
+    fi && \
+    if [ -n \"$GIT_USER_EMAIL\" ]; then \
+        git config --global user.email \"$GIT_USER_EMAIL\"; \
+    fi && \
     # Copy .claude.json from bind mount to home if it exists \
     if [ -f /home/aimedev/.claude/.claude.json ] && [ ! -f /home/aimedev/.claude.json ]; then \
         cp /home/aimedev/.claude/.claude.json /home/aimedev/.claude.json 2>/dev/null || true; \
