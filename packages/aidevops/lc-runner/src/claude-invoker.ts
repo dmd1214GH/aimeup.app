@@ -102,13 +102,26 @@ export class ClaudeInvoker {
       return new Promise((resolve) => {
         claudeProcess.on('close', (code) => {
           console.log('─'.repeat(60));
-          console.log(`Claude process exited with code ${code}`);
-          resolve({
-            exitCode: code || 0,
-            stdout: 'Interactive mode - output shown in terminal',
-            stderr: code !== 0 ? `Process exited with code ${code}` : '',
-            success: code === 0,
-          });
+
+          // Handle null exit code (process was killed or terminated abnormally)
+          if (code === null) {
+            console.log(`Claude process terminated abnormally (exit code: null)`);
+            console.log(`This may happen if the process was killed or crashed`);
+            resolve({
+              exitCode: 1,
+              stdout: 'Interactive mode - output shown in terminal',
+              stderr: 'Process terminated abnormally with null exit code',
+              success: false,
+            });
+          } else {
+            console.log(`Claude process exited with code ${code}`);
+            resolve({
+              exitCode: code || 0,
+              stdout: 'Interactive mode - output shown in terminal',
+              stderr: code !== 0 ? `Process exited with code ${code}` : '',
+              success: code === 0,
+            });
+          }
         });
 
         claudeProcess.on('error', (error) => {
@@ -227,13 +240,26 @@ export class ClaudeInvoker {
         // Unref the timer so it doesn't keep the process alive
         cleanupTimer.unref();
         console.log(`─`.repeat(60));
-        console.log(`Claude process exited with code ${code}`);
-        resolve({
-          exitCode: code || 0,
-          stdout,
-          stderr,
-          success: code === 0,
-        });
+
+        // Handle null exit code (process was killed or terminated abnormally)
+        if (code === null) {
+          console.log(`Claude process terminated abnormally (exit code: null)`);
+          console.log(`This may happen if the process was killed or crashed`);
+          resolve({
+            exitCode: 1,
+            stdout,
+            stderr: stderr || 'Process terminated abnormally with null exit code',
+            success: false,
+          });
+        } else {
+          console.log(`Claude process exited with code ${code}`);
+          resolve({
+            exitCode: code || 0,
+            stdout,
+            stderr,
+            success: code === 0,
+          });
+        }
       });
 
       // Handle process errors

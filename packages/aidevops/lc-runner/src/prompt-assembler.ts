@@ -7,6 +7,10 @@ export interface PromptReplacements {
   workingFolder: string;
 }
 
+export interface TestOptions {
+  testMcpFailure?: boolean;
+}
+
 export class PromptAssembler {
   /**
    * Assemble the master prompt from general and operation-specific prompts
@@ -15,7 +19,8 @@ export class PromptAssembler {
     generalPromptPath: string,
     operationPromptPath: string,
     replacements: PromptReplacements,
-    outputPath: string
+    outputPath: string,
+    testOptions?: TestOptions
   ): void {
     try {
       // Load general prompt
@@ -28,7 +33,15 @@ export class PromptAssembler {
       this.validatePromptFormat(operationPrompt, operationPromptPath);
 
       // Perform replacements in general prompt
-      const processedGeneralPrompt = this.performReplacements(generalPrompt, replacements);
+      let processedGeneralPrompt = this.performReplacements(generalPrompt, replacements);
+
+      // Inject test instructions if test options are provided
+      if (testOptions?.testMcpFailure) {
+        processedGeneralPrompt = this.injectMcpFailureTest(
+          processedGeneralPrompt,
+          replacements.issueId
+        );
+      }
 
       // Combine prompts - NEVER append issue body
       const masterPrompt = processedGeneralPrompt + '\n' + operationPrompt;
@@ -166,5 +179,68 @@ export class PromptAssembler {
    */
   masterPromptExists(outputPath: string): boolean {
     return fs.existsSync(outputPath);
+  }
+
+  /**
+   * Inject MCP failure test instructions into the prompt
+   */
+  private injectMcpFailureTest(prompt: string, issueId: string): string {
+    const testInstructions = `
+## TEST MODE: MCP Failure Simulation
+**IMPORTANT**: This operation is running in MCP failure test mode.
+
+When you attempt to post operation reports to Linear via MCP:
+1. For ALL operation reports, simulate MCP failures by:
+   - Attempting to post to issue ID "INVALID-TEST-999" instead of "${issueId}"
+   - This will cause ALL MCP tool calls to fail
+   - Log each failure to the parent directory's issue-operation-log.md file following the standard format
+   - Use format: \`- [<timestamp>] MCP Failure: Failed to post <operation-action> report for ${issueId}/<operation>. Error: Issue INVALID-TEST-999 not found\`
+2. After logging each failure, continue with the operation normally
+3. Complete the entire operation despite ALL MCP failures
+4. Never use the correct issue ID "${issueId}" when test mode is active
+
+This test validates that MCP failures are handled gracefully without blocking operations.
+`;
+
+    // Insert test instructions after the MCP Integration section in the prompt
+    const mcpIntegrationMarker = '#### MCP Integration for Operation Reports';
+    const insertionPoint = prompt.indexOf(mcpIntegrationMarker);
+
+    if (insertionPoint !== -1) {
+      // Find the end of the MCP Integration section (next #### or ###)
+      const afterMarker = prompt.indexOf('\n', insertionPoint);
+      const nextSectionRegex = /\n####? /;
+      const remainingPrompt = prompt.substring(afterMarker);
+      const nextSectionMatch = remainingPrompt.search(nextSectionRegex);
+
+      if (nextSectionMatch !== -1) {
+        const endOfSection = afterMarker + nextSectionMatch;
+        return (
+          prompt.substring(0, endOfSection) +
+          '\n' +
+          testInstructions +
+          prompt.substring(endOfSection)
+        );
+      } else {
+        // No next section found, append at the end of MCP section
+        return prompt + '\n' + testInstructions;
+      }
+    } else {
+      // If no MCP Integration marker found, insert before Operation Step 1
+      const operationStepMarker = '### Operation Step 1:';
+      const operationStepIndex = prompt.indexOf(operationStepMarker);
+
+      if (operationStepIndex !== -1) {
+        return (
+          prompt.substring(0, operationStepIndex) +
+          testInstructions +
+          '\n' +
+          prompt.substring(operationStepIndex)
+        );
+      } else {
+        // Fallback: append to end of prompt
+        return prompt + '\n' + testInstructions;
+      }
+    }
   }
 }

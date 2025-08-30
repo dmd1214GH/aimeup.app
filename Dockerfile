@@ -6,6 +6,7 @@ FROM node:22.18-slim
 RUN apt-get update && apt-get install -y \
     zsh \
     git \
+    jq \
     lsof \
     curl \
     wget \
@@ -113,6 +114,9 @@ USER root
 RUN npm install -g @playwright/test@1.54.2 && \
     npx playwright@1.54.2 install chromium --with-deps && \
     chown -R aimedev:aimedev /home/aimedev/.cache
+
+# Install MCP Linear server for Claude Code
+RUN npm install -g mcp-linear
 USER aimedev
 
 # Ensure Claude authentication persists and permissions are correct
@@ -125,9 +129,28 @@ ENTRYPOINT ["/bin/sh", "-c", "\
     if [ -n \"$GIT_USER_EMAIL\" ]; then \
         git config --global user.email \"$GIT_USER_EMAIL\"; \
     fi && \
-    # Copy .claude.json from bind mount to home if it exists \
-    if [ -f /home/aimedev/.claude/.claude.json ] && [ ! -f /home/aimedev/.claude.json ]; then \
+    # ALWAYS copy Claude auth files from bind mount to ensure consistency \
+    # Copy with proper ownership for aimedev user \
+    if [ -f /home/aimedev/.claude/.claude.json ]; then \
         cp /home/aimedev/.claude/.claude.json /home/aimedev/.claude.json 2>/dev/null || true; \
+        chown aimedev:aimedev /home/aimedev/.claude.json 2>/dev/null || true; \
+    fi && \
+    if [ -f /home/aimedev/.claude/.credentials.json ]; then \
+        cp /home/aimedev/.claude/.credentials.json /home/aimedev/.credentials.json 2>/dev/null || true; \
+        chown aimedev:aimedev /home/aimedev/.credentials.json 2>/dev/null || true; \
+    fi && \
+    # Configure MCP Linear server for Claude Code \
+    # Only update if LINEAR_API_KEY is set and MCP not already configured \
+    if [ -n \"$LINEAR_API_KEY\" ] && [ ! -f /home/aimedev/.claude.json ] || ! grep -q mcpServers /home/aimedev/.claude.json 2>/dev/null; then \
+        echo '{\"hasCompletedOnboarding\":true,\"mcpServers\":{\"linear\":{\"type\":\"stdio\",\"command\":\"mcp-linear\",\"args\":[],\"env\":{\"LINEAR_API_KEY\":\"'\"$LINEAR_API_KEY\"'\"}}}}' > /tmp/mcp-config.json && \
+        if [ -f /home/aimedev/.claude.json ]; then \
+            jq -s '.[0] * .[1]' /home/aimedev/.claude.json /tmp/mcp-config.json > /tmp/merged.json && \
+            mv /tmp/merged.json /home/aimedev/.claude.json 2>/dev/null || true; \
+            chown aimedev:aimedev /home/aimedev/.claude.json 2>/dev/null || true; \
+        else \
+            mv /tmp/mcp-config.json /home/aimedev/.claude.json 2>/dev/null || true; \
+            chown aimedev:aimedev /home/aimedev/.claude.json 2>/dev/null || true; \
+        fi; \
     fi && \
     # Run the fix-claude-auth script if it exists (silent mode) \
     if [ -f /aimeup/_scripts/fix-claude-auth.sh ]; then \

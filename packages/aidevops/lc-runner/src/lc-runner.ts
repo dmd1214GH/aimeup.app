@@ -191,11 +191,15 @@ ${issue.description}
       workingFolder: workingFolderPath,
     };
 
+    const testOptions = {
+      testMcpFailure: options.testMcpFailure || false,
+    };
     promptAssembler.assembleMasterPrompt(
       generalPromptPath,
       operationPromptPath,
       replacements,
-      masterPromptPath
+      masterPromptPath,
+      testOptions
     );
     console.log(`Assembled master prompt at: ${masterPromptPath}`);
 
@@ -323,6 +327,20 @@ ${issue.description}
               console.error('Error output:', invocationResult.stderr);
             }
 
+            // Check for specific error conditions
+            if (invocationResult.stderr?.includes('null exit code')) {
+              console.error('\n⚠️  Claude process terminated abnormally');
+              console.error('This can happen if:');
+              console.error('  1. The process was killed (SIGKILL/SIGTERM)');
+              console.error(
+                '  2. The script being run uses "exit" which terminates the parent process'
+              );
+              console.error('  3. Out of memory or other system resource issues');
+              console.error(
+                '\nPlease check the script being executed for any "exit" commands that should be "return" instead.'
+              );
+            }
+
             // Log failure
             const failureEntry = {
               timestamp: OperationLogger.getCurrentTimestamp(),
@@ -396,6 +414,7 @@ if (require.main === module) {
       '--seek-permissions',
       'Seek permission prompts in headed mode (default: skip permissions)'
     )
+    .option('--test-mcp-failure', 'Test MCP failure handling by simulating MCP unavailability')
     .action(runOperation);
 
   // Parse arguments

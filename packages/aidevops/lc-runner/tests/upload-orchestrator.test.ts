@@ -402,4 +402,135 @@ describe('UploadOrchestrator', () => {
       );
     });
   });
+
+  // MCP-related tests removed - MCP integration was removed as it was based on a misunderstanding
+  // MCP tools are only available to Claude Code, not to lc-runner
+  /*
+  describe('MCP integration', () => {
+    beforeEach(() => {
+      mockValidator.validate.mockResolvedValue({
+        isValid: true,
+        errors: [],
+        assets: {
+          updatedIssue: true,
+          operationReports: [
+            'operation-report-Start-001.md',
+            'operation-report-InProgress-002.md',
+            'operation-report-Complete-003.md',
+          ],
+          hasTerminalStatus: true,
+          terminalStatus: 'Complete',
+        },
+      });
+    });
+
+    it('should skip reports already posted via MCP', async () => {
+      // Mark first two reports as already posted via MCP
+      mockMCPIntegration.isReportAlreadyPosted
+        .mockReturnValueOnce(true) // Start report - already posted
+        .mockReturnValueOnce(true) // InProgress report - already posted
+        .mockReturnValueOnce(false); // Complete report - not posted
+
+      const result = await orchestrator.upload(mockOptions);
+
+      // Should only try to upload the third report
+      expect(mockLinearClient.addComment).toHaveBeenCalledTimes(1);
+      expect(mockLinearClient.addComment).toHaveBeenCalledWith(
+        'AM-25',
+        expect.stringContaining('Operation Report')
+      );
+
+      // All reports should be counted as uploaded
+      expect(result.uploadedAssets.comments).toHaveLength(3);
+      expect(result.success).toBe(true);
+
+      // Verify console output for skipped reports
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('Skipped operation-report-Start-001.md (already posted via MCP)')
+      );
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining(
+          'Skipped operation-report-InProgress-002.md (already posted via MCP)'
+        )
+      );
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('2 report(s) already posted via MCP')
+      );
+    });
+
+    it('should handle mix of MCP-posted and new reports', async () => {
+      // Only first report is posted via MCP
+      mockMCPIntegration.isReportAlreadyPosted
+        .mockReturnValueOnce(true) // Start report - already posted
+        .mockReturnValueOnce(false) // InProgress report - not posted
+        .mockReturnValueOnce(false); // Complete report - not posted
+
+      const result = await orchestrator.upload(mockOptions);
+
+      // Should upload two reports (not the first one)
+      expect(mockLinearClient.addComment).toHaveBeenCalledTimes(2);
+      expect(result.uploadedAssets.comments).toHaveLength(3);
+      expect(result.success).toBe(true);
+
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('1 report(s) already posted via MCP')
+      );
+    });
+
+    it('should handle all reports posted via MCP', async () => {
+      // All reports already posted via MCP
+      mockMCPIntegration.isReportAlreadyPosted.mockReturnValue(true);
+
+      const result = await orchestrator.upload(mockOptions);
+
+      // Should not call addComment at all
+      expect(mockLinearClient.addComment).not.toHaveBeenCalled();
+
+      // All reports should still be counted as uploaded
+      expect(result.uploadedAssets.comments).toHaveLength(3);
+      expect(result.success).toBe(true);
+
+      expect(console.log).toHaveBeenCalledWith(
+        expect.stringContaining('3 report(s) already posted via MCP')
+      );
+    });
+
+    it('should handle MCP check errors gracefully', async () => {
+      // Simulate MCP check throwing an error
+      mockMCPIntegration.isReportAlreadyPosted.mockImplementation(() => {
+        throw new Error('MCP check failed');
+      });
+
+      const result = await orchestrator.upload(mockOptions);
+
+      // Should treat as not posted and try to upload normally
+      expect(mockLinearClient.addComment).toHaveBeenCalledTimes(3);
+      expect(result.uploadedAssets.comments).toHaveLength(3);
+
+      // MCP check failure should be logged as a warning, but upload should succeed
+      expect(console.log).toHaveBeenCalledWith(expect.stringContaining('MCP check failed'));
+      expect(result.success).toBe(true);
+    });
+
+    it('should correctly count skipped MCP reports as uploaded', async () => {
+      // Mix of posted and failed uploads
+      mockMCPIntegration.isReportAlreadyPosted
+        .mockReturnValueOnce(true) // Start report - already posted via MCP
+        .mockReturnValueOnce(false) // InProgress report - not posted
+        .mockReturnValueOnce(false); // Complete report - not posted
+
+      // Make the second report fail to upload
+      mockLinearClient.addComment
+        .mockResolvedValueOnce(false) // InProgress report fails
+        .mockResolvedValueOnce(true); // Complete report succeeds
+
+      const result = await orchestrator.upload(mockOptions);
+
+      // 1 skipped (MCP), 1 failed, 1 succeeded = 2 uploaded total
+      expect(result.uploadedAssets.comments).toHaveLength(2);
+      expect(result.success).toBe(false); // Failed because one upload failed
+      expect(result.errors).toContain('Failed to upload 1 comment(s)');
+    });
+  });
+  */
 });

@@ -240,6 +240,91 @@ The tool gracefully handles:
 - Invalid issue IDs (clear error messages)
 - Wrong issue status (prevents operation)
 
+## MCP Integration
+
+### Overview
+
+The lc-runner supports MCP (Model Context Protocol) integration to enable Claude Code to post operation reports directly to Linear as comments during operation execution. This provides real-time visibility of operation progress.
+
+### How It Works
+
+1. **Claude Code Integration**: When Claude Code creates an operation report file, it immediately reads and posts it to Linear via MCP tools
+2. **Immediate Posting**: MCP posting happens immediately after each operation report is written, before continuing with other tasks
+3. **Graceful Fallback**: If MCP tools are not available or posting fails, operations continue without interruption
+4. **Failure Logging**: MCP failures are logged to `issue-operation-log.md` in the issue's parent directory
+5. **Upload Detection**: The upload orchestrator detects reports already posted via MCP and skips re-uploading them
+6. **Local Files Remain**: Operation report files are always created locally as the source of truth
+
+### Configuration
+
+The MCP integration requires:
+
+1. **Linear API Key**: Set the `LINEAR_API_KEY` environment variable with your Linear API token
+2. **MCP Server**: A Linear MCP server that supports environment variable authentication (not the official @modelcontextprotocol/server-linear which requires hardcoded keys)
+3. **Claude Code MCP Setup**: Claude Code must have the Linear MCP server configured and running
+
+### MCP Posting Process
+
+1. Claude Code creates an operation report file (e.g., `operation-report-Start-001.md`)
+2. Claude Code immediately reads the file content
+3. Claude Code posts the content to Linear via MCP (using tools like `mcp__linear__add_comment`)
+4. If posting fails, the failure is logged to `../issue-operation-log.md` with timestamp and error details
+5. Operation continues regardless of MCP success or failure
+
+### MCP Failure Handling
+
+- MCP posting failures do not block operations
+- Failures are logged to the parent directory's `issue-operation-log.md` file with format:
+  ```
+  - [<timestamp>] MCP Failure: Failed to post <action> report for <issue-id>/<operation>. Error: <details>
+  ```
+- Failed posts are not retried (indicates configuration issue requiring investigation)
+- Upload orchestrator will still upload reports that failed MCP posting
+
+### Testing MCP Failures
+
+Use the `--test-mcp-failure` flag to simulate MCP failures:
+
+```bash
+pnpm lc-runner Groom AM-52 --test-mcp-failure
+```
+
+This will:
+
+- Attempt to post all reports to invalid issue ID "INVALID-TEST-999"
+- Log all failures to `issue-operation-log.md`
+- Complete the operation successfully despite failures
+- Validate that MCP failures don't block operations
+
+### Upload Orchestrator Behavior
+
+When uploading operation results:
+
+1. Checks Linear for existing comments containing operation report markers
+2. Skips uploading reports that are already posted as comments
+3. Logs the number of reports skipped due to MCP posting
+4. Uploads any reports not found in Linear comments
+
+### Troubleshooting MCP Integration
+
+**"MCP tools not available"**
+
+- Ensure Claude Code has MCP server configured
+- Verify LINEAR_API_KEY environment variable is set
+- Check that the MCP server supports environment variable authentication
+
+**"MCP posting failed"**
+
+- Check `mcp-failures.log` in the working folder
+- Verify Linear API credentials for MCP server
+- Ensure network connectivity to Linear
+
+**Reports being uploaded twice**
+
+- Check if `.mcp-posted` marker files are being created
+- Verify MCP posting is actually succeeding
+- Ensure upload orchestrator has read access to marker files
+
 ## API Key Not Configured
 
 If the LINEAR_API_KEY is not set, the tool will:

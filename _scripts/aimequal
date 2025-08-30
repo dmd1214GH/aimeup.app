@@ -613,14 +613,10 @@ echo "[DEBUG] Main function completed with exit code: $EXIT_CODE" >> /tmp/aimequ
 trap - SIGINT SIGTERM
 echo "[DEBUG] Traps cleared" >> /tmp/aimequal-debug.log
 
-# Return the exit code without using exit command
-# This prevents hard crashes but preserves the error code for CI/CD
-echo "[DEBUG] About to exit with code: $EXIT_CODE" >> /tmp/aimequal-debug.log
-if [[ $EXIT_CODE -eq 0 ]]; then
-    echo "[DEBUG] Exiting with success" >> /tmp/aimequal-debug.log
-    exit 0
-else
-    # Non-zero exit but don't crash the terminal
-    echo "[DEBUG] Exiting with failure code: $EXIT_CODE" >> /tmp/aimequal-debug.log
-    exit $EXIT_CODE
-fi
+# Simply return the exit code - the script is already wrapped in a function
+# This avoids crashes while preserving the exit code for the caller
+echo "[DEBUG] Script completing with code: $EXIT_CODE" >> /tmp/aimequal-debug.log
+
+# Return the exit code to the caller
+# The caller (bash, CI/CD, Claude, etc.) will handle this appropriately
+(exit $EXIT_CODE)

@@ -34,6 +34,11 @@ alias pnb="pnpm -w build"
 alias web="pnpm -F eatgpt-web dev"
 alias ui="pnpm -F @aimeup/ui -w build"
 
+# Claude backup aliases
+alias claude-backup="$REPO_PATH/_scripts/claude-backup.sh backup"
+alias claude-restore="$REPO_PATH/_scripts/claude-backup.sh restore"
+alias claude-backups="$REPO_PATH/_scripts/claude-backup.sh list"
+
 # Terminal settings
 export EDITOR='vi'
 

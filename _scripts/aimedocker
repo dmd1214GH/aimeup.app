@@ -24,6 +24,10 @@ end tell
 OSA
 fi
 
+# Auto-backup Claude authentication (silent, only if needed)
+"$REPO_PATH/_scripts/claude-backup.sh" auto 2>/dev/null || true
+# To disable: comment out the line above
+
 # Show Docker status
 echo "==================================== Docker Status ===================================="
 
@@ -94,10 +98,10 @@ term-color mediumgray
 
 # Attach to container with interactive zsh shell (with history support)
 # Use exec -it to get an interactive terminal
-# Note: We can't filter stderr here as it would break interactive mode
+# Note: We're using the 'aimedev' user (UID 501) to match host permissions
 # IMPORTANT: Don't exit on error from docker exec to prevent terminal crashes
 set +e
-docker compose -f docker-compose.yml -f docker-compose.claude.yml exec -it aimeup-dev /bin/zsh
+docker compose -f docker-compose.yml -f docker-compose.claude.yml exec -it -u aimedev aimeup-dev /bin/zsh
 DOCKER_EXIT_CODE=$?
 set -e
 

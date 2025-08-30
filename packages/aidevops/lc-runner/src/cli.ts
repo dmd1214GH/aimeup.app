@@ -20,6 +20,7 @@ program
   .option('--claude-timeout <minutes>', 'ClaudeCode timeout in minutes')
   .option('--headed', 'Run Claude in headed/interactive mode')
   .option('--seek-permissions', 'Seek permission prompts in headed mode')
+  .option('--test-mcp-failure', 'Test MCP failure handling by simulating MCP unavailability')
   .option(
     '--upload-only <folderTag>',
     'Upload existing results from working folder (e.g., op-Deliver-20250824060442)'

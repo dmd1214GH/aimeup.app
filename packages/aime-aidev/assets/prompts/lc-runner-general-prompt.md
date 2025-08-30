@@ -40,6 +40,19 @@ You will be required to produce `operation-report-<Action>-XXX.md` files.  Use t
 - Details as needed
 ````
 
+#### MCP Integration for Operation Reports
+**CRITICAL**: You MUST follow this sequence IMMEDIATELY after writing each operation report file, before doing ANY other work:
+1. **Write the operation report file** to disk (operation-report-XXX.md)
+2. **Immediately read the created report file**: Use your Read tool to read the complete content of the operation report you just created
+3. **Immediately post to Linear via MCP**: If MCP tools are available in your environment, post the report content as a comment to the Linear issue RIGHT NOW, before continuing with any other tasks
+4. **Handle MCP failures gracefully**: 
+   - If MCP posting fails, append the failure to the parent directory's `issue-operation-log.md` file
+   - Log format: `- [<timestamp>] MCP Failure: Failed to post <operation-action> report for <issue-id>/<operation>. Error: <error-details>`
+   - The parent directory is one level up from <ArgWorkingFolder> (e.g., if working folder is `/path/lcr-AM-XX/op-Groom-XXX`, log to `/path/lcr-AM-XX/issue-operation-log.md`)
+   - Continue with the operation without interruption
+   - Do not retry failed MCP posts
+4. **MCP posting does not block operations**: Whether MCP succeeds or fails, continue with your operation tasks
+
 #### Failures
 Failures indicate a fatal configuration or processing error.  Processing should not continue. When failures are encountered:
 - Stop processing the operation
@@ -63,6 +76,7 @@ If all pre-checks have passed, create a Starting Operation Report:
 - <operation-action> = `Start`
 - <operationStatus> = `Inprog`
 - `### Understandings`: payload section, briefly recapping the unique objectives of this issue/operation
+- **IMMEDIATELY after writing this report file**: Read it and post to Linear via MCP before continuing with Step 3
 
 
 ### Operation Step FINAL: Finished Operation Report
