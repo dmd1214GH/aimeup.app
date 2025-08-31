@@ -109,20 +109,35 @@ export class UploadOrchestrator {
       this.logUploadStart(options);
 
       // Step 3: Upload operation reports as comments
-      console.log('Uploading operation reports as comments...');
-      const uploadedComments = await this.uploadOperationReports(
-        options,
-        validationResult.assets.operationReports
-      );
-      result.uploadedAssets.comments = uploadedComments;
+      // SUPPRESSED: Comment uploads are now handled by Claude Code MCP integration
+      // This code is preserved for potential future reactivation
+      // To re-enable: set SUPPRESS_COMMENT_UPLOADS env var to 'false' or remove it
+      const suppressCommentUploads = process.env.SUPPRESS_COMMENT_UPLOADS === 'true';
 
-      // Track if any comments failed
-      const allCommentsUploaded =
-        uploadedComments.length === validationResult.assets.operationReports.length;
-      if (!allCommentsUploaded) {
-        result.errors.push(
-          `Failed to upload ${validationResult.assets.operationReports.length - uploadedComments.length} comment(s)`
+      let uploadedComments: string[] = [];
+      let allCommentsUploaded = true;
+
+      if (!suppressCommentUploads) {
+        console.log('Uploading operation reports as comments...');
+        uploadedComments = await this.uploadOperationReports(
+          options,
+          validationResult.assets.operationReports
         );
+        result.uploadedAssets.comments = uploadedComments;
+
+        // Track if any comments failed
+        allCommentsUploaded =
+          uploadedComments.length === validationResult.assets.operationReports.length;
+        if (!allCommentsUploaded) {
+          result.errors.push(
+            `Failed to upload ${validationResult.assets.operationReports.length - uploadedComments.length} comment(s)`
+          );
+        }
+      } else {
+        console.log('Comment uploads suppressed - handled by Claude Code MCP integration');
+        // Mark all comments as "uploaded" for compatibility
+        uploadedComments = validationResult.assets.operationReports;
+        result.uploadedAssets.comments = uploadedComments;
       }
 
       // Step 4: Check MCP save status before updating issue body
@@ -130,11 +145,28 @@ export class UploadOrchestrator {
       let bodyUpdated = false;
 
       if (mcpSaveStatus === 'success') {
-        console.log('Issue body already saved via MCP, skipping redundant upload');
+        console.log('✓ Issue body already saved via Claude Code MCP integration');
+        console.log('  Skipping redundant upload to avoid duplication');
         result.uploadedAssets.issueBody = true;
         bodyUpdated = true;
-      } else {
+      } else if (mcpSaveStatus === 'failed') {
+        console.log('⚠️  MCP save failed in Claude Code, falling back to direct upload');
         console.log('Updating issue body...');
+        bodyUpdated = await this.updateIssueBody(options);
+        result.uploadedAssets.issueBody = bodyUpdated;
+        if (!bodyUpdated) {
+          result.errors.push('Failed to update issue body after MCP failure');
+        }
+      } else if (mcpSaveStatus === 'skipped') {
+        console.log('ℹ️  MCP save was skipped (identical content), proceeding with verification');
+        console.log('Updating issue body...');
+        bodyUpdated = await this.updateIssueBody(options);
+        result.uploadedAssets.issueBody = bodyUpdated;
+        if (!bodyUpdated) {
+          result.errors.push('Failed to update issue body');
+        }
+      } else {
+        console.log('Updating issue body (MCP status: not-triggered or unknown)...');
         bodyUpdated = await this.updateIssueBody(options);
         result.uploadedAssets.issueBody = bodyUpdated;
         if (!bodyUpdated) {
