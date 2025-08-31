@@ -7,6 +7,7 @@ export interface OutputFileReferences {
   comments: string[];
   contextDump?: string;
   operationReports: string[];
+  mcpSaveStatus?: 'success' | 'failed' | 'skipped' | 'not-triggered';
 }
 
 export class OutputManager {
@@ -14,6 +15,49 @@ export class OutputManager {
 
   constructor(workingFolder: string) {
     this.workingFolder = workingFolder;
+  }
+
+  /**
+   * Reads the MCP save status from operation reports
+   * @returns The MCP save status or undefined if not found
+   */
+  getMcpSaveStatus(): 'success' | 'failed' | 'skipped' | 'not-triggered' | undefined {
+    try {
+      // Find all operation-report files
+      const files = fs.readdirSync(this.workingFolder);
+      const reportFiles = files
+        .filter((f) => f.startsWith('operation-report-') && f.endsWith('.md'))
+        .sort((a, b) => {
+          // Extract the sequence number from filenames like operation-report-Action-XXX.md
+          const seqA = parseInt(a.match(/(\d+)\.md$/)?.[1] || '0', 10);
+          const seqB = parseInt(b.match(/(\d+)\.md$/)?.[1] || '0', 10);
+          return seqB - seqA; // Descending order (highest number first)
+        });
+
+      // Check each report for mcpSaveStatus, starting with the latest
+      for (const reportFile of reportFiles) {
+        const reportPath = path.join(this.workingFolder, reportFile);
+        const content = fs.readFileSync(reportPath, 'utf8');
+
+        // Extract JSON from the report
+        const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/);
+        if (jsonMatch) {
+          try {
+            const reportJson = JSON.parse(jsonMatch[1]);
+            if (reportJson.mcpSaveStatus) {
+              return reportJson.mcpSaveStatus;
+            }
+          } catch (e) {
+            // Continue to next report if parsing fails
+          }
+        }
+      }
+
+      return undefined;
+    } catch (error) {
+      console.warn('Error reading MCP save status:', error);
+      return undefined;
+    }
   }
 
   /**
@@ -149,6 +193,12 @@ export class OutputManager {
       summary,
       outputFiles: fileReferences,
     };
+
+    // Include MCP save status if available
+    const mcpSaveStatus = this.getMcpSaveStatus();
+    if (mcpSaveStatus) {
+      report.claudeCodeExecution.mcpSaveStatus = mcpSaveStatus;
+    }
 
     // Write updated report
     fs.writeFileSync(reportPath, JSON.stringify(report, null, 2), 'utf8');

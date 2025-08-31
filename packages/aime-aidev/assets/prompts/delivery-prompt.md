@@ -47,5 +47,10 @@ All of these criteria must be true in order to consider a Delivery operation to 
 
 If all conditions are true, the operation should be identified as a success.
 
+**IMPORTANT**: When creating your Finished operation report with Complete status:
+- You MUST save the updated issue content to Linear via MCP (as described in the general prompt MCP Integration for Issue Content Saving section)
+- This ensures the delivered changes are immediately reflected in the Linear issue
+- The mcpSaveStatus should be included in your Finished operation report
+
 Otherwise, repeat the delivery process to address remaining unfinished work, or end with a BLOCKED status.
 All BLOCKED statuses must be accompanied by BLOCKING QUESTIONS.

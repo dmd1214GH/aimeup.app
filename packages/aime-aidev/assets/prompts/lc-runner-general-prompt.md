@@ -51,7 +51,48 @@ You will be required to produce `operation-report-<Action>-XXX.md` files.  Use t
    - The parent directory is one level up from <ArgWorkingFolder> (e.g., if working folder is `/path/lcr-AM-XX/op-Groom-XXX`, log to `/path/lcr-AM-XX/issue-operation-log.md`)
    - Continue with the operation without interruption
    - Do not retry failed MCP posts
-4. **MCP posting does not block operations**: Whether MCP succeeds or fails, continue with your operation tasks
+5. **MCP posting does not block operations**: Whether MCP succeeds or fails, continue with your operation tasks
+
+#### MCP Integration for Issue Content Saving
+**IMPORTANT**: In addition to posting operation reports, you MUST save the updated issue content to Linear when appropriate:
+
+1. **Save Triggers**: Save the updated issue content to Linear in these situations:
+   - When the operator explicitly requests "save to Linear" or similar command during the operation
+   - Automatically at operation completion (when creating the Finished operation report with status Complete or Blocked)
+
+2. **Content Extraction Process**:
+   - Read the complete content of `<ArgWorkingFolder>/updated-issue.md`
+   - Extract the title from the first `#` heading line
+   - Extract the body by removing:
+     - The first `#` heading line (title)
+     - The `## Metadata` section at the end (if present)
+   - Preserve all other markdown formatting
+
+3. **Idempotent Updates**:
+   - Before saving, check if the content has actually changed
+   - Compare the extracted title and body with what was in `original-issue.md`
+   - Skip the MCP update if content is identical (to avoid unnecessary API calls)
+   - Log skipped updates in the operation report
+
+4. **MCP Tool Usage**:
+   - Use the `mcp__linear__update_issue` tool with:
+     - `id`: The issue ID (<ArgIssueId>)
+     - `title`: The extracted title (if changed from original)
+     - `description`: The cleaned body content
+   - Handle the response and include status in operation reports
+
+5. **Error Handling**:
+   - If MCP save fails, log the error but continue the operation
+   - Append failures to `issue-operation-log.md` in the parent directory
+   - Log format: `- [<timestamp>] MCP Save Failure: Failed to save updated content for <issue-id>. Error: <error-details>`
+   - Include save status in the operation report payload:
+     - `### MCP Save Status`: Success/Failed/Skipped (identical content)
+     - Include error details if failed
+
+6. **Operation Report Integration**:
+   - In the Finished operation report, always include an `mcpSaveStatus` field in the JSON
+   - Possible values: "success", "failed", "skipped", "not-triggered"
+   - Include details in the payload section if save was attempted
 
 #### Failures
 Failures indicate a fatal configuration or processing error.  Processing should not continue. When failures are encountered:

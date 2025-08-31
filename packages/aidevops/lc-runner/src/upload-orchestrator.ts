@@ -4,6 +4,7 @@ import { LinearClient } from './linear-client';
 import { OperationReportGenerator } from './operation-report-generator';
 import { UploadValidator } from './upload-validator';
 import { OperationLogger } from './operation-logger';
+import { OutputManager } from './output-manager';
 import { cleanIssueBody, cleanCommentContent } from './content-cleaner';
 import type { Config } from './types';
 
@@ -40,12 +41,14 @@ export class UploadOrchestrator {
   private validator: UploadValidator;
   private reportGenerator: OperationReportGenerator;
   private operationLogger: OperationLogger;
+  private outputManager: OutputManager;
   private failedUploads: string[] = [];
 
   constructor(workroot: string, workingFolder: string) {
     this.validator = new UploadValidator(workingFolder);
     this.reportGenerator = new OperationReportGenerator(workingFolder);
     this.operationLogger = new OperationLogger(workroot);
+    this.outputManager = new OutputManager(workingFolder);
   }
 
   /**
@@ -122,12 +125,21 @@ export class UploadOrchestrator {
         );
       }
 
-      // Step 4: Update issue body (final mutation)
-      console.log('Updating issue body...');
-      const bodyUpdated = await this.updateIssueBody(options);
-      result.uploadedAssets.issueBody = bodyUpdated;
-      if (!bodyUpdated) {
-        result.errors.push('Failed to update issue body');
+      // Step 4: Check MCP save status before updating issue body
+      const mcpSaveStatus = this.outputManager.getMcpSaveStatus();
+      let bodyUpdated = false;
+
+      if (mcpSaveStatus === 'success') {
+        console.log('Issue body already saved via MCP, skipping redundant upload');
+        result.uploadedAssets.issueBody = true;
+        bodyUpdated = true;
+      } else {
+        console.log('Updating issue body...');
+        bodyUpdated = await this.updateIssueBody(options);
+        result.uploadedAssets.issueBody = bodyUpdated;
+        if (!bodyUpdated) {
+          result.errors.push('Failed to update issue body');
+        }
       }
 
       // Step 5: Update issue status based on terminal status
@@ -385,12 +397,17 @@ export class UploadOrchestrator {
    */
   private logUploadStart(options: UploadOptions): void {
     try {
-      const logEntry = {
+      const mcpSaveStatus = this.outputManager.getMcpSaveStatus();
+      const logEntry: any = {
         timestamp: OperationLogger.getCurrentTimestamp(),
         operation: `${options.operation} - Upload Start`,
         status: 'Starting upload to Linear',
         folderPath: options.workingFolder,
       };
+
+      if (mcpSaveStatus) {
+        logEntry.mcpSaveStatus = mcpSaveStatus;
+      }
 
       this.operationLogger.appendLogEntry(options.issueId, logEntry);
     } catch (error) {

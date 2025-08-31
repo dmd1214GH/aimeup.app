@@ -47,16 +47,17 @@ describe('PromptAssembler', () => {
         outputPath
       );
 
-      const expectedContent =
-        '## General Prompt\n' +
-        'Issue: AM-19\n' +
-        'Operation: Delivery\n' +
-        'Folder: /work/lcr-AM-19/op-Delivery-123\n' +
-        '\n' +
-        '## Operation Instructions\n' +
-        'Specific instructions here\n';
+      const writtenContent = mockFs.writeFileSync.mock.calls[0][1] as string;
 
-      expect(mockFs.writeFileSync).toHaveBeenCalledWith(outputPath, expectedContent, 'utf8');
+      // Check that replacements were made
+      expect(writtenContent).toContain('Issue: AM-19');
+      expect(writtenContent).toContain('Operation: Delivery');
+      expect(writtenContent).toContain('Folder: /work/lcr-AM-19/op-Delivery-123');
+      expect(writtenContent).toContain('## Operation Instructions');
+      expect(writtenContent).toContain('Specific instructions here');
+
+      // Also check that MCP save instructions are included
+      expect(writtenContent).toContain('MCP Integration for Issue Content Saving');
     });
 
     it('should create output directory if missing', () => {
@@ -245,6 +246,163 @@ describe('PromptAssembler', () => {
 
       expect(exists).toBe(false);
       expect(mockFs.existsSync).toHaveBeenCalledWith('/output/master.md');
+    });
+  });
+
+  describe('MCP save instructions', () => {
+    const generalPromptPath = '/prompts/general.md';
+    const operationPromptPath = '/prompts/operation.md';
+    const outputPath = '/output/master-prompt.md';
+    const replacements: PromptReplacements = {
+      issueId: 'AM-54',
+      operation: 'Delivery',
+      workingFolder: '/work/lcr-AM-54/op-Delivery-123',
+    };
+
+    it('should inject MCP save instructions into general prompt', () => {
+      const generalContent =
+        '## General Prompt\n' +
+        '#### MCP Integration for Operation Reports\n' +
+        'MCP report instructions here\n' +
+        '#### Failures\n' +
+        'Failure instructions here\n';
+
+      const operationContent = '## Operation Instructions\n' + 'Specific instructions here\n';
+
+      mockFs.existsSync.mockReturnValue(true);
+      mockFs.readFileSync.mockReturnValueOnce(generalContent).mockReturnValueOnce(operationContent);
+      mockFs.writeFileSync.mockImplementation(() => undefined);
+
+      assembler.assembleMasterPrompt(
+        generalPromptPath,
+        operationPromptPath,
+        replacements,
+        outputPath
+      );
+
+      const writtenContent = mockFs.writeFileSync.mock.calls[0][1] as string;
+
+      // Check that MCP save instructions are present
+      expect(writtenContent).toContain('MCP Integration for Issue Content Saving');
+      expect(writtenContent).toContain('Save Triggers');
+      expect(writtenContent).toContain('Content Extraction Process');
+      expect(writtenContent).toContain('Idempotent Updates');
+      expect(writtenContent).toContain('mcp__linear__update_issue');
+      expect(writtenContent).toContain('AM-54');
+    });
+
+    it('should include MCP save status in operation completion instructions', () => {
+      const generalContent =
+        '## General Prompt\n' +
+        '#### MCP Integration for Operation Reports\n' +
+        'MCP report instructions here\n';
+
+      const operationContent = '## Operation Instructions\n' + 'Content here\n';
+
+      mockFs.existsSync.mockReturnValue(true);
+      mockFs.readFileSync.mockReturnValueOnce(generalContent).mockReturnValueOnce(operationContent);
+      mockFs.writeFileSync.mockImplementation(() => undefined);
+
+      assembler.assembleMasterPrompt(
+        generalPromptPath,
+        operationPromptPath,
+        replacements,
+        outputPath
+      );
+
+      const writtenContent = mockFs.writeFileSync.mock.calls[0][1] as string;
+
+      // Check for operation completion save trigger
+      expect(writtenContent).toContain('Automatically at operation completion');
+      expect(writtenContent).toContain('mcpSaveStatus');
+    });
+
+    it('should include operator command detection instructions', () => {
+      const generalContent =
+        '## General Prompt\n' + '#### MCP Integration for Operation Reports\n' + 'Content here\n';
+
+      const operationContent = '## Operation\nContent';
+
+      mockFs.existsSync.mockReturnValue(true);
+      mockFs.readFileSync.mockReturnValueOnce(generalContent).mockReturnValueOnce(operationContent);
+      mockFs.writeFileSync.mockImplementation(() => undefined);
+
+      assembler.assembleMasterPrompt(
+        generalPromptPath,
+        operationPromptPath,
+        replacements,
+        outputPath
+      );
+
+      const writtenContent = mockFs.writeFileSync.mock.calls[0][1] as string;
+
+      // Check for operator command detection
+      expect(writtenContent).toContain('save to Linear');
+      expect(writtenContent).toContain('operator explicitly requests');
+    });
+  });
+
+  describe('MCP failure test mode', () => {
+    const generalPromptPath = '/prompts/general.md';
+    const operationPromptPath = '/prompts/operation.md';
+    const outputPath = '/output/master-prompt.md';
+    const replacements: PromptReplacements = {
+      issueId: 'AM-54',
+      operation: 'Delivery',
+      workingFolder: '/work/lcr-AM-54/op-Delivery-123',
+    };
+
+    it('should inject MCP failure test instructions when testMcpFailure is true', () => {
+      const generalContent =
+        '## General Prompt\n' +
+        '#### MCP Integration for Operation Reports\n' +
+        'MCP instructions\n' +
+        '### Operation Step 1:\n' +
+        'Steps here\n';
+
+      const operationContent = '## Operation\nContent';
+
+      mockFs.existsSync.mockReturnValue(true);
+      mockFs.readFileSync.mockReturnValueOnce(generalContent).mockReturnValueOnce(operationContent);
+      mockFs.writeFileSync.mockImplementation(() => undefined);
+
+      assembler.assembleMasterPrompt(
+        generalPromptPath,
+        operationPromptPath,
+        replacements,
+        outputPath,
+        { testMcpFailure: true }
+      );
+
+      const writtenContent = mockFs.writeFileSync.mock.calls[0][1] as string;
+
+      // Check that test mode instructions are present
+      expect(writtenContent).toContain('TEST MODE: MCP Failure Simulation');
+      expect(writtenContent).toContain('INVALID-TEST-999');
+      expect(writtenContent).toContain('simulate MCP failures');
+    });
+
+    it('should not inject test instructions when testMcpFailure is false', () => {
+      const generalContent = '## General Prompt\nContent here\n';
+      const operationContent = '## Operation\nContent';
+
+      mockFs.existsSync.mockReturnValue(true);
+      mockFs.readFileSync.mockReturnValueOnce(generalContent).mockReturnValueOnce(operationContent);
+      mockFs.writeFileSync.mockImplementation(() => undefined);
+
+      assembler.assembleMasterPrompt(
+        generalPromptPath,
+        operationPromptPath,
+        replacements,
+        outputPath,
+        { testMcpFailure: false }
+      );
+
+      const writtenContent = mockFs.writeFileSync.mock.calls[0][1] as string;
+
+      // Check that test mode instructions are NOT present
+      expect(writtenContent).not.toContain('TEST MODE: MCP Failure Simulation');
+      expect(writtenContent).not.toContain('INVALID-TEST-999');
     });
   });
 });

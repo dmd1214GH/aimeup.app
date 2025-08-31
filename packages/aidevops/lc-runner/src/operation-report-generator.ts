@@ -12,6 +12,7 @@ export interface OperationReportData {
   timestamp?: string;
   summary: string;
   payload?: string;
+  mcpSaveStatus?: 'success' | 'failed' | 'skipped' | 'not-triggered';
 }
 
 /**
@@ -86,7 +87,7 @@ export class OperationReportGenerator {
    * @returns The formatted markdown content
    */
   private formatReportContent(data: OperationReportData): string {
-    const jsonData = {
+    const jsonData: any = {
       issueId: data.issueId,
       operation: data.operation,
       action: data.action,
@@ -95,6 +96,11 @@ export class OperationReportGenerator {
       timestamp: data.timestamp,
       summary: data.summary,
     };
+
+    // Include mcpSaveStatus if present (typically for Finished reports)
+    if (data.mcpSaveStatus) {
+      jsonData.mcpSaveStatus = data.mcpSaveStatus;
+    }
 
     let content = `## operation-report-json
 \`\`\`json
