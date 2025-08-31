@@ -111,8 +111,8 @@ export class UploadOrchestrator {
       // Step 3: Upload operation reports as comments
       // SUPPRESSED: Comment uploads are now handled by Claude Code MCP integration
       // This code is preserved for potential future reactivation
-      // To re-enable: set SUPPRESS_COMMENT_UPLOADS env var to 'false' or remove it
-      const suppressCommentUploads = process.env.SUPPRESS_COMMENT_UPLOADS === 'true';
+      // To re-enable: uncomment the code block below
+      const suppressCommentUploads = true; // Hard-coded suppression
 
       let uploadedComments: string[] = [];
       let allCommentsUploaded = true;

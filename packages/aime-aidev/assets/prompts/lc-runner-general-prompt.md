@@ -126,7 +126,3 @@ As the final step of the operation, after the operation-specific instructions (a
 - <operationStatus> = Either Blocked (if any blockers were encountered) or Complete, if all tasks completed successfully
 - `### Operation Summary`: If any tasks didn't work out as planned, note the here.  Include a very brief summary of accomplishments achieved during the operation.
 - `### Process Feedback`: If problems were encountered during the operation which could have been avoided by process improvements, identify them in a Process Feedback paylod section.  Otherwise, omit this section
-
-Then, dump context to `<ArgWorkingFolder>/context.dump.md`:
-- Objective is to enable re-entry if needed with maximal context
-- Include maximal detail

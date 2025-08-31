@@ -156,15 +156,8 @@ describe('UploadOrchestrator', () => {
       expect(result.uploadedAssets.statusUpdate).toBe(true);
     });
 
-    it('should upload operation reports as comments', async () => {
-      await orchestrator.upload(mockOptions);
-
-      expect(mockLinearClient.addComment).toHaveBeenCalledTimes(2);
-      expect(mockLinearClient.addComment).toHaveBeenCalledWith(
-        'AM-25',
-        '## Operation Report\nTest content'
-      );
-    });
+    // Test removed: Comment uploads are now handled by Claude Code MCP integration
+    // and no longer tested here
 
     it('should update issue body', async () => {
       await orchestrator.upload(mockOptions);
@@ -237,10 +230,11 @@ describe('UploadOrchestrator', () => {
       expect(result.failureReportFilename).toBe('operation-report-UploadPrecheck-001.md');
     });
 
-    it('should upload precheck failure report', async () => {
+    it('should generate precheck failure report', async () => {
       await orchestrator.upload(mockOptions);
 
       expect(mockValidator.generatePrecheckFailureReport).toHaveBeenCalled();
+      // Comment upload for failure reports still happens but will be removed in future
       expect(mockLinearClient.addComment).toHaveBeenCalledWith(
         'AM-25',
         expect.stringContaining('Operation Report')
@@ -268,17 +262,8 @@ describe('UploadOrchestrator', () => {
       });
     });
 
-    it('should continue on comment upload failure', async () => {
-      mockLinearClient.addComment.mockResolvedValueOnce(false);
-
-      const result = await orchestrator.upload(mockOptions);
-
-      expect(result.success).toBe(false); // Failed because comment upload failed
-      expect(result.uploadedAssets.comments).toEqual([]);
-      expect(result.uploadedAssets.issueBody).toBe(true);
-      expect(result.uploadedAssets.statusUpdate).toBe(true);
-      expect(result.errors).toContain('Failed to upload 1 comment(s)');
-    });
+    // Test removed: Comment upload failures are no longer relevant since
+    // comments are handled by Claude Code MCP integration
 
     it('should handle issue body update failure', async () => {
       mockLinearClient.updateIssueBody.mockResolvedValue(false);

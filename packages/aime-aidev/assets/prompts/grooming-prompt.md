@@ -4,17 +4,21 @@
 Include this check with the standard pre-check tests
 - [ ] `<ArgWorkingFolder>/updated-issue.md` contains a clearly stated Requirement(s) that are in a condition to begin or continue grooming
 
+> **⚠️ Verify, Don't Assume**: If requirements mention specific tools, packages, or capabilities, test them during grooming. Unverified assumptions lead to blocked tasks.
+
 ### Step 3: Assist operator with grooming the story
 **Grooming Rules**
 - Work with the operator to refine the issue defined in `updated-issue.md`
 - Update `updated-issue.md` directly as the conversation progresses.  Do not wait until the end of the conversation to update the document.
 - Find structure and standard guidance in the `#### Template` below.  
 - Never remove content without approval.
+- **No strikethrough text**: Never use strikethrough formatting as it confuses the tasking process. Convert completed work to "Prior Work" section or Assumptions instead.
 
 
 **Approach issue level grooming in these phases:**
 Phase 1. Crystal clear **understanding of the requirements**.
   - Ensure wording is not vague or ambiguous.
+  - **Verify technical assumptions**: Test that any mentioned tools/packages/APIs actually exist and work as described
   - Refine through active conversation before proceeding.
   - Capture scope boundaries
   - Capture solution ideas
@@ -44,19 +48,25 @@ Groomed issues should be presented in this standard format:
 - Requirement Standards
   - Tightly stated (brief and well written)
   - Clear and unambiguous
+  - **Avoid implementation specifics** - State WHAT needs to be done, not HOW
+    - ❌ Bad: "Create a new specialized subagent type called operation-reporter"
+    - ✅ Good: "Use a subagent to handle operation reports atomically"
+    - Let the delivery phase determine specific implementation details
   - Not unnecessarily technical or overly specific.  Keep them as requirements.
 
 ## Blocking Questions
-- List the open questions and related discussions.
-- As questions are answered and incorporated into the issue definition, remove them from this list.  
+- List the open questions and related discussions during grooming
+- As questions are answered and incorporated into the issue definition, remove them from this list
 - Any TODO mentioned in this document should have a related question logged here about it
-- When no questions remain, simply add the text "No outstanding questions"
+- **IMPORTANT**: When grooming is complete, this section must contain ONLY the text "No outstanding questions"
+- Do NOT leave resolved questions in the document as they confuse the implementation phase
 
 ## Process Flows
 - Well-organized, hierarchical bullets suggesting how the technical solution might be laid out within the existing aimeup architecture.
 - Reference new or changed components and how they flow together.
 - Consider external tools or packages that should be considered
 - Validate unknowns with small proofs-of-concept and consult documentation to refine details
+- **Test critical dependencies during grooming** - don't assume capabilities exist
 - Process Flows Standards
   - Use "```fenceposts" to show code or configuration samples.  But use sparingly.  We are not developing the solution here.
   - Reference existing components or documents directly using `singleBackTic` marks
@@ -100,4 +110,5 @@ All of these criteria must be true in order to consider a tasking operation to b
 - [ ] There are no Blocking Questions, and the Blocking Questions section indicates that no blocking questions remain.
 - [ ] Operator agrees that grooming is complete and the issue should move along to `Tasking`
 - [ ] There are no Breakout Issues listed in the document.  All breakout issues have been broken out into their own issues, and those sections have been removed from the issue
+- [ ] Technical dependencies have been verified (tools, packages, APIs exist and work as needed)
 
