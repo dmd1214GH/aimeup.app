@@ -44,6 +44,7 @@ Groomed issues should be presented in this standard format:
 - Requirement Standards
   - Tightly stated (brief and well written)
   - Clear and unambiguous
+  - Not unnecessarily technical or overly specific.  Keep them as requirements.
 
 ## Blocking Questions
 - List the open questions and related discussions.
