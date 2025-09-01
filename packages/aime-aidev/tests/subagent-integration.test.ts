@@ -119,7 +119,7 @@ describe('Subagent Integration', () => {
       expect(content).toContain('#### Subagent Integration for Operation Reports');
       expect(content).toContain('lc-operation-reporter subagent');
       expect(content).toContain('Use the Task tool');
-      expect(content).toContain('subagent_type="general-purpose"');
+      expect(content).toContain('subagent_type="lc-operation-reporter"');
 
       // Should not contain old MCP instructions
       expect(content).not.toContain('#### MCP Integration for Operation Reports');

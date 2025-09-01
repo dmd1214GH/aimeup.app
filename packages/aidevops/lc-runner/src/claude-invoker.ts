@@ -56,15 +56,15 @@ export class ClaudeInvoker {
 
     // Build command arguments based on mode
     const args: string[] = [];
-    
+
     if (!headed) {
       args.push('--print');
     }
-    
+
     if (skipPermissions) {
       args.push('--dangerously-skip-permissions');
     }
-    
+
     if (!headed && process.env.VERBOSE) {
       args.push('--verbose');
     }
@@ -165,7 +165,9 @@ export class ClaudeInvoker {
           resolve({
             exitCode: 1,
             stdout: headed ? 'Interactive mode - output shown in terminal' : stdout,
-            stderr: headed ? 'Process terminated abnormally with null exit code' : (stderr || 'Process terminated abnormally with null exit code'),
+            stderr: headed
+              ? 'Process terminated abnormally with null exit code'
+              : stderr || 'Process terminated abnormally with null exit code',
             success: false,
           });
         } else {
@@ -185,14 +187,14 @@ export class ClaudeInvoker {
         if (timeoutHandle) {
           clearTimeout(timeoutHandle);
         }
-        
+
         if (headed) {
           console.error('─'.repeat(60));
           console.error('Claude process error:', error.message);
         } else {
           console.error(`[ClaudeInvoker] Process error: ${error.message}`);
         }
-        
+
         resolve({
           exitCode: 1,
           stdout: headed ? '' : stdout,

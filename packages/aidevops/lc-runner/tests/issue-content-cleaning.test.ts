@@ -1,4 +1,3 @@
-
 describe('Issue Content Cleaning for Linear Upload', () => {
   describe('Content Extraction from updated-issue.md', () => {
     it('should extract title from first # heading line', () => {
@@ -17,10 +16,12 @@ Convert the unreliable MCP-based Linear upload process to a more reliable subage
 
       const lines = issueContent.split('\n');
       const titleLine = lines[0];
-      
+
       // Extract title by removing the # prefix
       const title = titleLine.replace(/^#\s+/, '');
-      expect(title).toBe('LCR2: Convert operation-report creation and upload to a Claude Code Subagent');
+      expect(title).toBe(
+        'LCR2: Convert operation-report creation and upload to a Claude Code Subagent'
+      );
     });
 
     it('should remove title line from body content', () => {
@@ -33,11 +34,11 @@ Convert the unreliable MCP-based Linear upload process to a more reliable subage
 * **Subagent Pattern Establishment**`;
 
       const lines = issueContent.split('\n');
-      
+
       // Remove the first line (title)
       const bodyLines = lines.slice(1);
       const body = bodyLines.join('\n').trim();
-      
+
       // Body should NOT contain the title
       expect(body).not.toContain('# LCR2:');
       expect(body.startsWith('Convert the unreliable MCP-based')).toBe(true);
@@ -56,10 +57,10 @@ Convert the unreliable MCP-based Linear upload process to a more reliable subage
 - Status: Delivery-ai`;
 
       const lines = issueContent.split('\n');
-      
+
       // Find metadata section
-      const metadataIndex = lines.findIndex(line => line.trim() === '## Metadata');
-      
+      const metadataIndex = lines.findIndex((line) => line.trim() === '## Metadata');
+
       let bodyLines;
       if (metadataIndex !== -1) {
         // Remove title (first line) and everything from metadata onwards
@@ -68,9 +69,9 @@ Convert the unreliable MCP-based Linear upload process to a more reliable subage
         // Just remove title
         bodyLines = lines.slice(1);
       }
-      
+
       const body = bodyLines.join('\n').trim();
-      
+
       // Body should NOT contain metadata
       expect(body).not.toContain('## Metadata');
       expect(body).not.toContain('- URL:');
@@ -99,14 +100,14 @@ Convert the unreliable MCP-based Linear upload process to a more reliable subage
 - Priority: No priority`;
 
       const lines = issueContent.split('\n');
-      
+
       // Extract title
       const titleLine = lines[0];
       const title = titleLine.replace(/^#\s+/, '');
-      
+
       // Find metadata section
-      const metadataIndex = lines.findIndex(line => line.trim() === '## Metadata');
-      
+      const metadataIndex = lines.findIndex((line) => line.trim() === '## Metadata');
+
       // Extract body (remove title and metadata)
       let bodyLines;
       if (metadataIndex !== -1) {
@@ -114,17 +115,19 @@ Convert the unreliable MCP-based Linear upload process to a more reliable subage
       } else {
         bodyLines = lines.slice(1);
       }
-      
+
       const body = bodyLines.join('\n').trim();
-      
+
       // Verify title extraction
-      expect(title).toBe('LCR2: Convert operation-report creation and upload to a Claude Code Subagent');
-      
+      expect(title).toBe(
+        'LCR2: Convert operation-report creation and upload to a Claude Code Subagent'
+      );
+
       // Verify body has no title or metadata
       expect(body).not.toContain('# LCR2:');
       expect(body).not.toContain('## Metadata');
       expect(body).not.toContain('- URL:');
-      
+
       // Verify body contains the actual content
       expect(body).toContain('Convert the unreliable MCP-based');
       expect(body).toContain('## Requirements');
@@ -142,20 +145,18 @@ This is a simple issue without metadata section.
 * Do something`;
 
       const lines = issueContent.split('\n');
-      
+
       // Extract title
       const title = lines[0].replace(/^#\s+/, '');
-      
+
       // Find metadata (won't exist)
-      const metadataIndex = lines.findIndex(line => line.trim() === '## Metadata');
-      
+      const metadataIndex = lines.findIndex((line) => line.trim() === '## Metadata');
+
       // Extract body
-      const bodyLines = metadataIndex !== -1 
-        ? lines.slice(1, metadataIndex)
-        : lines.slice(1);
-      
+      const bodyLines = metadataIndex !== -1 ? lines.slice(1, metadataIndex) : lines.slice(1);
+
       const body = bodyLines.join('\n').trim();
-      
+
       expect(title).toBe('Simple Issue Title');
       expect(body).toBe(`This is a simple issue without metadata section.
 
@@ -180,11 +181,11 @@ Some content
 This shouldn't happen but let's handle it`;
 
       const lines = issueContent.split('\n');
-      
+
       // In this case, we should still remove metadata section
       // but the spec says "at the end" so this tests robustness
-      const metadataIndex = lines.findIndex(line => line.trim() === '## Metadata');
-      
+      const metadataIndex = lines.findIndex((line) => line.trim() === '## Metadata');
+
       // For safety, find where metadata section ends
       let metadataEndIndex = -1;
       if (metadataIndex !== -1) {
@@ -199,7 +200,7 @@ This shouldn't happen but let's handle it`;
           metadataEndIndex = lines.length;
         }
       }
-      
+
       // This is a more complex case - the prompt says "at the end"
       // So technically this wouldn't be removed, but good to test
       expect(metadataIndex).toBeGreaterThan(-1);
@@ -224,22 +225,20 @@ Updated description with more content
 
       // Simulate the cleaning as per prompt instructions
       const lines = updatedIssue.split('\n');
-      
+
       // Extract for MCP tool
       const title = lines[0].replace(/^#\s+/, '');
-      const metadataIndex = lines.findIndex(line => line.trim() === '## Metadata');
-      const bodyLines = metadataIndex !== -1 
-        ? lines.slice(1, metadataIndex)
-        : lines.slice(1);
+      const metadataIndex = lines.findIndex((line) => line.trim() === '## Metadata');
+      const bodyLines = metadataIndex !== -1 ? lines.slice(1, metadataIndex) : lines.slice(1);
       const description = bodyLines.join('\n').trim();
-      
+
       // This is what should be passed to mcp__linear__update_issue
       const mpcParams = {
         id: 'TEST-1', // Would come from ArgIssueId
         title: title,
-        description: description
+        description: description,
       };
-      
+
       expect(mpcParams.title).toBe('Updated Title');
       expect(mpcParams.description).toBe(`Updated description with more content
 
@@ -247,7 +246,7 @@ Updated description with more content
 
 * Item 1
 * Item 2`);
-      
+
       // Verify no title or metadata in description
       expect(mpcParams.description).not.toContain('# Updated Title');
       expect(mpcParams.description).not.toContain('## Metadata');
