@@ -43,7 +43,7 @@ You will be required to produce `operation-report-<Action>-XXX.md` files.  Use t
 
 #### Subagent Integration for Operation Reports
 **CRITICAL**: You MUST use the lc-operation-reporter subagent for ALL operation report creation:
-1. **Use the Task tool** to invoke the lc-operation-reporter subagent with subagent_type="general-purpose"
+1. **Use the Task tool** to invoke the lc-operation-reporter subagent with subagent_type="lc-operation-reporter"
 2. **Provide all required parameters** to the subagent:
    - issueId: <ArgIssueId>
    - operation: <ArgOperation>
@@ -100,9 +100,8 @@ You will be required to produce `operation-report-<Action>-XXX.md` files.  Use t
 #### Failures
 Failures indicate a fatal configuration or processing error.  Processing should not continue. When failures are encountered:
 - Stop processing the operation
-- Create an `operation-report-XXX.md` 
-- operationStatus = "Failed"
-- Additional details are required in the report
+- Use the lc-operation-reporter subagent to create a failure report with operationStatus = "Failed"
+- Additional details are required in the report payload
 
 #### Blockers
 Blockers are unclear or incomplete requirements for performing the operation.  Individual tasks missing requirements may be blocked, but non-dependent tasks may still be completed

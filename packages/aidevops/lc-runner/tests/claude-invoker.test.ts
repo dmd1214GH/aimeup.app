@@ -53,8 +53,7 @@ describe('ClaudeInvoker', () => {
     it('should successfully invoke ClaudeCode with --print flag', async () => {
       mockFs.existsSync.mockReturnValue(true);
       mockFs.readFileSync.mockReturnValue('Test prompt content');
-      (mockFs.writeFileSync as jest.Mock).mockImplementation(() => {}); // Mock writing temp file
-      (mockFs.unlinkSync as jest.Mock).mockImplementation(() => {}); // Mock cleanup
+      // No temp file mocking needed - using direct file reference
 
       const mockProcess = new EventEmitter() as any;
       mockProcess.stdout = new EventEmitter();
@@ -80,9 +79,7 @@ describe('ClaudeInvoker', () => {
         [
           '--print',
           '--dangerously-skip-permissions',
-          expect.stringContaining(
-            'Please read and execute the instructions in /tmp/claude-prompt-'
-          ),
+          'Please read and execute the instructions in /path/to/prompt.md',
         ],
         {
           stdio: ['pipe', 'pipe', 'pipe'],
@@ -100,8 +97,7 @@ describe('ClaudeInvoker', () => {
     it('should handle ClaudeCode execution failure', async () => {
       mockFs.existsSync.mockReturnValue(true);
       mockFs.readFileSync.mockReturnValue('Test prompt content');
-      (mockFs.writeFileSync as jest.Mock).mockImplementation(() => {}); // Mock writing temp file
-      (mockFs.unlinkSync as jest.Mock).mockImplementation(() => {}); // Mock cleanup
+      // No temp file mocking needed - using direct file reference
 
       const mockProcess = new EventEmitter() as any;
       mockProcess.stdout = new EventEmitter();
@@ -130,8 +126,7 @@ describe('ClaudeInvoker', () => {
     it('should handle spawn error', async () => {
       mockFs.existsSync.mockReturnValue(true);
       mockFs.readFileSync.mockReturnValue('Test prompt content');
-      (mockFs.writeFileSync as jest.Mock).mockImplementation(() => {}); // Mock writing temp file
-      (mockFs.unlinkSync as jest.Mock).mockImplementation(() => {}); // Mock cleanup
+      // No temp file mocking needed - using direct file reference
 
       const mockProcess = new EventEmitter() as any;
       mockProcess.stdout = new EventEmitter();

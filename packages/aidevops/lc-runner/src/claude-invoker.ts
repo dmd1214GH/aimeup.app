@@ -47,10 +47,33 @@ export class ClaudeInvoker {
       });
     }
 
-    // If in headed mode, run interactively but pipe the prompt content
-    if (headed) {
-      const promptContent = fs.readFileSync(masterPromptPath, 'utf8');
+    // Read prompt content for size reporting
+    const promptContent = fs.readFileSync(masterPromptPath, 'utf8');
 
+    // Common setup
+    console.log('Using direct file reference (optimization: no temp file created)');
+    const readFileInstruction = `Please read and execute the instructions in ${masterPromptPath}`;
+
+    // Build command arguments based on mode
+    const args: string[] = [];
+    
+    if (!headed) {
+      args.push('--print');
+    }
+    
+    if (skipPermissions) {
+      args.push('--dangerously-skip-permissions');
+    }
+    
+    if (!headed && process.env.VERBOSE) {
+      args.push('--verbose');
+    }
+
+    // Add the file read instruction to args
+    args.push(readFileInstruction);
+
+    // Mode-specific logging
+    if (headed) {
       console.log('\n╔════════════════════════════════════════════════════════╗');
       console.log('║     Running Claude in HEADED/INTERACTIVE mode         ║');
       console.log('╚════════════════════════════════════════════════════════╝');
@@ -60,130 +83,40 @@ export class ClaudeInvoker {
       console.log('\nStarting Claude with piped prompt content...');
       console.log('You will see the Claude interface directly.');
       console.log('─'.repeat(60));
-
-      // Build command arguments WITHOUT --print for interactive mode
-      const args = [];
-      if (skipPermissions) {
-        args.push('--dangerously-skip-permissions');
-      }
-
       console.log(
         `Running Claude with flags: ${skipPermissions ? '--dangerously-skip-permissions' : '(no flags)'}`
       );
       console.log('Note: Type "exit" or press Ctrl+D when tasks are complete.');
-
-      // Write prompt to a temporary file for headed mode
-      const tmpPromptFile = `/tmp/claude-prompt-${Date.now()}.md`;
-      fs.writeFileSync(tmpPromptFile, promptContent);
-
-      // Run Claude interactively with instruction to read the prompt file
-      const readFileInstruction = `Please read and execute the instructions in ${tmpPromptFile}`;
-      console.log('Starting Claude with file read instruction...');
-      console.log(`Prompt file: ${tmpPromptFile} (${promptContent.length} characters)`);
-
-      const claudeProcess = spawn(this.claudePath, [...args, readFileInstruction], {
-        stdio: 'inherit', // Full TTY passthrough for interactive mode
-        env: { ...process.env },
-        shell: false,
-      });
-
-      // Clean up temp file after Claude exits
-      claudeProcess.on('exit', () => {
-        setTimeout(() => {
-          try {
-            fs.unlinkSync(tmpPromptFile);
-            console.log(`Cleaned up temp file: ${tmpPromptFile}`);
-          } catch (e) {
-            // Ignore cleanup errors
-          }
-        }, 1000);
-      });
-
-      return new Promise((resolve) => {
-        claudeProcess.on('close', (code) => {
-          console.log('─'.repeat(60));
-
-          // Handle null exit code (process was killed or terminated abnormally)
-          if (code === null) {
-            console.log(`Claude process terminated abnormally (exit code: null)`);
-            console.log(`This may happen if the process was killed or crashed`);
-            resolve({
-              exitCode: 1,
-              stdout: 'Interactive mode - output shown in terminal',
-              stderr: 'Process terminated abnormally with null exit code',
-              success: false,
-            });
-          } else {
-            console.log(`Claude process exited with code ${code}`);
-            resolve({
-              exitCode: code || 0,
-              stdout: 'Interactive mode - output shown in terminal',
-              stderr: code !== 0 ? `Process exited with code ${code}` : '',
-              success: code === 0,
-            });
-          }
-        });
-
-        claudeProcess.on('error', (error) => {
-          console.error('─'.repeat(60));
-          console.error('Claude process error:', error.message);
-          resolve({
-            stdout: '',
-            stderr: error.message,
-            success: false,
-          });
-        });
-      });
-    }
-
-    // Original headless mode with --print flag
-    return new Promise((resolve) => {
-      // Read the master prompt content
-      const promptContent = fs.readFileSync(masterPromptPath, 'utf8');
-
-      // Write prompt to a temporary file for headless mode too
-      const tmpPromptFile = `/tmp/claude-prompt-${Date.now()}.md`;
-      fs.writeFileSync(tmpPromptFile, promptContent);
-
-      // Build args for headless mode
-      const args = ['--print'];
-      if (skipPermissions) {
-        args.push('--dangerously-skip-permissions');
-      }
-      // Add verbose flag to potentially see more output
-      if (process.env.VERBOSE) {
-        args.push('--verbose');
-      }
-
-      // Use file read instruction for headless mode too
-      const readFileInstruction = `Please read and execute the instructions in ${tmpPromptFile}`;
-
+    } else {
       console.log(`\n╔════════════════════════════════════════════════════════╗`);
       console.log(`║     Starting Claude in HEADLESS mode (automated)      ║`);
       console.log(`╚════════════════════════════════════════════════════════╝`);
-      console.log(`Prompt file: ${tmpPromptFile} (${promptContent.length} characters)`);
-      console.log(`Using flags: ${args.join(' ')}`);
+      console.log(`Prompt file: ${masterPromptPath} (${promptContent.length} characters)`);
+      console.log(`Using flags: ${args.slice(0, -1).join(' ')}`); // Don't show the instruction in flags
       if (timeoutMs) {
         console.log(`Timeout: ${timeoutMs / 60000} minutes`);
       } else {
         console.log(`Timeout: None (will run until completion)`);
       }
+      console.log(`Claude reading prompt from: ${masterPromptPath}`);
+      console.log(`─`.repeat(60));
+    }
 
-      // Spawn ClaudeCode process with file read instruction
-      args.push(readFileInstruction);
-      const claudeProcess = spawn(this.claudePath, args, {
-        stdio: ['pipe', 'pipe', 'pipe'], // Explicitly set stdio for pipes
-        env: { ...process.env },
-        shell: false,
-      });
+    // Spawn ClaudeCode process with appropriate stdio configuration
+    const claudeProcess = spawn(this.claudePath, args, {
+      stdio: headed ? 'inherit' : ['pipe', 'pipe', 'pipe'],
+      env: { ...process.env },
+      shell: false,
+    });
 
+    return new Promise((resolve) => {
       let stdout = '';
       let stderr = '';
       let processExited = false;
-
-      // Set timeout if provided
       let timeoutHandle: NodeJS.Timeout | undefined;
-      if (timeoutMs) {
+
+      // Set timeout if provided (headless only)
+      if (!headed && timeoutMs) {
         timeoutHandle = setTimeout(() => {
           if (!processExited) {
             console.error(`\nClaudeCode timed out after ${timeoutMs / 60000} minutes`);
@@ -198,26 +131,23 @@ export class ClaudeInvoker {
         }, timeoutMs);
       }
 
-      // Capture stdout and stream to console in real-time
-      claudeProcess.stdout.on('data', (data) => {
-        const chunk = data.toString();
-        stdout += chunk;
-        // Stream output to console in real-time
-        process.stdout.write(chunk);
-      });
+      // Handle stdout/stderr for headless mode
+      if (!headed) {
+        claudeProcess.stdout?.on('data', (data) => {
+          const chunk = data.toString();
+          stdout += chunk;
+          process.stdout.write(chunk);
+        });
 
-      // Capture stderr and show errors
-      claudeProcess.stderr.on('data', (data) => {
-        const chunk = data.toString();
-        stderr += chunk;
-        // Show errors in real-time
-        process.stderr.write(chunk);
-      });
+        claudeProcess.stderr?.on('data', (data) => {
+          const chunk = data.toString();
+          stderr += chunk;
+          process.stderr.write(chunk);
+        });
 
-      // Don't write to stdin - prompt is passed via file instruction
-      console.log(`Claude reading prompt from: ${tmpPromptFile}`);
-      console.log(`─`.repeat(60));
-      claudeProcess.stdin.end();
+        // Close stdin as we're passing prompt via file instruction
+        claudeProcess.stdin?.end();
+      }
 
       // Handle process completion
       claudeProcess.on('close', (code) => {
@@ -225,20 +155,7 @@ export class ClaudeInvoker {
         if (timeoutHandle) {
           clearTimeout(timeoutHandle);
         }
-        // Clean up temp file
-        const cleanupTimer = setTimeout(() => {
-          try {
-            fs.unlinkSync(tmpPromptFile);
-            // Only log in non-test environments
-            if (process.env.NODE_ENV !== 'test') {
-              console.log(`Cleaned up temp file: ${tmpPromptFile}`);
-            }
-          } catch (e) {
-            // Ignore cleanup errors
-          }
-        }, 1000);
-        // Unref the timer so it doesn't keep the process alive
-        cleanupTimer.unref();
+
         console.log(`─`.repeat(60));
 
         // Handle null exit code (process was killed or terminated abnormally)
@@ -247,16 +164,16 @@ export class ClaudeInvoker {
           console.log(`This may happen if the process was killed or crashed`);
           resolve({
             exitCode: 1,
-            stdout,
-            stderr: stderr || 'Process terminated abnormally with null exit code',
+            stdout: headed ? 'Interactive mode - output shown in terminal' : stdout,
+            stderr: headed ? 'Process terminated abnormally with null exit code' : (stderr || 'Process terminated abnormally with null exit code'),
             success: false,
           });
         } else {
           console.log(`Claude process exited with code ${code}`);
           resolve({
             exitCode: code || 0,
-            stdout,
-            stderr,
+            stdout: headed ? 'Interactive mode - output shown in terminal' : stdout,
+            stderr: headed ? (code !== 0 ? `Process exited with code ${code}` : '') : stderr,
             success: code === 0,
           });
         }
@@ -268,11 +185,18 @@ export class ClaudeInvoker {
         if (timeoutHandle) {
           clearTimeout(timeoutHandle);
         }
-        console.error(`[ClaudeInvoker] Process error: ${error.message}`);
+        
+        if (headed) {
+          console.error('─'.repeat(60));
+          console.error('Claude process error:', error.message);
+        } else {
+          console.error(`[ClaudeInvoker] Process error: ${error.message}`);
+        }
+        
         resolve({
           exitCode: 1,
-          stdout,
-          stderr: `Failed to spawn ClaudeCode process: ${error.message}`,
+          stdout: headed ? '' : stdout,
+          stderr: headed ? error.message : `Failed to spawn ClaudeCode process: ${error.message}`,
           success: false,
         });
       });

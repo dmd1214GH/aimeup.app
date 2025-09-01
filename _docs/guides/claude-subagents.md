@@ -4,6 +4,8 @@
 
 Claude Code subagents are specialized AI agents that can be invoked from the main Claude Code session to perform specific, atomic tasks. This pattern enables better modularity, reliability, and maintainability of AI-driven operations.
 
+https://docs.anthropic.com/en/docs/claude-code/sub-agents
+
 ## Subagent Architecture
 
 ### Directory Structure
