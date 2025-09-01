@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { OperationReportGenerator } from './operation-report-generator';
-import { LinearClient } from './linear-client';
+import type { LinearClient } from './linear-client';
 import type { Config } from './types';
 
 export interface ValidationResult {

@@ -110,7 +110,7 @@ export async function runOperation(operation: string, issueId: string, options: 
 
     // Extract issue body from Linear
     console.log(`Extracting issue body from Linear...`);
-    let issueBody = '';
+    // let issueBody = '';
 
     try {
       const issue = await linearClient.getIssue(issueId);
@@ -141,7 +141,7 @@ ${issue.description}
       console.log(`Created working copy at: ${updatedIssuePath}`);
 
       // Store for use in prompt
-      issueBody = fullIssueContent;
+      // issueBody = fullIssueContent;
 
       // Log successful extraction
       const extractionLogEntry = {

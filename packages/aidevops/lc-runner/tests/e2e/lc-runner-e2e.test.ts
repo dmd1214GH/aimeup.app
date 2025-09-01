@@ -13,7 +13,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 describe.skip('lc-runner E2E Tests', () => {
   let testWorkspace: string;
-  let originalEnv: NodeJS.ProcessEnv;
+  let originalEnv: typeof process.env;
   let mockLinearServer: MockLinearAPIServer;
   let mockClaudePath: string;
 

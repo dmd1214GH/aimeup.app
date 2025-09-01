@@ -4,14 +4,16 @@
 Include these check with the standard pre-check tests
 - [ ] `updated-issue.md` contains a clearly stated and actionable Task List, and along with clear, achievable requirement.
 - [ ] ensure `git status` is clean (no pending commits)
-- [ ] confirm that the standard health-check `<repo-root>/_scripts/aimequal` (Jest, Prettier, Lint, Playwright) completes fully and successfully
+- [ ] Run the aimequal-runner subagent, then summarize results and confirm all tests pass
 - [ ] Read `<repo-root>/_docs/guides/development-standards.md`
 
 ### Step 3: Deliver the Issue
 
 #### Prime Delivery Directives
-1. **IMPORTANT**: Update the task list in `updated-issue.md` with every status change.
+1. Update the task list in `updated-issue.md` with every status change.
   - key: `(X)`=Completed the task, `(O)`=Started the task, `(-)`=Blocked, `(D)`=Deleted/Not Needed
+  - **CRITICAL**: Do NOT modify acceptance criteria checkboxes `[ ]` - these must remain unchecked for human verification
+  - Only update task list items numbered 1., 2., etc. Never change `- [ ]` or `- [X]` checkbox items
 2. Do not resort to "hacky" solutions, consider the task blocked if a good solution cannot be found
 3. When a task is blocked, move on to other tasks that are not impacted by the blockage. End the operation when all work is blocked.
 4. Never commit to git. Operator will do this after accepting delivery.
@@ -40,14 +42,14 @@ Include these check with the standard pre-check tests
 All of these criteria must be true in order to consider a Delivery operation to be Complete.
 - Task list status accurately reflects the status of each task
 - Every task has been completed
-- `<repo-root>/_scripts/aimequal` completes fully and successfully
+- The aimequal-runner subagent reports success (all tests passing)
 - Code is in a committable state
 - Local monorepo is ready to showcase the results
 - The `Delivery Adjustments` section accurately and fully represents adjustments and findings discovered during the delivery process.
 
 If all conditions are true, the operation should be identified as a success.
 
-**IMPORTANT**: When creating your Finished operation report with Complete status:
+When creating your Finished operation report with Complete status:
 - You MUST save the updated issue content to Linear via MCP (as described in the general prompt MCP Integration for Issue Content Saving section)
 - This ensures the delivered changes are immediately reflected in the Linear issue
 - The mcpSaveStatus should be included in your Finished operation report

@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import { UploadValidator } from '../src/upload-validator';
 import { OperationReportGenerator } from '../src/operation-report-generator';
-import { LinearClient } from '../src/linear-client';
+import type { LinearClient } from '../src/linear-client';
 import type { ValidationOptions } from '../src/upload-validator';
 import type { Config } from '../src/types';
 

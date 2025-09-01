@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import { ConfigLoader } from '../src/config';
-import type { Config } from '../src/types';
+// import type { Config } from '../src/types';
 
 jest.mock('fs');
 

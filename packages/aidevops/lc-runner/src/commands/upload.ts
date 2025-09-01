@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import { ConfigLoader } from '../config';
 import { LinearClient } from '../linear-client';
 import { UploadOrchestrator } from '../upload-orchestrator';
-import { OperationLogger } from '../operation-logger';
+// import { OperationLogger } from '../operation-logger';
 
 export interface UploadCommandOptions {
   dryRun?: boolean;
@@ -118,7 +118,7 @@ export async function uploadCommand(
       console.log('\n[DRY RUN MODE] - No actual uploads will be performed\n');
 
       // Perform validation only
-      const orchestrator = new UploadOrchestrator(workroot, resolvedWorkingFolder);
+      // const orchestrator = new UploadOrchestrator(workroot, resolvedWorkingFolder);
       const linearClient = new LinearClient(config.linear);
 
       const validationResult = await new (require('../upload-validator').UploadValidator)(
@@ -253,7 +253,7 @@ export async function uploadCommand(
 export async function listWorkingFolders(issueId?: string): Promise<void> {
   try {
     const configLoader = new ConfigLoader();
-    const config = configLoader.loadConfig();
+    // const config = configLoader.loadConfig();
     const repoRoot = configLoader['repoRoot'];
     const workroot = path.join(repoRoot, '.linear-watcher', 'work');
 

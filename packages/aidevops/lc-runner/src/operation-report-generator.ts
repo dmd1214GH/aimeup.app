@@ -150,7 +150,7 @@ ${JSON.stringify(jsonData, null, 2)}
     const now = new Date();
 
     // Get timezone abbreviation (fallback to UTC offset if not available)
-    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    // const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     let tzAbbr = 'UTC';
 
     try {

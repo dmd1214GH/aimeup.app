@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { LinearClient } from './linear-client';
+import type { LinearClient } from './linear-client';
 import { OperationReportGenerator } from './operation-report-generator';
 import { UploadValidator } from './upload-validator';
 import { OperationLogger } from './operation-logger';
@@ -27,12 +27,12 @@ export interface UploadResult {
   failureReportFilename?: string;
 }
 
-interface UploadAsset {
-  type: 'comment' | 'issueBody' | 'statusUpdate';
-  filename?: string;
-  content?: string;
-  status?: string;
-}
+// interface UploadAsset {
+//   type: 'comment' | 'issueBody' | 'statusUpdate';
+//   filename?: string;
+//   content?: string;
+//   status?: string;
+// }
 
 /**
  * Orchestrates the upload of operation results to Linear

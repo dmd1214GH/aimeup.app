@@ -1,12 +1,12 @@
-import * as fs from 'fs';
-import * as path from 'path';
+// import * as fs from 'fs';
+// import * as path from 'path';
 
 // Mock modules
 jest.mock('fs');
 jest.mock('../src/commands/upload');
 
 describe('Upload-Only Flag', () => {
-  const mockFs = fs as jest.Mocked<typeof fs>;
+  // const mockFs = fs as jest.Mocked<typeof fs>;
 
   beforeEach(() => {
     jest.clearAllMocks();

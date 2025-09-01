@@ -26,10 +26,10 @@ Perform smoke testing on delivered Linear issues to verify basic functionality a
    - Ensure acceptance criteria are demonstrable
 
 3. **Validate Quality**
-   - Run `_scripts/aimequal` to ensure code quality
-   - Verify no linting or type errors
-   - Check that all tests pass
-   - Confirm build succeeds
+   - Run the aimequal-runner subagent, then summarize results
+   - Verify the subagent reports success (all tests passing)
+   - Review any fixes the subagent applied
+   - Confirm no unfixable issues remain
 
 4. **Document Results**
    - Create comment file with test results

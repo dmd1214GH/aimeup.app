@@ -113,7 +113,7 @@ export class ClaudeInvoker {
       let stdout = '';
       let stderr = '';
       let processExited = false;
-      let timeoutHandle: NodeJS.Timeout | undefined;
+      let timeoutHandle: ReturnType<typeof setTimeout> | undefined;
 
       // Set timeout if provided (headless only)
       if (!headed && timeoutMs) {

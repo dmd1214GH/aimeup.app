@@ -27,6 +27,8 @@ alias dev='pnpm dev'
 alias test='pnpm test'
 alias check='pnpm check'
 alias install='pnpm install'
+alias lcr='pnpm lc-runner'
+alias aimefix='yolo "run agent aimequal-runner, then summarize resulting json"'
 
 # Project-specific aliases (AimeUp specific)
 alias pn="pnpm"

@@ -447,3 +447,217 @@ These elements are not considered for inclusion at this time:
 - **Coverage**: Automated testing, build verification, deployment gates
 - **Execution**: Triggered on pull requests and commits
 - **Current Status**: ❌ Out of scope - No CI for this conversion phase. Testing will be developer-initiated using local commands.
+
+## aimequal Fix Patterns
+
+This section defines automated fix patterns for the aimequal-runner subagent. These patterns help the subagent determine which test failures can be automatically fixed versus those that require human review.
+
+### Interpreting aimequal-runner Results
+
+**CRITICAL**: When the aimequal-runner completes, accurately report its JSON response:
+
+1. **Never assume success** - Check the actual `status` field:
+   - `"success"` - All tests pass, no issues remain
+   - `"partial"` - Some fixes applied but issues remain
+   - `"blocked"` - Unable to make progress due to unfixable errors
+
+2. **Report the actual test status** - Check `aimequalPassed`:
+   - `true` - The test suite passes
+   - `false` - The test suite still has failures
+
+3. **Summarize what was actually done**:
+   - List fixes from `errorTracking` with attempt counts
+   - Report `unfixableErrors` with their reasons
+   - Note any `circularDependencies` detected
+
+4. **Example of accurate reporting**:
+   ```
+   ❌ Status: partial - Tests still failing
+   - Fixed: 2 prettier issues, 1 TypeScript annotation
+   - Unfixable: 3 business logic errors (report-only), 1 flaky test (exceeded 5 attempts)
+   - Recommendation: Manual review required for business logic failures
+   ```
+
+### Auto-Fixable Patterns
+
+The following test failure patterns can be automatically fixed by the aimequal-runner subagent:
+
+#### Prettier Formatting
+
+- **Pattern**: Prettier formatting errors or warnings
+- **Fix Strategy**: Run `npx prettier --write` on affected files
+- **Example Errors**:
+  - "Code style issues found"
+  - "File not formatted according to prettier rules"
+- **Max Attempts**: 2
+
+#### ESLint Errors
+
+- **Pattern**: ESLint rule violations that have auto-fix available
+- **Fix Strategy**: Run `npx eslint --fix` on affected files
+- **Example Errors**:
+  - "Missing semicolon"
+  - "Prefer const over let"
+  - "Unused imports"
+- **Max Attempts**: 3
+
+#### Type Annotations
+
+- **Pattern**: Missing or incorrect TypeScript type annotations
+- **Fix Strategy**:
+  - Add explicit type annotations where TypeScript can infer them
+  - Fix simple type mismatches (e.g., string vs number)
+  - Add missing return types to functions
+- **Example Errors**:
+  - "Parameter 'x' implicitly has an 'any' type"
+  - "Missing return type on function"
+- **Max Attempts**: 3
+
+#### Jest Snapshots
+
+- **Pattern**: Jest snapshot mismatches
+- **Fix Strategy**: Run `jest --updateSnapshot` for affected test suites
+- **Example Errors**:
+  - "Snapshot test failed"
+  - "Received value does not match stored snapshot"
+- **Max Attempts**: 2
+
+#### Test Assertions
+
+- **Pattern**: Simple test assertion failures due to expected value changes
+- **Fix Strategy**:
+  - Update expected values in test assertions when the change is trivial
+  - Fix test data that has become stale
+- **Example Errors**:
+  - "Expected 'foo' but received 'bar'" (for string literals)
+  - "Expected array length 3 but received 4"
+- **Max Attempts**: 2
+
+#### Mock Signatures
+
+- **Pattern**: Mock function signatures not matching actual implementations
+- **Fix Strategy**: Update mock signatures to match the actual function interfaces
+- **Example Errors**:
+  - "Mock does not match function signature"
+  - "Missing mock parameter"
+- **Max Attempts**: 3
+
+#### Monorepo Allowlists
+
+- **Pattern**: Missing entries in monorepo configuration files
+- **Fix Strategy**: Add missing packages or dependencies to allowlists in turbo.json or package.json
+- **Example Errors**:
+  - "Package not included in workspace"
+  - "Dependency not listed in allowlist"
+- **Max Attempts**: 2
+
+#### E2E Selectors
+
+- **Pattern**: E2E test failures due to changed element selectors
+- **Fix Strategy**:
+  - Update data-testid attributes in tests to match components
+  - Fix simple selector syntax errors
+- **Example Errors**:
+  - "Element with data-testid='button' not found"
+  - "Selector timeout waiting for element"
+- **Max Attempts**: 3
+
+#### Timeout Values
+
+- **Pattern**: Test timeouts that need adjustment
+- **Fix Strategy**:
+  - Increase timeout values within reasonable limits (max 30s for unit, 60s for E2E)
+  - Add explicit wait conditions where needed
+- **Example Errors**:
+  - "Test exceeded timeout of 5000ms"
+  - "Async operation timed out"
+- **Max Attempts**: 2
+
+### Report-Only Patterns
+
+The following test failure patterns should be reported but NOT automatically fixed:
+
+#### Business Logic Failures
+
+- **Pattern**: Tests failing due to actual business logic errors
+- **Indicators**:
+  - Calculation errors
+  - Incorrect data transformations
+  - Logic flow problems
+- **Reason**: Requires understanding of intended behavior
+
+#### Security Tests
+
+- **Pattern**: Security-related test failures
+- **Indicators**:
+  - Authentication/authorization failures
+  - Encryption/decryption errors
+  - Security policy violations
+- **Reason**: Security fixes require careful review
+
+#### Performance Regressions
+
+- **Pattern**: Performance benchmarks failing
+- **Indicators**:
+  - "Performance threshold exceeded"
+  - "Memory limit exceeded"
+  - "Response time too slow"
+- **Reason**: Performance issues need investigation
+
+#### Integration Tests
+
+- **Pattern**: External service or API integration failures
+- **Indicators**:
+  - API endpoint failures
+  - Database connection errors
+  - Third-party service issues
+- **Reason**: May indicate external service problems
+
+#### Complex Conditional Logic
+
+- **Pattern**: Tests with complex branching or conditional failures
+- **Indicators**:
+  - Multiple assertion failures in single test
+  - State-dependent test failures
+  - Race condition failures
+- **Reason**: Requires deep understanding of test intent
+
+### Fix Application Strategy
+
+When applying fixes, the subagent follows these rules:
+
+1. **Isolation**: Apply one fix type at a time, then re-run affected tests
+2. **Validation**: After each fix, verify the specific component passes before moving on
+3. **Rollback**: If a fix makes things worse, revert and mark as report-only
+4. **Tracking**: Log all fix attempts with timestamps and results
+5. **Limits**: Respect the max attempts per pattern type (typically 2-5 attempts)
+
+### Pattern Matching Examples
+
+```typescript
+// Example: Detecting Prettier formatting issues
+if (output.includes('Prettier found issues') || output.includes('Code style issues found')) {
+  return { type: 'prettier', autoFixable: true };
+}
+
+// Example: Detecting business logic failures
+if (output.includes('Expected calculation result') || output.includes('Invalid business rule')) {
+  return { type: 'business-logic', autoFixable: false };
+}
+
+// Example: Detecting snapshot failures
+if (output.includes('Snapshot test failed') || output.includes('does not match stored snapshot')) {
+  return { type: 'snapshot', autoFixable: true };
+}
+```
+
+### Usage by aimequal-runner Subagent
+
+The aimequal-runner subagent reads this section at runtime to:
+
+1. Categorize test failures into auto-fixable or report-only
+2. Apply appropriate fix strategies for auto-fixable issues
+3. Track fix attempts and respect retry limits
+4. Generate detailed reports for unfixable issues
+
+This section serves as the source of truth for both human developers and the AI subagent when dealing with test failures.

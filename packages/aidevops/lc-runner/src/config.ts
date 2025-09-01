@@ -52,7 +52,7 @@ export class ConfigLoader {
       };
 
       // Create operations mapping with linearIssueStatusSuccess and linearIssueStatusBlocked
-      for (const [key, operation] of Object.entries(validatedConfig['lc-runner-operations'])) {
+      for (const [, operation] of Object.entries(validatedConfig['lc-runner-operations'])) {
         configWithOperations.operations[operation.operationName] = {
           ...operation,
           linearIssueStatusSuccess: operation.transitions.success,

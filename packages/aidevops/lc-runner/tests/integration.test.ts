@@ -332,12 +332,12 @@ ${issue.description}
 
       mockApiService.getIssueBody.mockResolvedValue(mockIssue);
 
-      const issueBody = `# ${mockIssue.title}
-
-${mockIssue.description}
-
-## Metadata
-- URL: ${mockIssue.url}`;
+      // const issueBody = `# ${mockIssue.title}
+      //
+      // ${mockIssue.description}
+      //
+      // ## Metadata
+      // - URL: ${mockIssue.url}`;
 
       // Test prompt assembly with issue body
       const assembler = new PromptAssembler();

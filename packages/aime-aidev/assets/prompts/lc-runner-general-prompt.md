@@ -72,9 +72,10 @@ You will be required to produce `operation-report-<Action>-XXX.md` files.  Use t
    - Read the complete content of `<ArgWorkingFolder>/updated-issue.md`
    - Extract the title from the first `#` heading line
    - Extract the body by removing:
-     - The first `#` heading line (title)
+     - ALL `#` heading lines that match the title (remove duplicates)
      - The `## Metadata` section at the end (if present)
    - Preserve all other markdown formatting
+   - NOTE: Some issues may have duplicate title headers - remove all instances
 
 3. **Idempotent Updates**:
    - Before saving, check if the content has actually changed

@@ -134,26 +134,119 @@ Use the lc-operation-reporter subagent with these parameters:
 - Include success/failure indicators
 - Provide detailed status information
 
-## Example: lc-operation-reporter Subagent
+### 5. Handling Agent Output
 
-The `lc-operation-reporter` subagent demonstrates the pattern:
+When a subagent returns JSON output, provide an accurate summary based on the actual JSON response:
 
-### Purpose
+- **Always show the actual status** from the JSON (success/blocked/partial), not assumptions
+- **Display the key metrics** from the response (aimequalPassed, error counts, unfixable issues)
+- **For aimequal-runner specifically**:
+  - Report `status` field exactly as returned
+  - Show `aimequalPassed` true/false status
+  - List errors from `errorTracking` with their attempt counts
+  - Report any `unfixableErrors` with reasons
+  - Mention `circularDependencies` if present
+- **Example based on actual JSON**:
+  ```
+  Status: partial
+  Aimequal passed: false
+  Fixed: 2 prettier errors, 1 TypeScript error
+  Unfixable: 3 business logic errors (report-only), 1 flaky test (exceeded 5 attempts)
+  ```
 
-Atomically writes operation reports and uploads them to Linear, ensuring reliable report generation and tracking.
+### 6. Avoiding Unnecessary Re-runs
 
-### Key Features
+Time-consuming agents like aimequal-runner should not be reflexively re-run:
+
+- These agents are expensive and time-consuming (3+ minutes)
+- Only re-run if there's a specific reason (e.g., user request, new code changes)
+- Trust the agent's report - if it says tests pass, they pass
+- If the agent reports unfixable errors, investigate the specific issues rather than re-running
+
+## Available Subagents
+
+### lc-operation-reporter
+
+**Purpose**: Atomically writes operation reports and uploads them to Linear, ensuring reliable report generation and tracking.
+
+**Key Features**:
 
 - **Atomic Operation**: Combines file writing and Linear upload
 - **Error Differentiation**: Fatal errors (file write) vs non-fatal (upload)
 - **Structured Response**: Returns detailed status for each operation
 - **Idempotent**: Can be safely re-invoked if needed
 
-### Integration Points
+**Usage**:
 
-- Used by all lc-runner operations (Groom, Task, Deliver)
-- Replaces legacy MCP-based upload process
-- Ensures operation reports are never "forgotten"
+```
+Invoke the lc-operation-reporter subagent with all required parameters:
+- issueId: <ArgIssueId>
+- operation: <ArgOperation>
+- action: Start|Finished
+- operationStatus: InProgress|Complete|Failed|Blocked
+- summary: Brief summary
+- payload: Detailed content
+```
+
+**Integration**: Used by all lc-runner operations (Groom, Task, Deliver)
+
+### aimequal-runner
+
+**Purpose**: Makes `_scripts/aimequal` pass by automatically fixing common test failures with smart retry logic and circular dependency detection.
+
+**Key Features**:
+
+- **Direct Execution**: Runs `_scripts/aimequal` directly, synchronously
+- **Per-Error Tracking**: Each unique error gets up to 5 fix attempts before being marked unfixable
+- **Circular Dependency Detection**: Detects and stops oscillating fixes (A breaks B, B breaks A)
+- **Pattern-Based Fixes**: Reads fix patterns from `/aimeup/_docs/guides/automated-testing.md#aimequal-fix-patterns`
+- **Detailed Reporting**: Comprehensive reports with fix history, error tracking, and unfixable issues
+
+**Usage**:
+
+```
+Invoke the aimequal-runner subagent:
+- No parameters needed
+- Runs automatically and returns JSON with results
+```
+
+**No Parameters Required**: The subagent runs in smart mode automatically, no configuration needed.
+
+**Example Invocation**:
+
+```
+Run the aimequal-runner subagent, then summarize results
+```
+
+That's it! The subagent will:
+
+1. Run `_scripts/aimequal`
+2. Fix any auto-fixable issues it encounters
+3. Track attempts per unique error (max 5)
+4. Detect and avoid circular dependencies
+5. Return detailed report of what was fixed and what couldn't be fixed
+
+**Auto-Fixable Patterns**:
+
+- Prettier formatting issues
+- ESLint errors with auto-fix available
+- Missing TypeScript annotations
+- Jest snapshot mismatches
+- Simple test assertion updates
+- Mock signature mismatches
+- Monorepo configuration issues
+- E2E selector updates
+- Timeout adjustments
+
+**Report-Only Patterns** (won't attempt fixes):
+
+- Business logic failures
+- Security test failures
+- Performance regressions
+- Integration test failures
+- Complex conditional logic issues
+
+**Integration**: Can be invoked manually during development or as part of delivery operations to ensure tests pass
 
 ## Troubleshooting
 

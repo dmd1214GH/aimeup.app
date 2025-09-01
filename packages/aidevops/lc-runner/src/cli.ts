@@ -295,7 +295,7 @@ function processArgumentsWithDefaults(): string[] {
 
         return finalArgs;
       }
-    } catch (error) {
+    } catch {
       // If config loading fails, just use original arguments
       // The error will be properly reported when the action runs
     }

@@ -77,7 +77,13 @@ read -r
 
 # Start Claude in YOLO mode
 echo -e "\n🔥 Starting Claude in YOLO mode..."
-claude --dangerously-skip-permissions
+# Pass any command-line arguments to claude
+if [[ $# -gt 0 ]]; then
+    echo "📝 With parameters: $*"
+    claude --dangerously-skip-permissions "$@"
+else
+    claude --dangerously-skip-permissions
+fi
 
 # Restore terminal color to lightgray (same as aimeterm)
 term-color lightgray
