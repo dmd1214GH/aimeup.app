@@ -10,7 +10,7 @@ describe('ClaudeOutputParser', () => {
   describe('parseOutput', () => {
     it('should parse completed status from operation report JSON', () => {
       const output = `
-## operation-report-json
+# Task Operation Finished
 \`\`\`json
 {
   "issueId": "AM-21",
@@ -32,7 +32,7 @@ describe('ClaudeOutputParser', () => {
 
     it('should parse blocked status from operation report JSON', () => {
       const output = `
-## operation-report-json
+# Task Operation Blocked
 \`\`\`json
 {
   "operationStatus": "Blocked",
@@ -148,7 +148,7 @@ with multiple lines
 
     it('should handle malformed JSON in operation report', () => {
       const output = `
-## operation-report-json
+# Deliver Operation Start
 \`\`\`json
 { invalid json }
 \`\`\`
@@ -164,13 +164,13 @@ with multiple lines
     it('should extract multiple operation reports', () => {
       const output = `
 operation-report-Start-001.md
-## operation-report-json
+# Groom Operation Start
 \`\`\`json
 {"action": "Start"}
 \`\`\`
 
 operation-report-Finished-002.md
-## operation-report-json
+# Groom Operation Finished
 \`\`\`json
 {"action": "Finished"}
 \`\`\`
@@ -184,7 +184,7 @@ operation-report-Finished-002.md
 
     it('should extract single report from parsed output if no explicit reports found', () => {
       const output = `
-## operation-report-json
+# Test Operation Test
 \`\`\`json
 {
   "action": "Test",

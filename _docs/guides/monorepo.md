@@ -49,7 +49,10 @@ This document must reflect the source of truth about the monorepos. Every modifi
       /healthconnect (@eatgpt/healthconnect)  # RN only, does not apply to web or iOS
     /aidevops                                 # container for AI Dev Ops tools
       /lc-runner     (@aidevops/lc-runner)    # Linear/ClaudeCode runner CLI
-    /aime-aidev      (@aimeup/aime-aidev)     # AI Dev profile package with prompts and config
+    /aime-aidev      (@aimeup/aime-aidev)     # AI Dev profile package with prompts, config, and subagents
+      /assets
+        /prompts                              # lc-runner prompt templates
+        /claude-agents                        # Claude Code subagent definitions
     /tokens          (@aimeup/tokens)         # design tokens & RN Elements theming
   /configs           # optional location for preset storage
     /tsconfig        # tsconfig.lib.json, tsconfig.app.json → packages/apps extend these
@@ -245,6 +248,9 @@ The `lc-runner` CLI tool is part of the AI Dev Ops product for automating Linear
 The CLI depends on the `@aimeup/aime-aidev` profile package which:
 
 - Installs during `pnpm install` via postinstall script
+- Copies prompt templates to `.linear-watcher/prompts/`
+- Copies Claude Code subagents to `.claude/agents/`
+- Ensures configuration persists across Docker container rebuilds
 - Copies runtime assets to `/.linear-watcher/`:
   - `config.json` - Operation mappings and settings
   - `prompts/` - Operation-specific prompt templates

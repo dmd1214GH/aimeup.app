@@ -66,13 +66,12 @@ describe('OperationReportGenerator', () => {
       const writeCall = (fs.writeFileSync as jest.Mock).mock.calls[0];
       const content = writeCall[1];
 
-      expect(content).toContain('## operation-report-json');
+      expect(content).toContain('# Deliver Operation Start');
       expect(content).toContain('```json');
       expect(content).toContain('"issueId": "AM-25"');
       expect(content).toContain('"operation": "Deliver"');
       expect(content).toContain('"action": "Start"');
       expect(content).toContain('"operationStatus": "InProgress"');
-      expect(content).toContain('## Operation Report Payload');
     });
 
     it('should add timestamp if not provided', () => {
@@ -81,7 +80,7 @@ describe('OperationReportGenerator', () => {
       const writeCall = (fs.writeFileSync as jest.Mock).mock.calls[0];
       const content = writeCall[1];
 
-      expect(content).toMatch(/"timestamp": "\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}"/);
+      expect(content).toMatch(/"timestamp": "\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} [A-Z].*"/);
     });
 
     it('should use provided timestamp', () => {
@@ -164,7 +163,8 @@ describe('OperationReportGenerator', () => {
 
   describe('readReport', () => {
     it('should read and parse report successfully', () => {
-      const reportContent = `## operation-report-json
+      const reportContent = `# Deliver Operation Start
+
 \`\`\`json
 {
   "issueId": "AM-25",
@@ -177,7 +177,6 @@ describe('OperationReportGenerator', () => {
 }
 \`\`\`
 
-## Operation Report Payload
 ### Test Payload
 - Item 1`;
 
@@ -223,7 +222,7 @@ describe('OperationReportGenerator', () => {
         'operation-report-Finished-002.md',
       ]);
 
-      const reportContent = `## operation-report-json
+      const reportContent = `# Deliver Operation Start
 \`\`\`json
 {
   "issueId": "AM-25",
@@ -286,7 +285,7 @@ describe('OperationReportGenerator', () => {
       const content = writeCall[1];
 
       // The timestamp should be in the format with timezone offset
-      expect(content).toMatch(/"timestamp": "\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}"/);
+      expect(content).toMatch(/"timestamp": "\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} [A-Z].*"/);
 
       // Restore original Date
       global.Date = originalDate;

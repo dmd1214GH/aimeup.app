@@ -32,9 +32,9 @@ export class ClaudeOutputParser {
       return result;
     }
 
-    // Try to extract operation report JSON
+    // Try to extract operation report JSON (supports both old and new formats)
     const operationReportMatch = output.match(
-      /## operation-report-json\s*```json\s*([\s\S]*?)\s*```/
+      /(?:## operation-report-json|# \w+ Operation \w+)\s*```json\s*([\s\S]*?)\s*```/
     );
     if (operationReportMatch) {
       try {
@@ -134,9 +134,9 @@ export class ClaudeOutputParser {
   extractOperationReports(output: string): Array<{ filename: string; content: string }> {
     const reports: Array<{ filename: string; content: string }> = [];
 
-    // Match all operation report sections
+    // Match all operation report sections (supports both old and new formats)
     const reportMatches = output.matchAll(
-      /operation-report-(\w+)-(\d+)\.md[\s\S]*?(## operation-report-json[\s\S]*?)(?=operation-report-|$)/g
+      /operation-report-(\w+)-(\d+)\.md[\s\S]*?((?:## operation-report-json|# \w+ Operation \w+)[\s\S]*?)(?=operation-report-|$)/g
     );
 
     for (const match of reportMatches) {
@@ -151,7 +151,10 @@ export class ClaudeOutputParser {
     }
 
     // If no reports found in that format, try to extract from the parsed output
-    if (reports.length === 0 && output.includes('## operation-report-json')) {
+    if (
+      reports.length === 0 &&
+      (output.includes('## operation-report-json') || output.match(/# \w+ Operation \w+/))
+    ) {
       const parsed = this.parseOutput(output);
       if (parsed.operationReport) {
         const action = parsed.operationReport.action || 'Unknown';
@@ -169,11 +172,12 @@ export class ClaudeOutputParser {
    * Formats an operation report object into markdown
    */
   private formatOperationReport(report: any): string {
-    return `## operation-report-json
+    const operation = report.operation || 'Unknown';
+    const action = report.action || 'Unknown';
+    return `# ${operation} Operation ${action}
 \`\`\`json
 ${JSON.stringify(report, null, 2)}
 \`\`\`
-## Operation Report Payload
-${report.summary || 'No additional details'}`;
+${report.payload || report.summary || ''}`;
   }
 }

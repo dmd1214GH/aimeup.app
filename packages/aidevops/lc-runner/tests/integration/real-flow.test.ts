@@ -106,7 +106,7 @@ describe('lc-runner Integration Tests', () => {
   test('REAL TEST: Handles actual Claude output parsing', () => {
     // Create a mock Claude output file
     const claudeOutput = `
-## operation-report-json
+# Test Operation Action
 \`\`\`json
 {
   "issueId": "AM-102",

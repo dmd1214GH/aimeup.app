@@ -97,23 +97,18 @@ export class OperationReportGenerator {
       summary: data.summary,
     };
 
-    // Include mcpSaveStatus if present (typically for Finished reports)
-    if (data.mcpSaveStatus) {
-      jsonData.mcpSaveStatus = data.mcpSaveStatus;
-    }
+    // Create descriptive header
+    const header = `# ${data.operation} Operation ${data.action}`;
 
-    let content = `## operation-report-json
+    let content = `${header}
+
 \`\`\`json
 ${JSON.stringify(jsonData, null, 2)}
 \`\`\`
-
-## Operation Report Payload
 `;
 
     if (data.payload) {
-      content += data.payload;
-    } else {
-      content += `- ${data.summary}`;
+      content += `\n${data.payload}`;
     }
 
     return content;
@@ -148,18 +143,32 @@ ${JSON.stringify(jsonData, null, 2)}
   }
 
   /**
-   * Gets the current timestamp in the correct timezone format
-   * @returns ISO string with timezone offset
+   * Gets the current timestamp in readable local timezone format
+   * @returns Readable timestamp string with timezone
    */
   private getCurrentTimestamp(): string {
     const now = new Date();
-    const offset = -now.getTimezoneOffset();
-    const offsetHours = Math.floor(Math.abs(offset) / 60);
-    const offsetMinutes = Math.abs(offset) % 60;
-    const offsetSign = offset >= 0 ? '+' : '-';
-    const offsetString = `${offsetSign}${offsetHours.toString().padStart(2, '0')}:${offsetMinutes.toString().padStart(2, '0')}`;
 
-    // Format: YYYY-MM-DDTHH:mm:ss+/-HH:mm
+    // Get timezone abbreviation (fallback to UTC offset if not available)
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    let tzAbbr = 'UTC';
+
+    try {
+      // Try to get timezone abbreviation
+      const short = now.toLocaleTimeString('en-US', { timeZoneName: 'short' });
+      const match = short.match(/[A-Z]{2,}/);
+      if (match) {
+        tzAbbr = match[0];
+      }
+    } catch {
+      // Fallback to UTC offset format
+      const offset = -now.getTimezoneOffset();
+      const offsetHours = Math.floor(Math.abs(offset) / 60);
+      const offsetSign = offset >= 0 ? '+' : '-';
+      tzAbbr = `UTC${offsetSign}${offsetHours}`;
+    }
+
+    // Format: YYYY-MM-DD HH:MM:SS TZ
     const year = now.getFullYear();
     const month = (now.getMonth() + 1).toString().padStart(2, '0');
     const day = now.getDate().toString().padStart(2, '0');
@@ -167,7 +176,7 @@ ${JSON.stringify(jsonData, null, 2)}
     const minutes = now.getMinutes().toString().padStart(2, '0');
     const seconds = now.getSeconds().toString().padStart(2, '0');
 
-    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}${offsetString}`;
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds} ${tzAbbr}`;
   }
 
   /**
@@ -217,10 +226,11 @@ ${JSON.stringify(jsonData, null, 2)}
 
       const reportData = JSON.parse(jsonMatch[1]) as OperationReportData;
 
-      // Extract payload if present
-      const payloadMatch = content.match(/## Operation Report Payload\s*([\s\S]*?)$/);
-      if (payloadMatch) {
-        reportData.payload = payloadMatch[1].trim();
+      // Extract payload if present (everything after the JSON block)
+      const jsonEndIndex = content.indexOf('```', content.indexOf('```json') + 7) + 3;
+      const payloadContent = content.substring(jsonEndIndex).trim();
+      if (payloadContent) {
+        reportData.payload = payloadContent;
       }
 
       return reportData;

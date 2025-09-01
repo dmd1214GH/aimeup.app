@@ -159,10 +159,11 @@ describe('UploadOrchestrator', () => {
     // Test removed: Comment uploads are now handled by Claude Code MCP integration
     // and no longer tested here
 
-    it('should update issue body', async () => {
+    it('should skip issue body update (handled by MCP integration)', async () => {
       await orchestrator.upload(mockOptions);
 
-      expect(mockLinearClient.updateIssueBody).toHaveBeenCalledWith('AM-25', 'New content');
+      // Issue body update is now handled by Claude Code MCP integration
+      expect(mockLinearClient.updateIssueBody).not.toHaveBeenCalled();
     });
 
     it('should update issue status to success', async () => {
@@ -265,15 +266,16 @@ describe('UploadOrchestrator', () => {
     // Test removed: Comment upload failures are no longer relevant since
     // comments are handled by Claude Code MCP integration
 
-    it('should handle issue body update failure', async () => {
+    it('should skip issue body update (handled by MCP)', async () => {
+      // Issue body updates are handled by Claude Code MCP integration
       mockLinearClient.updateIssueBody.mockResolvedValue(false);
 
       const result = await orchestrator.upload(mockOptions);
 
-      expect(result.success).toBe(false); // Failed because issue body update failed
-      expect(result.uploadedAssets.issueBody).toBe(false);
+      expect(result.success).toBe(true); // Should succeed despite no issue body update
+      expect(result.uploadedAssets.issueBody).toBe(true); // Marked as handled by MCP
       expect(result.uploadedAssets.statusUpdate).toBe(true);
-      expect(result.errors).toContain('Failed to update issue body');
+      expect(mockLinearClient.updateIssueBody).not.toHaveBeenCalled();
     });
 
     it('should handle status update failure', async () => {

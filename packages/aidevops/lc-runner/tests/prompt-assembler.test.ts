@@ -25,11 +25,14 @@ describe('PromptAssembler', () => {
     };
 
     it('should assemble master prompt with replacements', () => {
+      // Include MCP instructions in the template as they are now part of the general prompt
       const generalContent =
         '## General Prompt\n' +
         'Issue: <ArgIssueId>\n' +
         'Operation: <ArgOperation>\n' +
-        'Folder: <ArgWorkingFolder>\n';
+        'Folder: <ArgWorkingFolder>\n' +
+        '#### MCP Integration for Issue Content Saving\n' +
+        'MCP save instructions are included in template\n';
 
       const operationContent = '## Operation Instructions\n' + 'Specific instructions here\n';
 
@@ -56,7 +59,7 @@ describe('PromptAssembler', () => {
       expect(writtenContent).toContain('## Operation Instructions');
       expect(writtenContent).toContain('Specific instructions here');
 
-      // Also check that MCP save instructions are included
+      // Check that MCP save instructions from template are preserved
       expect(writtenContent).toContain('MCP Integration for Issue Content Saving');
     });
 
@@ -259,11 +262,15 @@ describe('PromptAssembler', () => {
       workingFolder: '/work/lcr-AM-54/op-Delivery-123',
     };
 
-    it('should inject MCP save instructions into general prompt', () => {
+    it('should preserve MCP save instructions from general prompt template', () => {
+      // MCP instructions are now in the template, not injected
       const generalContent =
         '## General Prompt\n' +
         '#### MCP Integration for Operation Reports\n' +
         'MCP report instructions here\n' +
+        '#### MCP Integration for Issue Content Saving\n' +
+        'Save Triggers: save to Linear\n' +
+        'mcp__linear__update_issue with <ArgIssueId>\n' +
         '#### Failures\n' +
         'Failure instructions here\n';
 
@@ -282,20 +289,21 @@ describe('PromptAssembler', () => {
 
       const writtenContent = mockFs.writeFileSync.mock.calls[0][1] as string;
 
-      // Check that MCP save instructions are present
+      // Check that MCP save instructions from template are preserved
       expect(writtenContent).toContain('MCP Integration for Issue Content Saving');
-      expect(writtenContent).toContain('Save Triggers');
-      expect(writtenContent).toContain('Content Extraction Process');
-      expect(writtenContent).toContain('Idempotent Updates');
       expect(writtenContent).toContain('mcp__linear__update_issue');
-      expect(writtenContent).toContain('AM-54');
+      expect(writtenContent).toContain('AM-54'); // Should be replaced from <ArgIssueId>
     });
 
     it('should include MCP save status in operation completion instructions', () => {
+      // Include MCP save instructions in template
       const generalContent =
         '## General Prompt\n' +
         '#### MCP Integration for Operation Reports\n' +
-        'MCP report instructions here\n';
+        'MCP report instructions here\n' +
+        '#### MCP Integration for Issue Content Saving\n' +
+        'Automatically at operation completion\n' +
+        'mcpSaveStatus field in JSON\n';
 
       const operationContent = '## Operation Instructions\n' + 'Content here\n';
 
@@ -312,14 +320,19 @@ describe('PromptAssembler', () => {
 
       const writtenContent = mockFs.writeFileSync.mock.calls[0][1] as string;
 
-      // Check for operation completion save trigger
+      // Check for operation completion save trigger from template
       expect(writtenContent).toContain('Automatically at operation completion');
       expect(writtenContent).toContain('mcpSaveStatus');
     });
 
     it('should include operator command detection instructions', () => {
+      // Include MCP save instructions with operator command detection in template
       const generalContent =
-        '## General Prompt\n' + '#### MCP Integration for Operation Reports\n' + 'Content here\n';
+        '## General Prompt\n' +
+        '#### MCP Integration for Operation Reports\n' +
+        'Content here\n' +
+        '#### MCP Integration for Issue Content Saving\n' +
+        'When the operator explicitly requests "save to Linear"\n';
 
       const operationContent = '## Operation\nContent';
 
@@ -336,7 +349,7 @@ describe('PromptAssembler', () => {
 
       const writtenContent = mockFs.writeFileSync.mock.calls[0][1] as string;
 
-      // Check for operator command detection
+      // Check for operator command detection from template
       expect(writtenContent).toContain('save to Linear');
       expect(writtenContent).toContain('operator explicitly requests');
     });

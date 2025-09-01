@@ -336,7 +336,7 @@ process.stdin.on('end', () => {
 
 function generateResponse(prompt, config) {
   if (config.responseType === 'blocked') {
-    return \`## operation-report-json
+    return \`# Test Operation Action
 \\\`\\\`\\\`json
 {
   "operation": "Task",
@@ -350,7 +350,7 @@ function generateResponse(prompt, config) {
 \${config.blockingQuestions?.join('\\n') || '- Need clarification'}\`;
   }
 
-  return \`## operation-report-json
+  return \`# Test Operation Action
 \\\`\\\`\\\`json
 {
   "operation": "Deliver",

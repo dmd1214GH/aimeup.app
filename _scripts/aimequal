@@ -46,10 +46,9 @@ echo "Auto-formatting started at $(date)" >> "$OUTPUT_FILE"
 INITIAL_GIT_STATUS=$(git status --porcelain 2>/dev/null || echo "")
 
 # Run prettier to auto-format all files
-set +e  # Temporarily disable exit-on-error
-PRETTIER_OUTPUT=$(pnpm prettier --write . 2>&1)
-PRETTIER_EXIT_CODE=$?
-set -e  # Re-enable exit-on-error
+# Note: We don't use set -e here to avoid shell crashes
+PRETTIER_OUTPUT=$(pnpm prettier --write . 2>&1) || PRETTIER_EXIT_CODE=$?
+PRETTIER_EXIT_CODE=${PRETTIER_EXIT_CODE:-0}
 
 if [[ $PRETTIER_EXIT_CODE -ne 0 ]]; then
     echo "⚠️  Warning: Prettier encountered issues during auto-formatting" | tee -a "$OUTPUT_FILE"
@@ -105,10 +104,14 @@ run_test() {
     if [[ "$test_name" == *"Prettier"* ]] || [[ "$test_name" == *"TypeScript"* ]]; then
         # For these tools, we want to see the output even on failure
         # Run the command directly with tee to capture and display simultaneously
+        # Save current pipefail setting and temporarily disable it
+        local pipefail_state
+        pipefail_state=$(set +o | grep pipefail) || true
         set +o pipefail  # Temporarily disable pipefail to use PIPESTATUS
         eval "$command" 2>&1 | tee -a "$OUTPUT_FILE"
         exit_code=${PIPESTATUS[0]}  # In bash, PIPESTATUS is uppercase and 0-indexed
-        set -o pipefail  # Re-enable pipefail
+        # Restore pipefail state safely
+        eval "$pipefail_state" 2>/dev/null || true
     else
         # For other tests, use the original approach
         echo "[DEBUG] Running command in subshell..." >> /tmp/aimequal-debug.log

@@ -48,7 +48,7 @@ describe('ClaudeCode Integration Tests', () => {
 
       // Simulate ClaudeCode response with completed task
       const claudeOutput = `
-## operation-report-json
+# Test Operation Action
 \`\`\`json
 {
   "issueId": "AM-21",
@@ -144,7 +144,7 @@ The task list has been successfully generated and all items are marked as comple
 
       // Simulate ClaudeCode response with blocked status
       const claudeOutput = `
-## operation-report-json
+# Test Operation Action
 \`\`\`json
 {
   "issueId": "AM-21",
@@ -251,7 +251,7 @@ The task cannot be completed due to missing specifications. Please provide clari
     it('should handle multiple operation reports in output', async () => {
       const claudeOutput = `
 operation-report-Start-001.md
-## operation-report-json
+# Test Operation Action
 \`\`\`json
 {
   "action": "Start",
@@ -262,7 +262,7 @@ operation-report-Start-001.md
 Some processing happens here...
 
 operation-report-Finished-002.md
-## operation-report-json
+# Test Operation Action
 \`\`\`json
 {
   "action": "Finished",

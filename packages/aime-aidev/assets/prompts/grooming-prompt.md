@@ -7,6 +7,13 @@ Include this check with the standard pre-check tests
 > **⚠️ Verify, Don't Assume**: If requirements mention specific tools, packages, or capabilities, test them during grooming. Unverified assumptions lead to blocked tasks.
 
 ### Step 3: Assist operator with grooming the story
+
+**⚠️ CRITICAL: OPERATOR APPROVAL REQUIRED**
+- You MUST engage in conversation with the operator before completing grooming
+- Even for trivial issues, you MUST present your understanding and get confirmation
+- You CANNOT mark grooming as Complete without explicit operator approval
+- If you're tempted to skip interaction because the issue seems simple, STOP and ask anyway
+
 **Grooming Rules**
 - Work with the operator to refine the issue defined in `updated-issue.md`
 - Update `updated-issue.md` directly as the conversation progresses.  Do not wait until the end of the conversation to update the document.
@@ -16,12 +23,19 @@ Include this check with the standard pre-check tests
 
 
 **Approach issue level grooming in these phases:**
+
+**Phase 0. Initial Operator Engagement** (MANDATORY)
+  - Start with a brief summary of what you understand from the issue
+  - Ask "Shall we begin?" and wait for operator response
+  - Example: "I see this is about removing temp file usage in lc-runner. Shall we begin?"
+
 Phase 1. Crystal clear **understanding of the requirements**.
+  - **Remember**: Grooming defines WHAT to build, not HOW to build it
   - Ensure wording is not vague or ambiguous.
   - **Verify technical assumptions**: Test that any mentioned tools/packages/APIs actually exist and work as described
   - Refine through active conversation before proceeding.
-  - Capture scope boundaries
-  - Capture solution ideas
+  - Capture scope boundaries (without implementation details)
+  - Capture solution ideas (at a high level, not specific code changes)
   - Understand the purpose of the each requirement, and challenge validity when appropriate
 Phase 2. Suggest **Breaking Out Issues**
   - Unrelated issues should not be completed within the same issue
@@ -48,9 +62,11 @@ Groomed issues should be presented in this standard format:
 - Requirement Standards
   - Tightly stated (brief and well written)
   - Clear and unambiguous
-  - **Avoid implementation specifics** - State WHAT needs to be done, not HOW
-    - ❌ Bad: "Create a new specialized subagent type called operation-reporter"
-    - ✅ Good: "Use a subagent to handle operation reports atomically"
+  - **Avoid ALL implementation specifics** - State WHAT needs to be done, not HOW
+    - ❌ Bad: "Delete files matching the pattern `/tmp/claude-prompt-*.md`"
+    - ✅ Good: "Clean up any legacy temporary files created by previous versions"
+    - ❌ Bad: "Pass the original `masterPromptPath` directly in the instruction"
+    - ✅ Good: "Use direct file references instead of temporary copies"
     - Let the delivery phase determine specific implementation details
   - Not unnecessarily technical or overly specific.  Keep them as requirements.
 
@@ -68,6 +84,10 @@ Groomed issues should be presented in this standard format:
 - Validate unknowns with small proofs-of-concept and consult documentation to refine details
 - **Test critical dependencies during grooming** - don't assume capabilities exist
 - Process Flows Standards
+  - **AVOID implementation details**: No line numbers, no specific code changes, no exact function calls
+  - **Focus on WHAT, not HOW**: Describe the approach and components, not the exact implementation
+  - ❌ Bad: "Remove lines 76-77, 145-146 in claude-invoker.ts"
+  - ✅ Good: "The ClaudeInvoker class should skip temp file creation and use direct file references"
   - Use "```fenceposts" to show code or configuration samples.  But use sparingly.  We are not developing the solution here.
   - Reference existing components or documents directly using `singleBackTic` marks
   - Be concise.  Assume ClaudeCode will develop the solution and will not need development guidance, only solution direction
@@ -104,11 +124,23 @@ Groomed issues should be presented in this standard format:
 
 ```
 
-### Step 4: Grooming Operation Success Criteria
-All of these criteria must be true in order to consider a tasking operation to be Complete.  If any are untrue, the operation must result with a status of Blocked
+### Step 4: Mandatory Operator Approval
+
+**BEFORE creating the Finished operation report, you MUST:**
+1. Present the groomed issue to the operator with a summary of changes
+2. Ask explicitly: "Does this grooming look complete to you? Should we proceed to mark this as ready for Tasking?"
+3. Wait for operator confirmation
+4. Only proceed if the operator explicitly approves
+
+**If operator does not approve:**
+- Continue refining based on feedback
+- Do not create Finished report until approval is received
+
+### Step 5: Grooming Operation Success Criteria
+All of these criteria must be true in order to consider a grooming operation to be Complete.  If any are untrue, the operation must result with a status of Blocked
 - [ ] `updated-issue.md` fully describes the requirement, suggested solution, and acceptance criteria according to the standards and guidance described in the Template, without any reliance on context
 - [ ] There are no Blocking Questions, and the Blocking Questions section indicates that no blocking questions remain.
-- [ ] Operator agrees that grooming is complete and the issue should move along to `Tasking`
+- [ ] **Operator has explicitly approved the grooming** (not assumed or inferred)
 - [ ] There are no Breakout Issues listed in the document.  All breakout issues have been broken out into their own issues, and those sections have been removed from the issue
 - [ ] Technical dependencies have been verified (tools, packages, APIs exist and work as needed)
 

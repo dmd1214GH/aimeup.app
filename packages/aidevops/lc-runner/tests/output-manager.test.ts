@@ -100,7 +100,7 @@ describe('OutputManager', () => {
 
       expect(mockFs.writeFileSync).toHaveBeenCalledWith(
         expect.stringContaining('operation-report-Finished-001.md'),
-        expect.stringContaining('operation-report-json'),
+        expect.stringContaining('```json'),
         'utf8'
       );
       expect(references.operationReports).toHaveLength(1);

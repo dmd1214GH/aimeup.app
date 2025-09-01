@@ -106,6 +106,58 @@ function copyAssets(): void {
     process.exit(1);
   }
 
+  // Copy claude-agents directory to .claude/agents
+  const agentsSource = path.join(sourceDir, 'claude-agents');
+  const claudeDir = path.join(repoRoot, '.claude');
+  const agentsTarget = path.join(claudeDir, 'agents');
+
+  if (fs.existsSync(agentsSource)) {
+    // Create .claude directory if it doesn't exist
+    if (!fs.existsSync(claudeDir)) {
+      fs.mkdirSync(claudeDir, { recursive: true });
+      console.log(`Created directory: ${claudeDir}`);
+    }
+
+    // Create agents directory if it doesn't exist
+    if (!fs.existsSync(agentsTarget)) {
+      fs.mkdirSync(agentsTarget, { recursive: true });
+      console.log(`Created directory: ${agentsTarget}`);
+    }
+
+    const agentFiles = fs.readdirSync(agentsSource);
+    let copiedAgentCount = 0;
+    agentFiles.forEach((file) => {
+      if (file.endsWith('.md')) {
+        const sourceFile = path.join(agentsSource, file);
+        const targetFile = path.join(agentsTarget, file);
+
+        // Force remove existing file if it exists using rm -f (handles read-only files)
+        if (fs.existsSync(targetFile)) {
+          try {
+            execSync(`rm -f "${targetFile}"`);
+          } catch (rmError) {
+            console.error(`Failed to remove existing agent file ${file}: ${rmError}`);
+            process.exit(1);
+          }
+        }
+
+        fs.copyFileSync(sourceFile, targetFile);
+        // Make the file read-only to prevent accidental editing
+        fs.chmodSync(targetFile, 0o444);
+        console.log(`Copied agent file: ${file} to .claude/agents/ (read-only)`);
+        copiedAgentCount++;
+      }
+    });
+
+    if (copiedAgentCount === 0) {
+      console.warn('Warning: No agent files (.md) found to copy');
+    } else {
+      console.log(`Successfully copied ${copiedAgentCount} agent(s) to .claude/agents/`);
+    }
+  } else {
+    console.log('No claude-agents directory found, skipping agent installation');
+  }
+
   console.log('AI Dev assets installation complete');
 }
 
