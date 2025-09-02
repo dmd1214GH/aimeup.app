@@ -18,13 +18,13 @@ describe('lc-runner CLI Integration', () => {
       issuePrefix: 'AM-',
     },
     'lc-runner-operations': {
-      Tasking: {
-        operationName: 'Task',
-        linearIssueStatus: 'Tasking-ai',
-        promptFile: 'tasking-prompt.md',
+      Grooming: {
+        operationName: 'Groom',
+        linearIssueStatus: 'Grooming',
+        promptFile: 'grooming-prompt.md',
         transitions: {
           success: 'Delivery-Ready',
-          blocked: 'Tasking-BLOCKED',
+          blocked: 'Grooming',
         },
       },
       Delivery: {
@@ -32,19 +32,19 @@ describe('lc-runner CLI Integration', () => {
         linearIssueStatus: 'Delivery-ai',
         promptFile: 'delivery-prompt.md',
         transitions: {
-          success: 'Smoke-ai',
+          success: 'Acceptance',
           blocked: 'Delivery-BLOCKED',
         },
       },
     },
     operations: {
-      Tasking: {
-        operationName: 'Task',
-        linearIssueStatus: 'Tasking-ai',
-        promptFile: 'tasking-prompt.md',
+      Grooming: {
+        operationName: 'Groom',
+        linearIssueStatus: 'Grooming',
+        promptFile: 'grooming-prompt.md',
         transitions: {
           success: 'Delivery-Ready',
-          blocked: 'Tasking-BLOCKED',
+          blocked: 'Grooming',
         },
       },
       Delivery: {
@@ -52,7 +52,7 @@ describe('lc-runner CLI Integration', () => {
         linearIssueStatus: 'Delivery-ai',
         promptFile: 'delivery-prompt.md',
         transitions: {
-          success: 'Smoke-ai',
+          success: 'Acceptance',
           blocked: 'Delivery-BLOCKED',
         },
       },
@@ -101,16 +101,16 @@ describe('lc-runner CLI Integration', () => {
   });
 
   describe('Operation Mapping', () => {
-    it('should map CLI Task operation to Tasking config entry', () => {
+    it('should map CLI Groom operation to Grooming config entry', () => {
       // This is a unit test for the mapping logic
       const operations = mockConfig['lc-runner-operations'];
-      const taskOperation = Object.values(operations).find(
-        (op: OperationMapping) => op.operationName === 'Task'
+      const groomOperation = Object.values(operations).find(
+        (op: OperationMapping) => op.operationName === 'Groom'
       );
 
-      expect(taskOperation).toBeDefined();
-      expect(taskOperation?.linearIssueStatus).toBe('Tasking-ai');
-      expect(taskOperation?.promptFile).toBe('tasking-prompt.md');
+      expect(groomOperation).toBeDefined();
+      expect(groomOperation?.linearIssueStatus).toBe('Grooming');
+      expect(groomOperation?.promptFile).toBe('grooming-prompt.md');
     });
 
     it('should map CLI Deliver operation to Delivery config entry', () => {
@@ -149,11 +149,11 @@ describe('lc-runner CLI Integration', () => {
 
     it('should validate Linear issue status matches operation requirement', () => {
       // This is a placeholder test since actual Linear API is out of scope
-      const operation = mockConfig['lc-runner-operations'].Tasking;
+      const operation = mockConfig['lc-runner-operations'].Grooming;
       const expectedStatus = operation.linearIssueStatus;
 
       // In real implementation, this would check against Linear API
-      expect(expectedStatus).toBe('Tasking-ai');
+      expect(expectedStatus).toBe('Grooming');
     });
   });
 
@@ -167,12 +167,12 @@ describe('lc-runner CLI Integration', () => {
       const operationPromptPath = path.join(
         '/mock/repo',
         '.linear-watcher/prompts',
-        mockConfig['lc-runner-operations'].Tasking.promptFile
+        mockConfig['lc-runner-operations'].Grooming.promptFile
       );
 
       // Verify paths would be constructed correctly
       expect(generalPromptPath).toContain('lc-runner-general-prompt.md');
-      expect(operationPromptPath).toContain('tasking-prompt.md');
+      expect(operationPromptPath).toContain('grooming-prompt.md');
 
       // Verify mock would return content
       const generalContent = mockFs.readFileSync(generalPromptPath, 'utf-8');
@@ -191,7 +191,7 @@ describe('lc-runner CLI Integration', () => {
           if (filePath.includes('.linear-watcher/config.json')) {
             return true;
           }
-          if (filePath.includes('tasking-prompt.md')) {
+          if (filePath.includes('grooming-prompt.md')) {
             return false; // Prompt file missing
           }
         }
@@ -199,7 +199,7 @@ describe('lc-runner CLI Integration', () => {
       });
 
       // Check that missing file is detected
-      const promptPath = path.join('/mock/repo', '.linear-watcher/prompts', 'tasking-prompt.md');
+      const promptPath = path.join('/mock/repo', '.linear-watcher/prompts', 'grooming-prompt.md');
       expect(mockFs.existsSync(promptPath)).toBe(false);
     });
   });
@@ -240,22 +240,22 @@ describe('lc-runner CLI Integration', () => {
         (op: OperationMapping) => op.operationName
       );
 
-      expect(validOperations).toContain('Task');
+      expect(validOperations).toContain('Groom');
       expect(validOperations).toContain('Deliver');
       expect(validOperations).not.toContain('Invalid');
     });
   });
 
   describe('Transition Mapping', () => {
-    it('should provide correct success transition for Task operation', () => {
-      const taskOperation = mockConfig['lc-runner-operations'].Tasking;
-      expect(taskOperation.transitions.success).toBe('Delivery-Ready');
-      expect(taskOperation.transitions.blocked).toBe('Tasking-BLOCKED');
+    it('should provide correct success transition for Groom operation', () => {
+      const groomOperation = mockConfig['lc-runner-operations'].Grooming;
+      expect(groomOperation.transitions.success).toBe('Delivery-Ready');
+      expect(groomOperation.transitions.blocked).toBe('Grooming');
     });
 
     it('should provide correct success transition for Deliver operation', () => {
       const deliverOperation = mockConfig['lc-runner-operations'].Delivery;
-      expect(deliverOperation.transitions.success).toBe('Smoke-ai');
+      expect(deliverOperation.transitions.success).toBe('Acceptance');
       expect(deliverOperation.transitions.blocked).toBe('Delivery-BLOCKED');
     });
   });

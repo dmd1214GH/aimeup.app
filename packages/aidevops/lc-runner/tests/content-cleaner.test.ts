@@ -40,7 +40,7 @@ Some process details
 ## Metadata
 - URL: https://linear.app/team/issue/ID-123
 - Identifier: ID-123
-- Status: Tasking-ai
+- Status: Delivery-ai
 
 ## Metadata
 - URL: https://linear.app/team/issue/ID-123

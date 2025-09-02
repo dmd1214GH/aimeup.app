@@ -10,7 +10,7 @@ describe('Type Schemas', () => {
     it('should validate valid transitions', () => {
       const validTransitions = {
         success: 'Delivery-Ready',
-        blocked: 'Tasking-BLOCKED',
+        blocked: 'Grooming',
       };
 
       const result = TransitionSchema.safeParse(validTransitions);
@@ -31,12 +31,12 @@ describe('Type Schemas', () => {
   describe('OperationMappingSchema', () => {
     it('should validate valid operation mapping', () => {
       const validMapping = {
-        operationName: 'Task',
-        linearIssueStatus: 'Tasking-ai',
-        promptFile: 'tasking-prompt.md',
+        operationName: 'Groom',
+        linearIssueStatus: 'Grooming',
+        promptFile: 'grooming-prompt.md',
         transitions: {
           success: 'Delivery-Ready',
-          blocked: 'Tasking-BLOCKED',
+          blocked: 'Grooming',
         },
       };
 
@@ -46,8 +46,8 @@ describe('Type Schemas', () => {
 
     it('should reject operation mapping without required fields', () => {
       const invalidMapping = {
-        operationName: 'Task',
-        linearIssueStatus: 'Tasking-ai',
+        operationName: 'Groom',
+        linearIssueStatus: 'Grooming',
         // Missing promptFile and transitions
       };
 
@@ -57,9 +57,9 @@ describe('Type Schemas', () => {
 
     it('should reject operation mapping with invalid transitions', () => {
       const invalidMapping = {
-        operationName: 'Task',
-        linearIssueStatus: 'Tasking-ai',
-        promptFile: 'tasking-prompt.md',
+        operationName: 'Groom',
+        linearIssueStatus: 'Grooming',
+        promptFile: 'grooming-prompt.md',
         transitions: {
           success: 'Delivery-Ready',
           // Missing blocked
@@ -106,13 +106,13 @@ describe('Type Schemas', () => {
           issuePrefix: 'AM-',
         },
         'lc-runner-operations': {
-          Tasking: {
-            operationName: 'Task',
-            linearIssueStatus: 'Tasking-ai',
-            promptFile: 'tasking-prompt.md',
+          Grooming: {
+            operationName: 'Groom',
+            linearIssueStatus: 'Grooming',
+            promptFile: 'grooming-prompt.md',
             transitions: {
               success: 'Delivery-Ready',
-              blocked: 'Tasking-BLOCKED',
+              blocked: 'Grooming',
             },
           },
         },
@@ -133,13 +133,13 @@ describe('Type Schemas', () => {
           issuePrefix: 'AM-',
         },
         'lc-runner-operations': {
-          Tasking: {
-            operationName: 'Task',
-            linearIssueStatus: 'Tasking-ai',
-            promptFile: 'tasking-prompt.md',
+          Grooming: {
+            operationName: 'Groom',
+            linearIssueStatus: 'Grooming',
+            promptFile: 'grooming-prompt.md',
             transitions: {
               success: 'Delivery-Ready',
-              blocked: 'Tasking-BLOCKED',
+              blocked: 'Grooming',
             },
           },
           Delivery: {
@@ -147,7 +147,7 @@ describe('Type Schemas', () => {
             linearIssueStatus: 'Delivery-ai',
             promptFile: 'delivery-prompt.md',
             transitions: {
-              success: 'Smoke-ai',
+              success: 'Acceptance',
               blocked: 'Delivery-BLOCKED',
             },
           },
@@ -213,8 +213,8 @@ describe('Type Schemas', () => {
           issuePrefix: 'AM-',
         },
         'lc-runner-operations': {
-          Tasking: {
-            operationName: 'Task',
+          Grooming: {
+            operationName: 'Groom',
             // Missing required fields
           },
         },

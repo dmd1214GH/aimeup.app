@@ -14,18 +14,8 @@
       "promptFile": "grooming-prompt.md",
       "defaultArguments": "--headed",
       "transitions": {
-        "success": "Tasking-ai",
-        "blocked": "Grooming"
-      }
-    },
-    "Tasking": {
-      "operationName": "Task",
-      "linearIssueStatus": "Tasking-ai",
-      "promptFile": "tasking-prompt.md",
-      "defaultArguments": "",
-      "transitions": {
         "success": "Delivery-Ready",
-        "blocked": "Tasking-BLOCKED"
+        "blocked": "Grooming"
       }
     },
     "Delivery": {
@@ -34,17 +24,8 @@
       "promptFile": "delivery-prompt.md",
       "defaultArguments": "--headed",
       "transitions": {
-        "success": "Smoke-ai",
+        "success": "Acceptance",
         "blocked": "Delivery-BLOCKED"
-      }
-    },
-    "Smoketesting": {
-      "operationName": "Smoke",
-      "linearIssueStatus": "Smoke-ai",
-      "promptFile": "smoke-prompt.md",
-      "transitions": {
-        "success": "Smoke-ai",
-        "blocked": "Smoke-FAILED"
       }
     }
   }

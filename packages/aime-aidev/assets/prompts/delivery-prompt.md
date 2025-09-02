@@ -2,12 +2,41 @@
 
 ### Pre-Delivery checklist
 Include these check with the standard pre-check tests
-- [ ] `updated-issue.md` contains a clearly stated and actionable Task List, and along with clear, achievable requirement.
 - [ ] ensure `git status` is clean (no pending commits)
 - [ ] Run the aimequal-runner subagent, then summarize results and confirm all tests pass
 - [ ] Read `<repo-root>/_docs/guides/development-standards.md`
 
-### Step 3: Deliver the Issue
+### Step 3: Generate/Validate Task List
+
+Before beginning delivery work, you MUST invoke the lc-issue-tasker subagent to generate or validate the task list:
+
+1. **Invoke the lc-issue-tasker subagent**:
+   - Use the Task tool with `subagent_type="lc-issue-tasker"`
+   - Pass the complete issue content from `updated-issue.md` to the subagent
+   - The subagent will run in a separate context window, preserving the Delivery context
+
+2. **Handle subagent response**:
+   - If the subagent succeeds:
+     - Verify that a non-empty task list was generated in `updated-issue.md`
+     - If task list is empty, treat as failure and stop the operation
+   - If the subagent fails (crash, timeout, error, or non-successful status):
+     - Stop the Delivery operation immediately
+     - Report the operation as Blocked
+
+3. **Save to Linear via MCP**:
+   - After the subagent completes (whether successful or failed), save the updated issue content to Linear
+   - Use the `mcp__linear__update_issue` tool as described in the general MCP Integration section
+   - Include the save status in the operation report
+
+4. **Create operation report**:
+   - Use the lc-operation-reporter subagent to create an operation report
+   - Action: "Tasked" if successful, "Tasking-BLOCKED" if failed
+   - Status: "InProgress" if successful (continue to Step 4), "Blocked" if failed (stop operation)
+   - Include details about the tasking result and MCP save status in the payload
+
+**CRITICAL**: Do not proceed to Step 4 if tasking fails or produces an empty task list. The Delivery operation must stop immediately and report as Blocked.
+
+### Step 4: Deliver the Issue
 
 #### Prime Delivery Directives
 1. Update the task list in `updated-issue.md` with every status change.
@@ -38,7 +67,7 @@ Include these check with the standard pre-check tests
 - If unexpected problems are encountered, address them as long as the solution is obvious and complies with standards.
 - If you must skip a task, consider it blocked and move on to unblocked tasks
 
-### Step 4: Delivery Operation Success Criteria
+### Step 5: Delivery Operation Success Criteria
 All of these criteria must be true in order to consider a Delivery operation to be Complete.
 - Task list status accurately reflects the status of each task
 - Every task has been completed

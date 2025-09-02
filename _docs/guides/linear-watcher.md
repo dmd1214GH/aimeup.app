@@ -31,29 +31,23 @@ This command-line tool (lc-runner) automates execution of predefined workflows b
 
 It can support these operations:
 
-- `Tasking` - Specify Tasks required to delivery Issues that are in the state of `Tasking-ai`
-- `Delivery` - Develop the code required to deliver the Issue's specified functionality for issues in the state of `Delivery-ai`.
-- `Smoke` - Run the standard Smoketest against the code when issues are set to the status of `Smoke-ai`.
+- `Grooming` - Prepare and refine Issues that are in the state of `Grooming`
+- `Delivery` - Develop the code required to deliver the Issue's specified functionality for issues in the state of `Delivery-ai`. This operation now includes integrated task list generation via the lc-issue-tasker subagent.
 
 ## Issue Status Workflow in Linear
 
-Explains the exact statuses used in Linear. This solution maps AI Operations of to certain statuses (Tasking, Delivering, SmokeTesting)
+Explains the exact statuses used in Linear. This solution maps AI Operations to certain statuses (Grooming, Delivering)
 
 - Backlog
   - **Triage**: transitions to Grooming, Icebox, Out of Scope, Duplicate
-  - **Needs Clarification**: transitions: Tasking-prep, Icebox, Will not do, Duplicate
-  - **Grooming**: transitions to Tasking-prep, Icebox, Will not do, Duplicate
+  - **Needs Clarification**: transitions: Grooming, Icebox, Will not do, Duplicate
+  - **Grooming**: transitions to Delivery-Ready, Icebox, Will not do, Duplicate << AI Executed
   - **Icebox**: transitions to Grooming, Out of Scope
 - Unstarted
-  - **Tasking-Prep**: transitions Tasking-ai, Needs Clarification
-  - **Tasking-ai**: transitions to Delivery-Ready, Tasking-BLOCKED << AI Executed
-  - **Tasking-BLOCKED**: transitions to Tasking-Prep, Needs Clarification
-- Started
   - **Delivery-Ready**: transitions to Delivery-ai, Needs Clarification
-  - **Delivery-ai**: transitions: Smoke-ai, Delivery-BLOCKED << AI Executed
-  - **Delivery-BLOCKED**: transitions: Tasking-Prep, Needs Clarification
-  - **Smoke-ai**: transitions: Final Review, Smoke-BLOCKED << AI Executed
-  - **Smoke-BLOCKED**: transitions: Tasking-Prep, Needs Clarification
+- Started
+  - **Delivery-ai**: transitions: Acceptance, Delivery-BLOCKED << AI Executed (includes task generation)
+  - **Delivery-BLOCKED**: transitions: Grooming, Needs Clarification
   - **Acceptance**: transitions: Done, Needs Clarification
 - Completed
   - **Done**: (terminal)

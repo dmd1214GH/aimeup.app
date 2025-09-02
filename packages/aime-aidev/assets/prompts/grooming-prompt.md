@@ -129,7 +129,7 @@ Groomed issues should be presented in this standard format:
 
 **BEFORE creating the Finished operation report, you MUST:**
 1. Present the groomed issue to the operator with a summary of changes
-2. Ask explicitly: "Does this grooming look complete to you? Should we proceed to mark this as ready for Tasking?"
+2. Ask explicitly: "Does this grooming look complete to you? Should we proceed to mark this as ready for Delivery?"
 3. Wait for operator confirmation
 4. Only proceed if the operator explicitly approves
 

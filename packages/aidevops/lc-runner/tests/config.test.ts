@@ -18,22 +18,22 @@ describe('ConfigLoader', () => {
       issuePrefix: 'AM-',
     },
     'lc-runner-operations': {
-      Tasking: {
-        operationName: 'Task',
-        linearIssueStatus: 'Tasking-ai',
-        promptFile: 'tasking-prompt.md',
+      Grooming: {
+        operationName: 'Groom',
+        linearIssueStatus: 'Grooming',
+        promptFile: 'grooming-prompt.md',
         transitions: {
           success: 'Delivery-Ready',
-          blocked: 'Tasking-BLOCKED',
+          blocked: 'Grooming',
         },
       },
-      Review: {
-        operationName: 'Review',
-        linearIssueStatus: 'Review-ai',
-        promptFile: 'review-prompt.md',
+      Delivery: {
+        operationName: 'Deliver',
+        linearIssueStatus: 'Delivery-ai',
+        promptFile: 'delivery-prompt.md',
         transitions: {
-          success: 'Done',
-          blocked: 'Review-BLOCKED',
+          success: 'Acceptance',
+          blocked: 'Delivery-BLOCKED',
         },
       },
     },
@@ -86,16 +86,16 @@ describe('ConfigLoader', () => {
 
       // Check that operations mapping was created
       expect(config.operations).toBeDefined();
-      expect(config.operations['Task']).toEqual({
-        operationName: 'Task',
-        linearIssueStatus: 'Tasking-ai',
-        promptFile: 'tasking-prompt.md',
+      expect(config.operations['Groom']).toEqual({
+        operationName: 'Groom',
+        linearIssueStatus: 'Grooming',
+        promptFile: 'grooming-prompt.md',
         transitions: {
           success: 'Delivery-Ready',
-          blocked: 'Tasking-BLOCKED',
+          blocked: 'Grooming',
         },
         linearIssueStatusSuccess: 'Delivery-Ready',
-        linearIssueStatusBlocked: 'Tasking-BLOCKED',
+        linearIssueStatusBlocked: 'Grooming',
       });
 
       // Check original fields are preserved
@@ -145,8 +145,8 @@ describe('ConfigLoader', () => {
     });
 
     it('should return true for valid operation', () => {
-      expect(configLoader.validateOperation('Task', mockConfig)).toBe(true);
-      expect(configLoader.validateOperation('Review', mockConfig)).toBe(true);
+      expect(configLoader.validateOperation('Groom', mockConfig)).toBe(true);
+      expect(configLoader.validateOperation('Deliver', mockConfig)).toBe(true);
     });
 
     it('should return false for invalid operation', () => {
@@ -161,11 +161,11 @@ describe('ConfigLoader', () => {
     });
 
     it('should return operation mapping for valid CLI name', () => {
-      const operation = configLoader.getOperationByCliName('Task', mockConfig);
+      const operation = configLoader.getOperationByCliName('Groom', mockConfig);
       expect(operation).toBeDefined();
-      expect(operation?.operationName).toBe('Task');
-      expect(operation?.linearIssueStatus).toBe('Tasking-ai');
-      expect(operation?.promptFile).toBe('tasking-prompt.md');
+      expect(operation?.operationName).toBe('Groom');
+      expect(operation?.linearIssueStatus).toBe('Grooming');
+      expect(operation?.promptFile).toBe('grooming-prompt.md');
     });
 
     it('should return null for invalid CLI name', () => {
@@ -231,8 +231,8 @@ describe('ConfigLoader', () => {
           if (filePath.includes('.linear-watcher/config.json')) {
             return true;
           }
-          if (filePath.includes('tasking-prompt.md')) {
-            return false; // Tasking prompt missing
+          if (filePath.includes('grooming-prompt.md')) {
+            return false; // Grooming prompt missing
           }
           if (filePath.includes('.linear-watcher/prompts/')) {
             return true;
@@ -242,7 +242,7 @@ describe('ConfigLoader', () => {
       });
 
       expect(() => configLoader.validatePromptFiles(mockConfig)).toThrow(
-        'Prompt file not found for operation Tasking'
+        'Prompt file not found for operation Grooming'
       );
     });
   });
