@@ -46,6 +46,7 @@ Explains the exact statuses used in Linear. This solution maps AI Operations to 
 - Unstarted
   - **Delivery-Ready**: transitions to Delivery-ai, Needs Clarification
 - Started
+  - **Delivery**: transitions: Acceptance, Delivery-BLOCKED << Human executed
   - **Delivery-ai**: transitions: Acceptance, Delivery-BLOCKED << AI Executed (includes task generation)
   - **Delivery-BLOCKED**: transitions: Grooming, Needs Clarification
   - **Acceptance**: transitions: Done, Needs Clarification

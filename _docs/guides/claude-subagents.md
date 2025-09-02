@@ -248,6 +248,69 @@ That's it! The subagent will:
 
 **Integration**: Can be invoked manually during development or as part of delivery operations to ensure tests pass
 
+### lc-issue-tasker
+
+**Purpose**: Complete issue tasking agent that generates or validates task lists for Linear issues, ensuring all requirements are clear and creating comprehensive task lists with proper sequencing.
+
+**Key Features**:
+
+- **Task Generation**: Creates detailed task lists from requirements and acceptance criteria
+- **Validation**: Validates against 8 success criteria for task quality
+- **Standards Compliance**: Ensures tasks follow steps-of-doneness.md
+- **Codebase Exploration**: Analyzes existing code to inform task creation
+- **Blocking Detection**: Identifies and documents blocking questions
+
+**Usage**:
+
+```
+Invoke the lc-issue-tasker subagent:
+- issueId: <IssueId>
+- workingFolder: <WorkingFolder>
+- validationFeedback: <Optional previous feedback>
+```
+
+**Integration**: Used by lc-runner Groom and Deliver operations for task list generation
+
+### lc-task-validator
+
+**Purpose**: Pure validation agent that verifies delivery task lists meet quality standards and provides actionable feedback for improvement.
+
+**Key Features**:
+
+- **Read-Only Operation**: No file modifications, only validation
+- **8 Criteria Validation**: Comprehensive quality checks on task lists
+- **Special TaskIds**: Uses "MISSING", "REQUIREMENTS", "BLOCKING" for different issue types
+- **File Path Verification**: Validates referenced files exist in codebase
+- **Structured JSON Output**: Returns detailed validation results for automation
+
+**Usage**:
+
+```
+Invoke the lc-task-validator subagent:
+- issueId: <IssueId>
+- workingFolder: <WorkingFolder>
+- validationFeedback: <Optional previous feedback>
+```
+
+**Response Format**:
+
+```json
+{
+  "isValid": boolean,
+  "criteriaResults": { /* 8 criteria pass/fail */ },
+  "issues": [
+    {
+      "taskId": "MISSING|REQUIREMENTS|BLOCKING|<number>",
+      "problem": "description",
+      "suggestion": "how to fix",
+      "severity": "critical|major|minor"
+    }
+  ]
+}
+```
+
+**Integration**: Can be used to validate task lists before delivery attempts
+
 ## Troubleshooting
 
 ### Subagent Not Found

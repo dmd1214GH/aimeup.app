@@ -132,6 +132,37 @@ describe('Subagent Tool Validation', () => {
         }
       }
     });
+
+    it('lc-task-validator should have only read-only tools', () => {
+      const validatorPath = path.join(claudeAgentsDir, 'lc-task-validator.md');
+      if (fs.existsSync(validatorPath)) {
+        const content = fs.readFileSync(validatorPath, 'utf-8');
+        const yamlMatch = content.match(/^---\n([\s\S]*?)\n---/);
+
+        if (yamlMatch) {
+          const frontmatter: any = {};
+          yamlMatch[1].split('\n').forEach((line) => {
+            const match = line.match(/^(\w+):\s*(.+)$/);
+            if (match) {
+              frontmatter[match[1]] = match[2].replace(/['"]/g, '');
+            }
+          });
+
+          const tools = frontmatter.tools.split(',').map((t: string) => t.trim());
+
+          // Should have only read-only tools
+          expect(tools).toContain('Read');
+          expect(tools).toContain('Glob');
+          expect(tools).toContain('Grep');
+
+          // Should NOT have write tools
+          expect(tools).not.toContain('Write');
+          expect(tools).not.toContain('Edit');
+          expect(tools).not.toContain('MultiEdit');
+          expect(tools).not.toContain('Task');
+        }
+      }
+    });
   });
 
   describe('Documentation Consistency', () => {

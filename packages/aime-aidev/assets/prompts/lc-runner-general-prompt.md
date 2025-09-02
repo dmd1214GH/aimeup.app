@@ -69,13 +69,16 @@ You will be required to produce `operation-report-<Action>-XXX.md` files.  Use t
    - Automatically at operation completion (when creating the Finished operation report with status Complete or Blocked)
 
 2. **Content Extraction Process**:
-   - Read the complete content of `<ArgWorkingFolder>/updated-issue.md`
+   - **CRITICAL**: You MUST read the content directly from the file `<ArgWorkingFolder>/updated-issue.md` using the Read tool
+   - **DO NOT use any in-memory modified version** - always read from the actual file on disk
+   - **NEVER send checked acceptance criteria to Linear** - ACs must remain as `[ ]` not `[x]` or `[X]`
    - Extract the title from the first `#` heading line
    - Extract the body by removing:
      - ALL `#` heading lines that match the title (remove duplicates)
      - The `## Metadata` section at the end (if present)
-   - Preserve all other markdown formatting
+   - Preserve all other markdown formatting including unchecked acceptance criteria
    - NOTE: Some issues may have duplicate title headers - remove all instances
+   - **VALIDATION**: Before sending to Linear, verify all acceptance criteria remain unchecked `[ ]`
 
 3. **Idempotent Updates**:
    - Before saving, check if the content has actually changed

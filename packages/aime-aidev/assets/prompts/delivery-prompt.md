@@ -43,6 +43,7 @@ Before beginning delivery work, you MUST invoke the lc-issue-tasker subagent to 
   - key: `(X)`=Completed the task, `(O)`=Started the task, `(-)`=Blocked, `(D)`=Deleted/Not Needed
   - **CRITICAL**: Do NOT modify acceptance criteria checkboxes `[ ]` - these must remain unchecked for human verification
   - Only update task list items numbered 1., 2., etc. Never change `- [ ]` or `- [X]` checkbox items
+  - **IMPORTANT**: When saving to Linear via MCP, ensure acceptance criteria remain unchecked - never send checked ACs to Linear
 2. Do not resort to "hacky" solutions, consider the task blocked if a good solution cannot be found
 3. When a task is blocked, move on to other tasks that are not impacted by the blockage. End the operation when all work is blocked.
 4. Never commit to git. Operator will do this after accepting delivery.
