@@ -23,6 +23,7 @@ Include this check with the standard pre-check tests
 
 
 **Approach issue level grooming in these phases:**
+- **IMPORTANT**: **Explicit** user approval is **REQUIRED** to move out of each phase.
 
 **Phase 0. Initial Operator Engagement** (MANDATORY)
   - Start with a brief summary of what you understand from the issue
