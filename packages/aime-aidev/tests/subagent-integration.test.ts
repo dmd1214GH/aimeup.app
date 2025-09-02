@@ -17,6 +17,11 @@ describe('Subagent Integration', () => {
       expect(fs.existsSync(reporterPath)).toBe(true);
     });
 
+    it('should contain lc-issue-tasker.md in source', () => {
+      const taskerPath = path.join(sourceAgentsDir, 'lc-issue-tasker.md');
+      expect(fs.existsSync(taskerPath)).toBe(true);
+    });
+
     it('should have valid YAML frontmatter in lc-operation-reporter.md', () => {
       const reporterPath = path.join(sourceAgentsDir, 'lc-operation-reporter.md');
       const content = fs.readFileSync(reporterPath, 'utf-8');
@@ -26,6 +31,18 @@ describe('Subagent Integration', () => {
       expect(content).toMatch(/name: lc-operation-reporter/);
       expect(content).toMatch(/description: ["'].*["']/);
       expect(content).toMatch(/tools: Write, Read, mcp__linear__add_comment/);
+      expect(content).toMatch(/\n---\n/);
+    });
+
+    it('should have valid YAML frontmatter in lc-issue-tasker.md', () => {
+      const taskerPath = path.join(sourceAgentsDir, 'lc-issue-tasker.md');
+      const content = fs.readFileSync(taskerPath, 'utf-8');
+
+      // Check for YAML frontmatter
+      expect(content).toMatch(/^---\n/);
+      expect(content).toMatch(/name: lc-issue-tasker/);
+      expect(content).toMatch(/description: ["'].*["']/);
+      expect(content).toMatch(/tools: Read, Write, Edit, MultiEdit, Grep, Glob/);
       expect(content).toMatch(/\n---\n/);
     });
   });
@@ -41,8 +58,11 @@ describe('Subagent Integration', () => {
       execSync('node dist/postinstall.js', { cwd: path.join(__dirname, '..') });
 
       // Check if agents were copied
-      const targetAgentPath = path.join(claudeAgentsDir, 'lc-operation-reporter.md');
-      expect(fs.existsSync(targetAgentPath)).toBe(true);
+      const targetReporterPath = path.join(claudeAgentsDir, 'lc-operation-reporter.md');
+      expect(fs.existsSync(targetReporterPath)).toBe(true);
+
+      const targetTaskerPath = path.join(claudeAgentsDir, 'lc-issue-tasker.md');
+      expect(fs.existsSync(targetTaskerPath)).toBe(true);
     });
 
     it('should make copied agent files read-only', () => {
@@ -81,7 +101,24 @@ describe('Subagent Integration', () => {
       expect(content).toContain('## Response Format');
     });
 
-    it('should define all required input parameters', () => {
+    it('should have all required sections in lc-issue-tasker', () => {
+      const taskerPath = path.join(sourceAgentsDir, 'lc-issue-tasker.md');
+      const content = fs.readFileSync(taskerPath, 'utf-8');
+
+      // Check for required sections
+      expect(content).toContain('## Your Responsibilities');
+      expect(content).toContain('## Input Parameters');
+      expect(content).toContain('## Pre-Tasking Checklist');
+      expect(content).toContain('## Task List Generation');
+      expect(content).toContain('## Success Criteria Validation');
+      expect(content).toContain('## Assumptions Section');
+      expect(content).toContain('## Blocking Questions Section');
+      expect(content).toContain('## Operation Report Creation');
+      expect(content).toContain('## Response Format');
+      expect(content).toContain('## Error Handling');
+    });
+
+    it('should define all required input parameters for lc-operation-reporter', () => {
       const reporterPath = path.join(sourceAgentsDir, 'lc-operation-reporter.md');
       const content = fs.readFileSync(reporterPath, 'utf-8');
 
@@ -95,6 +132,17 @@ describe('Subagent Integration', () => {
       expect(content).toContain('`payload`');
     });
 
+    it('should define all required input parameters for lc-issue-tasker', () => {
+      const taskerPath = path.join(sourceAgentsDir, 'lc-issue-tasker.md');
+      const content = fs.readFileSync(taskerPath, 'utf-8');
+
+      // Check for all required parameters
+      expect(content).toContain('`issueId`');
+      expect(content).toContain('`workingFolder`');
+      expect(content).toContain('`repoRoot`');
+      expect(content).toContain('`issueContent`');
+    });
+
     it('should specify error handling for file write and upload failures', () => {
       const reporterPath = path.join(sourceAgentsDir, 'lc-operation-reporter.md');
       const content = fs.readFileSync(reporterPath, 'utf-8');
@@ -105,6 +153,34 @@ describe('Subagent Integration', () => {
       expect(content).toContain('Linear upload failure');
       expect(content).toContain('partial success');
       expect(content).toContain('operation can continue');
+    });
+
+    it('should specify all 8 success criteria in lc-issue-tasker', () => {
+      const taskerPath = path.join(sourceAgentsDir, 'lc-issue-tasker.md');
+      const content = fs.readFileSync(taskerPath, 'utf-8');
+
+      // Check for all 8 success criteria
+      expect(content).toContain('Requirements clarity');
+      expect(content).toContain('Complete coverage');
+      expect(content).toContain('Standards compliance');
+      expect(content).toContain('Testing included');
+      expect(content).toContain('Scope adherence');
+      expect(content).toContain('No blockers');
+      expect(content).toContain('Self-contained tasks');
+      expect(content).toContain('Verifiable results');
+    });
+
+    it('should specify error handling for lc-issue-tasker', () => {
+      const taskerPath = path.join(sourceAgentsDir, 'lc-issue-tasker.md');
+      const content = fs.readFileSync(taskerPath, 'utf-8');
+
+      // Check error handling specifications
+      expect(content).toContain('Missing requirements/ACs');
+      expect(content).toContain('Return Failed status');
+      expect(content).toContain('Ambiguous requirements');
+      expect(content).toContain('return Blocked');
+      expect(content).toContain('File write failures');
+      expect(content).toContain('Reporter subagent failures');
     });
   });
 
