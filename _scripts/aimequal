@@ -81,6 +81,7 @@ echo ""
 
 # Track if any test failed
 TEST_FAILED=false
+FAILED_TESTS=()
 FAILED_TEST=""
 
 # Function to run command and capture output
@@ -153,6 +154,7 @@ run_test() {
         echo "Check $OUTPUT_FILE for details" | tee -a "$OUTPUT_FILE" >&2
         echo "------------------------------------------" >&2
         TEST_FAILED=true
+        FAILED_TESTS+=("$test_name")
         FAILED_TEST="$test_name"
         echo "[DEBUG] Test failed, setting TEST_FAILED=true" >> /tmp/aimequal-debug.log
         # Give time for output to be displayed
@@ -303,32 +305,30 @@ handle_interrupt() {
     return 130 2>/dev/null || true
 }
 
-# Function to handle test failure and exit gracefully
-handle_failure() {
+# Function to handle test failure summary
+handle_failure_summary() {
     echo "==========================================" | tee -a "$OUTPUT_FILE"
-    echo "❌ TEST SUITE STOPPED: $FAILED_TEST failed" | tee -a "$OUTPUT_FILE"
-    echo "Full output saved to: $OUTPUT_FILE" | tee -a "$OUTPUT_FILE"
-    echo "Fix the failing test and run aimequal again." | tee -a "$OUTPUT_FILE"
-    cleanup
-    # Don't use exit - just return from the script
-    return 1
+    if [ ${#FAILED_TESTS[@]} -eq 0 ]; then
+        echo "✅ ALL TESTS PASSED" | tee -a "$OUTPUT_FILE"
+        return 0
+    else
+        echo "❌ TEST SUITE FAILED" | tee -a "$OUTPUT_FILE"
+        echo "Failed tests (${#FAILED_TESTS[@]}):" | tee -a "$OUTPUT_FILE"
+        for test in "${FAILED_TESTS[@]}"; do
+            echo "  - $test" | tee -a "$OUTPUT_FILE"
+        done
+        echo "Full output saved to: $OUTPUT_FILE" | tee -a "$OUTPUT_FILE"
+        echo "Fix the failing tests and run aimequal again." | tee -a "$OUTPUT_FILE"
+        return 1
+    fi
 }
 
-# Run tests sequentially, stop at first failure
-run_test "Unit Tests" "pnpm test" || {
-    handle_failure
-    return 1 2>/dev/null || true
-}
+# Run tests sequentially, collect all failures
+run_test "Unit Tests" "pnpm test" || true
 
-run_test "Code Quality" "pnpm hygiene" || {
-    handle_failure
-    return 1 2>/dev/null || true
-}
+run_test "Code Quality" "pnpm hygiene" || true
 
-run_test "TypeScript Type Check" "pnpm typecheck" || {
-    handle_failure
-    return 1 2>/dev/null || true
-}
+run_test "TypeScript Type Check" "pnpm typecheck" || true
 
 # Run Playwright E2E tests if they exist
 # Skip E2E tests if SKIP_E2E is set
@@ -347,23 +347,16 @@ elif [[ -f "apps/aimeHarness/playwright.config.ts" ]]; then
         fi
         # Run smoke test only - single browser navigating all pages  
         # TEST_PORT is already exported from check_and_start_web_server
-        run_test "Web E2E Smoke Test (aimeHarness)" "cd apps/aimeHarness && TEST_PORT=${TEST_PORT} HEADED=${HEADED_MODE} SLOW_MO=${SLOW_MO_VALUE} npx playwright test smoke-with-testids.spec.ts --project=chromium --reporter=list" || {
-            handle_failure
-            return 1 2>/dev/null || true
-        }
+        run_test "Web E2E Smoke Test (aimeHarness)" "cd apps/aimeHarness && TEST_PORT=${TEST_PORT} HEADED=${HEADED_MODE} SLOW_MO=${SLOW_MO_VALUE} npx playwright test smoke-with-testids.spec.ts --project=chromium --reporter=list" || true
     else
         echo "⚠️  Web server startup failed"
         TEST_FAILED=true
+        FAILED_TESTS+=("Web server startup")
         FAILED_TEST="Web server startup"
-        handle_failure
-        return 1 2>/dev/null || true
     fi
 fi
 
-# Stop here if any test has failed
-if [[ "$TEST_FAILED" == "true" ]]; then
-    return 1
-fi
+# Continue running all tests even if some have failed
 
 # Run EatGPT Playwright E2E tests if they exist
 # Skip E2E tests if SKIP_E2E is set
@@ -428,10 +421,7 @@ if [[ -z "${SKIP_E2E:-}" ]] && [[ -f "apps/eatgpt/playwright.config.ts" ]]; then
         if [[ -n "${EATGPT_WEB_SERVER_PID:-}" ]]; then
             trap "cleanup; [[ -n '${EATGPT_WEB_SERVER_PID:-}' ]] && kill $EATGPT_WEB_SERVER_PID 2>/dev/null || true" EXIT
         fi
-        run_test "Web E2E Test (EatGPT)" "cd apps/eatgpt && HEADED=${HEADED_MODE} SLOW_MO=${SLOW_MO_VALUE} npx playwright test hello-world.spec.ts --project=chromium --reporter=list" || {
-            handle_failure
-            return 1 2>/dev/null || true
-        }
+        run_test "Web E2E Test (EatGPT)" "cd apps/eatgpt && HEADED=${HEADED_MODE} SLOW_MO=${SLOW_MO_VALUE} npx playwright test hello-world.spec.ts --project=chromium --reporter=list" || true
     fi
 fi
 
@@ -523,25 +513,16 @@ check_and_run_mobile_tests() {
     return 0
 }
 
-# Stop here if any test has failed
-if [[ "$TEST_FAILED" == "true" ]]; then
-    return 1
-fi
+# Continue running all tests even if some have failed
 
 # Run mobile tests if available
 if [[ -d "apps/aimeHarness/__tests__/e2e/maestro" ]]; then
-    check_and_run_mobile_tests || {
-        handle_failure
-        return 1 2>/dev/null || true
-    }
+    check_and_run_mobile_tests || true
 fi
 
 echo "=========================================="
 
-# Stop here if any test has failed
-if [[ "$TEST_FAILED" == "true" ]]; then
-    return 1
-fi
+# Continue running all tests even if some have failed
 
 # Verify all expected tests actually ran by checking the log file
 echo "Verifying all tests ran..."
@@ -580,22 +561,33 @@ if [ ${#MISSING_TESTS[@]} -gt 0 ]; then
     done
     echo "Check $OUTPUT_FILE for details"
     TEST_FAILED=true
+    FAILED_TESTS+=("Test verification")
     FAILED_TEST="Test verification"
 fi
 
 # Final summary and cleanup
 echo ""
+echo "==========================================" | tee -a "$OUTPUT_FILE"
+echo "TEST SUMMARY" | tee -a "$OUTPUT_FILE"
+echo "==========================================" | tee -a "$OUTPUT_FILE"
+echo "Output file: $OUTPUT_FILE" | tee -a "$OUTPUT_FILE"
+
 if [[ "$TEST_FAILED" == "true" ]]; then
-    echo "❌ TEST SUITE FAILED: $FAILED_TEST" | tee -a "$OUTPUT_FILE"
-    echo "Full output saved to: $OUTPUT_FILE"
-    echo "------------------------------------------"
-    echo "Fix the failing test and run aimequal again."
+    echo "" | tee -a "$OUTPUT_FILE"
+    echo "❌ TEST SUITE FAILED" | tee -a "$OUTPUT_FILE"
+    echo "" | tee -a "$OUTPUT_FILE"
+    echo "Failed tests (${#FAILED_TESTS[@]}):" | tee -a "$OUTPUT_FILE"
+    for test in "${FAILED_TESTS[@]}"; do
+        echo "  - $test" | tee -a "$OUTPUT_FILE"
+    done
+    echo "" | tee -a "$OUTPUT_FILE"
+    echo "Fix the failing tests and run aimequal again." | tee -a "$OUTPUT_FILE"
     cleanup
     return 1
 else
-    echo "✅ All ${#FOUND_TESTS[@]} expected tests verified in log file"
-    echo "All tests completed successfully!"
-    echo "Full output saved to: $OUTPUT_FILE"
+    echo "" | tee -a "$OUTPUT_FILE"
+    echo "✅ ALL TESTS PASSED" | tee -a "$OUTPUT_FILE"
+    echo "All ${#FOUND_TESTS[@]} expected tests completed successfully!" | tee -a "$OUTPUT_FILE"
     cleanup
     return 0
 fi
