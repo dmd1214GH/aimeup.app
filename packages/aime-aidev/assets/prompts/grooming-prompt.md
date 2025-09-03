@@ -1,53 +1,74 @@
 ## Instructions for Grooming Linear issues with ClaudeCode (v0.1)
 
 ### Pre-Grooming checklist
-Include this check with the standard pre-check tests
-- [ ] `<ArgWorkingFolder>/updated-issue.md` contains a clearly stated Requirement(s) that are in a condition to begin or continue grooming
+Include this check with the standard pre-check tests in Phase 1:
+- `<ArgWorkingFolder>/updated-issue.md` contains a clearly stated Requirement(s) that are in a condition to begin or continue grooming
 
 > **⚠️ Verify, Don't Assume**: If requirements mention specific tools, packages, or capabilities, test them during grooming. Unverified assumptions lead to blocked tasks.
 
-### Step 3: Assist operator with grooming the story
+### Phase 3: Grooming Execution
 
-**⚠️ CRITICAL: OPERATOR APPROVAL REQUIRED**
+**⚠️ CRITICAL: COMPLY WITH OPERATOR APPROVAL REQUIREMENTS**
 - You MUST engage in conversation with the operator before completing grooming
-- Even for trivial issues, you MUST present your understanding and get confirmation
-- You CANNOT mark grooming as Complete without explicit operator approval
-- If you're tempted to skip interaction because the issue seems simple, STOP and ask anyway
+- Expect careful deliberation about all issues, the objective is to get it right the first time
 
 **Grooming Rules**
 - Work with the operator to refine the issue defined in `updated-issue.md`
-- Update `updated-issue.md` directly as the conversation progresses.  Do not wait until the end of the conversation to update the document.
-- Find structure and standard guidance in the `#### Template` below.  
-- Never remove content without approval.
-- **No strikethrough text**: Never use strikethrough formatting as it confuses the tasking process. Convert completed work to "Prior Work" section or Assumptions instead.
+- Update `updated-issue.md` directly as the conversation progresses
+- Use the Template below for document structure
+- Never remove content without approval
+- **No strikethrough text**: Never use strikethrough formatting
+- **Remember**: Grooming defines WHAT to build, not HOW to build it
 
 
-**Approach issue level grooming in these phases:**
-- **IMPORTANT**: **Explicit** user approval is **REQUIRED** to move out of each phase.
+#### 3.1: Initial Analysis & Operator Engagement (MANDATORY)
+- Read and analyze the current issue content
+- Identify obvious gaps, ambiguities, or concerns
+- Check for any technical dependencies that might inform the issue definition
+- Prepare initial understanding summary
+- Present findings: "I see this is about [summary]. [Initial observations]. Shall we begin grooming?"
+- **Cannot proceed without explicit approval**
 
-**Phase 0. Initial Operator Engagement** (MANDATORY)
-  - Start with a brief summary of what you understand from the issue
-  - Ask "Shall we begin?" and wait for operator response
-  - Example: "I see this is about removing temp file usage in lc-runner. Shall we begin?"
+#### 3.2: Iterative **Requirements** Development (COMPREHENSIVE)
+- Work iteratively with operator to fully develop the **## Requirements** section BEFORE moving to solutions:
+  - Draft and present initial requirements understanding
+  - Expect and support careful, non-rushed deliberation
+  - Identify scope boundaries and what's out of scope, and include non-obvious scope boundaries in the **## Assumptions** section
+  - Surface assumptions that need validation
+  - **Verify technical dependencies actually exist and work as expected** (test tools/packages/APIs)
+  - Identify potential breakout issues for unrelated or overly complex parts
+  - Collaborate with operator to refine and iterate
+  - Continue until requirements are complete and stable
+  - Ensure all questions are explicitly addressed
+- Update the document continuously during this phase
+- **Requirements Phase Exit Criteria**: 
+  - Requirements crystal clear and sensible
+  - Breakouts identified along with known requirements
+  - Assumptions documented
+  - All known questions are resolved and incorporated
+  - Operator **EXPLICITLY agrees** that requirements are complete
+    - **Required approval**: Say something like:  "The requirements look complete. Shall we move to solution design and acceptance criteria?" and display the requirements list.
+- Gently seek operator approval to move on after all other exit criteria are met
 
-Phase 1. Crystal clear **understanding of the requirements**.
-  - **Remember**: Grooming defines WHAT to build, not HOW to build it
-  - Ensure wording is not vague or ambiguous.
-  - **Verify technical assumptions**: Test that any mentioned tools/packages/APIs actually exist and work as described
-  - Refine through active conversation before proceeding.
-  - Capture scope boundaries (without implementation details)
-  - Capture solution ideas (at a high level, not specific code changes)
-  - Understand the purpose of the each requirement, and challenge validity when appropriate
-Phase 2. Suggest **Breaking Out Issues**
-  - Unrelated issues should not be completed within the same issue
-  - Large or unnecessarily complex issues should be broken out
-  - Aim for simple, easily deliverable stories.
-Phase 3. Work through **Solution and Process Flow** ideas
-  - Again, do this primarily through conversation and approval
-  - Ensure competing options are clear
-Phase 4. Craft **Acceptance Criteria**
-  - Ideally completed after other elements are nearing maturity
+#### 3.3: Solution Design (CONCURRENT)
+- Comprehensively draft the "Solution Design" sections, and keep updated as requirements evolve.  Solution design sections include:
+  - **Process Flows**: Sketch high-level approach and key components (just enough detail)
+  - **Acceptance Criteria**: Define user-observable success criteria
+  - Other sections as needed
+- These inform each other - the approach suggests what to verify, ACs validate coverage
+- Keep technical details minimal but sufficient to guide implementation
+- Allow and encourage requirements refinement during this phase
+- **Solution Design Phase Exit Criteria**: 
+  - Requirements Phase Exit Criteria still hold true
+  - Solution elements would fully deliver the stated requirements, and only the stated requirements
+  - Operator **EXPLICITLY agrees** that Solution Design is complete
+    - **Required approval**: Say something like:  "The solution looks solid. Shall we lock it in and move on?"
 
+
+#### 3.4: Breakout and Proceed
+- If Breakout Issues exist, operators should be instructed to break them out in Linear and re-groom, before moving into delivery.  This will cause a blocked result for the operation.
+- Move ahead to phase 4
+- FUTURE: We hope to automate breakouts in a future release.  That would occur here.
 
 #### Template
 Groomed issues should be presented in this standard format:
@@ -57,10 +78,10 @@ Groomed issues should be presented in this standard format:
 <Description: 1-2 sentence description of the issue>
 
 ## Requirements
-- Well-organized, hierarchical bullets describing the aspirational requirements
-- Consider edge cases, recording decisions as requirements or scope assumptions
-- Consider best-practices, and deviate consciously
-- Requirement Standards
+1. Well-organized, hierarchical numbered list describing the aspirational requirements
+2. Consider edge cases, recording decisions as requirements or scope assumptions
+3. Consider best-practices, and deviate consciously
+4. Requirement Standards
   - Tightly stated (brief and well written)
   - Clear and unambiguous
   - **Avoid ALL implementation specifics** - State WHAT needs to be done, not HOW
@@ -69,33 +90,46 @@ Groomed issues should be presented in this standard format:
     - ❌ Bad: "Pass the original `masterPromptPath` directly in the instruction"
     - ✅ Good: "Use direct file references instead of temporary copies"
     - Let the delivery phase determine specific implementation details
-  - Not unnecessarily technical or overly specific.  Keep them as requirements.
+  - State as requirements, not as instructions
+    - ❌ Bad: Target status values must be passed from lc-runner to operations
+      - Extract success/blocked transitions from config.json for the current operation
+      - Pass as ArgTargetStatusSuccess and ArgTargetStatusBlocked in master-prompt.md
+      - lc-operation-reporter uses these parameters when updating status
+    - ✅ Good: Pass the Success and Blocked status transitions from lc-runner, don't read the file inside the operation.
+    - ❌ Bad: Post-status-update conversation behavior
+      - Track conversation state to prevent duplicate status updates after initial transition
+      - If changes are requested after status transition, prompt: "Do you want to revert the status back to [Grooming|Delivery-ai]? This will require another upload to Linear when we are done"
+      - Upon confirmation, revert status using mcp__linear__update_issue and continue with changes
+      - Track that status was reverted to ensure proper re-transition when work completes
+    - ✅ Good: Prevent accidental updates after final status transitions
+      - When operating in Headed mode, the operator is able to request changes.  Accidental updates should be protected against with a informed intention:  "Do you want to revert the status back to [Grooming|Delivery-ai]? This will require another upload to Linear when we are done"
+  - Not unnecessarily technical or overly specific. Keep them as requirements.
+  - **Requirements should be complete and stable before moving to Process Flows**
 
 ## Blocking Questions
 - List the open questions and related discussions during grooming
 - As questions are answered and incorporated into the issue definition, remove them from this list
 - Any TODO mentioned in this document should have a related question logged here about it
 - **IMPORTANT**: When grooming is complete, this section must contain ONLY the text "No outstanding questions"
-- Do NOT leave resolved questions in the document as they confuse the implementation phase
+  - Do NOT leave resolved questions in the document as they confuse the implementation phase
 
 ## Process Flows
-- Well-organized, hierarchical bullets suggesting how the technical solution might be laid out within the existing aimeup architecture.
-- Reference new or changed components and how they flow together.
-- Consider external tools or packages that should be considered
-- Validate unknowns with small proofs-of-concept and consult documentation to refine details
-- **Test critical dependencies during grooming** - don't assume capabilities exist
-- Process Flows Standards
+- High-level technical approach to achieve the requirements
+- Focus on WHAT components/systems are involved, not HOW they'll be coded
+- Process Flow Standards
+  - **Just enough detail to guide implementation** - no more, no less
+  - Identify key components and their relationships
+  - Note critical technical decisions (e.g., "Use MCP for status updates" not "Call mcp__linear__update_issue with these parameters")
+  - Highlight any architectural constraints or dependencies
   - **AVOID implementation details**: No line numbers, no specific code changes, no exact function calls
-  - **Focus on WHAT, not HOW**: Describe the approach and components, not the exact implementation
   - ❌ Bad: "Remove lines 76-77, 145-146 in claude-invoker.ts"
   - ✅ Good: "The ClaudeInvoker class should skip temp file creation and use direct file references"
-  - Use "```fenceposts" to show code or configuration samples.  But use sparingly.  We are not developing the solution here.
-  - Reference existing components or documents directly using `singleBackTic` marks
-  - Be concise.  Assume ClaudeCode will develop the solution and will not need development guidance, only solution direction
+  - Use "```fenceposts" sparingly for critical configuration or API examples only
+  - Assume the implementer knows how to code - they need direction, not instruction
   - Process flows fully cover the stated requirements
 
 ## Acceptance Criteria
-- Express AC's as on a single line with a `- [ ] Unchecked Checkbox`.  Operator will check these off during acceptance of the issue.
+- Express AC's as on a single line with a `- [ ] Unchecked Checkbox`.  Operator will check these off during acceptance of the issue.  Deliver agent must leave these unchecked.
 - Specify the key points that a user would expect to experience after the delivery of the functionality
 - State these as user acceptance criteria, not requirements or technical tasks
 - Do not restate obvious criteria, or items that are included in `_docs/guides/steps-of-doneness.md`
@@ -125,23 +159,12 @@ Groomed issues should be presented in this standard format:
 
 ```
 
-### Step 4: Mandatory Operator Approval
-
-**BEFORE creating the Finished operation report, you MUST:**
-1. Present the groomed issue to the operator with a summary of changes
-2. Ask explicitly: "Does this grooming look complete to you? Should we proceed to mark this as ready for Delivery?"
-3. Wait for operator confirmation
-4. Only proceed if the operator explicitly approves
-
-**If operator does not approve:**
-- Continue refining based on feedback
-- Do not create Finished report until approval is received
-
-### Step 5: Grooming Operation Success Criteria
-All of these criteria must be true in order to consider a grooming operation to be Complete.  If any are untrue, the operation must result with a status of Blocked
-- [ ] `updated-issue.md` fully describes the requirement, suggested solution, and acceptance criteria according to the standards and guidance described in the Template, without any reliance on context
-- [ ] There are no Blocking Questions, and the Blocking Questions section indicates that no blocking questions remain.
-- [ ] **Operator has explicitly approved the grooming** (not assumed or inferred)
-- [ ] There are no Breakout Issues listed in the document.  All breakout issues have been broken out into their own issues, and those sections have been removed from the issue
-- [ ] Technical dependencies have been verified (tools, packages, APIs exist and work as needed)
+### Phase 4: Grooming Success Verification
+Grooming agent should take a careful look at the final issue definition.  Assume prior evaluations of exit criteria were incomplete.  All of these criteria must be true to consider grooming Complete. If any are untrue, the operation must result with status Blocked.
+- `updated-issue.md` fully describes requirements, solution, and acceptance criteria per Template standards
+- Blocking Questions section contains only "No outstanding questions"
+- Exit criteria for both **Requirements** and **Solution Design** still hold true
+- **Operator approval was obtained for both Requirements and Design sub-phases** (not assumed or inferred)
+- No Breakout Issues remain in document (all have been separated into their own issues)
+- Technical dependencies have been verified (tools, packages, APIs exist and work as needed)
 

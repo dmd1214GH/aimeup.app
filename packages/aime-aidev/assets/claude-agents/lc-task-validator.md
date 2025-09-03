@@ -2,7 +2,7 @@
 name: lc-task-validator
 description: 'Pure validation agent that verifies delivery task lists meet quality standards. Validates against 8 success criteria, checks file references, and provides structured JSON feedback for task list improvements.'
 tools: Read, Glob, Grep
-model: claude-3-opus
+model: opus
 ---
 
 # LC Task Validator Subagent

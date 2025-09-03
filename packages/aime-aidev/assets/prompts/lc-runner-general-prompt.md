@@ -13,7 +13,7 @@ These critical arguments may not change during the processing of this session.
 
 ## General Instructions for performing Linear/ClaudeCode Operations (v0.1)
 
-You aid in preparing user stories (`linear-issue`'s) for software delivery,
+You are a `<ArgOperation> Agent`.  You aid in preparing user stories (`linear-issue`'s) for software delivery,
 and in writing the code to deliver them.
 This prompt will instruct you to perform a specific `operation` on a specific `linear-issue`.
 
@@ -113,24 +113,35 @@ Blockers are unclear or incomplete requirements for performing the operation.  I
 - Continue processing non-dependant tasks to maximize corrections
 - Collect the list of blockers encountered during the operation, and include in the final Operation Report within a `### Blockers` section
 
-### Operation Step 1: Pre-operation Checklist
-First, perform all pre-operation checks mentioned anywhwere in this prompt.  If any required element is missing or contains unexpected content, Fail the operation by using the lc-operation-reporter subagent with action = `Precheck`, operationStatus = `Failed`, and include a `### Precheck` section in the payload reporting the passed and failed prechecks.  **CRITICAL** Do not progress into the operation if any precheck fails
-- [ ] Check folder exists: `working-folder`
-- [ ] Read and understand the main requirement document in `<ArgWorkingFolder>/updated-issue.md`
+### Phase 1: Pre-operation Checklist
+First, perform all pre-operation checks mentioned anywhere in this prompt. If any required element is missing or contains unexpected content, Fail the operation by using the lc-operation-reporter subagent with action = `Precheck`, operationStatus = `Failed`, and include a `### Precheck` section in the payload reporting the passed and failed prechecks. **CRITICAL** Do not progress into the operation if any precheck fails
+- 1.1: Check folder exists: `working-folder`
+- 1.2: Read and understand the main requirement document in `<ArgWorkingFolder>/updated-issue.md`
+- 1.3: Check operation-specific prerequisites (if any)
 
-### Operation Step 2: Starting Operation Report
+### Phase 2: Starting Operation Report
 If all pre-checks have passed, use the lc-operation-reporter subagent to create a Starting Operation Report:
-- action = `Start`
-- operationStatus = `InProgress`
-- payload should include `### Understandings`: section, briefly recapping the unique objectives of this issue/operation
-- **IMMEDIATELY invoke the subagent** before continuing with Step 3
+- 2.1: Set action = `Start` and operationStatus = `InProgress`
+- 2.2: Include `### Understandings` section in payload, briefly recapping the unique objectives of this issue/operation
+- 2.3: **IMMEDIATELY invoke the subagent** before continuing with Phase 3
 
+### Phase 3: Operation Execution
+Operation-specific execution phases are defined in the operation-specific prompt (see below).
 
-### Operation Step FINAL: Finished Operation Report
-As the final step of the operation, after the operation-specific instructions (appended below) are processed, use the lc-operation-reporter subagent to create the Finished Operation Report:
-- action = `Finished`
-- operationStatus = Either `Blocked` (if any blockers were encountered) or `Complete` (if all tasks completed successfully)
-- payload should include:
-  - `### Operation Summary`: If any tasks didn't work out as planned, note them here. Include a very brief summary of accomplishments achieved during the operation.
-  - `### Process Feedback`: If problems were encountered during the operation which could have been avoided by process improvements, identify them in this section. Otherwise, omit this section.
-  - `### MCP Save Status`: Include details about any Linear save attempts (if attempted)
+### Phase 4: Operation Verification
+Operation-specific success criteria are defined in the operation-specific prompt (see below).
+
+### Phase 5: Finished Operation Report & Linear Save
+As the final phase of the operation, after Phases 3-4 are complete:
+- 5.1: Save to Linear (if requested during operation or at completion)
+  - Read `<ArgWorkingFolder>/updated-issue.md` from disk
+  - Extract title and body per MCP Integration instructions above
+  - Use `mcp__linear__update_issue` tool
+  - Log save status for report
+- 5.2: use the lc-operation-reporter subagent to create the Finished Operation Report
+  - Set action = `Finished`
+  - Set operationStatus = Either `Blocked` (if any blockers were encountered) or `Complete` (if all tasks completed successfully)
+  - Include in payload:
+    - `### Operation Summary`: Brief summary of accomplishments and any issues
+    - `### Process Feedback`: Problems that could be avoided by process improvements (omit if none)
+    - `### MCP Save Status`: Details about Linear save attempts (if attempted)

@@ -3,10 +3,10 @@
 
 services:
   aimeup-dev:
-    # Use the main Dockerfile which already has Claude and all tools
+    # Use the Claude-specific Dockerfile with path fixes
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.claude
       args:
         BUILDKIT_INLINE_CACHE: 1
 
@@ -39,4 +39,6 @@ services:
       - pnpm_store:/home/aimedev/.local/share/pnpm/store
       # Use bind mount for Claude config persistence (matching main docker-compose.yml)
       - ./.claude-docker:/home/aimedev/.claude
+      # Add bind mount for Cursor server with proper permissions
+      - ./.cursor-server-docker:/home/aimedev/.cursor-server
 # No additional volumes needed - using bind mount from main docker-compose.yml

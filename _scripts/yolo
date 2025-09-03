@@ -77,12 +77,21 @@ read -r
 
 # Start Claude in YOLO mode
 echo -e "\n🔥 Starting Claude in YOLO mode..."
+
+# Use local Claude if available to avoid permission issues
+CLAUDE_CMD="claude"
+if [[ -x "$HOME/.claude/claude-wrapper.sh" ]]; then
+    CLAUDE_CMD="$HOME/.claude/claude-wrapper.sh"
+elif [[ -x "$HOME/.claude/local/node_modules/.bin/claude" ]]; then
+    CLAUDE_CMD="$HOME/.claude/local/node_modules/.bin/claude"
+fi
+
 # Pass any command-line arguments to claude
 if [[ $# -gt 0 ]]; then
     echo "📝 With parameters: $*"
-    claude --dangerously-skip-permissions "$@"
+    $CLAUDE_CMD --dangerously-skip-permissions "$@"
 else
-    claude --dangerously-skip-permissions
+    $CLAUDE_CMD --dangerously-skip-permissions
 fi
 
 # Restore terminal color to lightgray (same as aimeterm)

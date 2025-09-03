@@ -180,6 +180,97 @@ Should not be removed`;
       expect(cleanIssueBody(input)).toBe(expected);
     });
 
+    it('should preserve all checkbox states exactly', () => {
+      const input = `# Title
+
+## Acceptance Criteria
+- [ ] Unchecked box 1
+- [x] Checked box 1
+- [X] Checked box 2 (uppercase)
+- [ ] Unchecked box 2
+- [] Invalid box (no space)
+- [  ] Box with extra spaces
+
+## Mixed Content
+- [ ] Task checkbox
+Regular text
+- [x] Completed task
+
+## Metadata
+Should be removed`;
+
+      const expected = `## Acceptance Criteria
+- [ ] Unchecked box 1
+- [x] Checked box 1
+- [X] Checked box 2 (uppercase)
+- [ ] Unchecked box 2
+- [] Invalid box (no space)
+- [  ] Box with extra spaces
+
+## Mixed Content
+- [ ] Task checkbox
+Regular text
+- [x] Completed task`;
+
+      expect(cleanIssueBody(input)).toBe(expected);
+    });
+
+    it('should handle nested checkbox scenarios', () => {
+      const input = `# Title
+
+## Tasks
+- [ ] Parent task
+  - [ ] Nested unchecked task
+  - [x] Nested checked task
+    - [ ] Double nested unchecked
+    - [X] Double nested checked
+- [x] Another parent (completed)
+  - [ ] Child still pending
+
+## Metadata
+Remove this`;
+
+      const expected = `## Tasks
+- [ ] Parent task
+  - [ ] Nested unchecked task
+  - [x] Nested checked task
+    - [ ] Double nested unchecked
+    - [X] Double nested checked
+- [x] Another parent (completed)
+  - [ ] Child still pending`;
+
+      expect(cleanIssueBody(input)).toBe(expected);
+    });
+
+    it('should preserve checkboxes in code blocks', () => {
+      const input = `# Title
+
+## Example Code
+\`\`\`markdown
+- [ ] This checkbox is in a code block
+- [x] This should remain as-is
+\`\`\`
+
+## Real Checkboxes
+- [ ] Real unchecked box
+- [x] Real checked box
+
+## Metadata
+Remove`;
+
+      const expected = `## Example Code
+\`\`\`markdown
+- [ ] This checkbox is in a code block
+- [x] This should remain as-is
+\`\`\`
+
+## Real Checkboxes
+- [ ] Real unchecked box
+- [x] Real checked box`;
+
+      expect(cleanIssueBody(input)).toBe(expected);
+    });
+
     it('should handle metadata with various content types', () => {
       const input = `# Title
 

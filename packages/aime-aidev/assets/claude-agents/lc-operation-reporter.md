@@ -67,11 +67,13 @@ Files must be named: `operation-report-<action>-XXX.md`
 ## Processing Steps
 
 1. **Determine sequence number**:
-   - List ALL files matching pattern `operation-report-*.md` in the working folder
-   - Extract the sequence number from each filename (the XXX part in operation-report-*-XXX.md)
-   - Find the HIGHEST sequence number across ALL files
-   - Use the next sequential number (highest + 1)
-   - Example: If folder contains operation-report-Start-001.md, the next file MUST be operation-report-Finished-002.md (NOT 001)
+   - **MANDATORY**: Use Bash `ls` command to list ALL files matching pattern `operation-report-*.md` in the working folder
+   - Extract the sequence number from EACH filename (the XXX part in operation-report-*-XXX.md)
+   - Parse ALL sequence numbers found (e.g., if you see Start-001.md and Tasked-002.md, extract 001 and 002)
+   - Find the HIGHEST sequence number across ALL files regardless of action type
+   - Use the next sequential number (highest + 1, zero-padded to 3 digits)
+   - **CRITICAL BUG FIX**: Never reuse sequence numbers. If Start-001 and Tasked-002 exist, next MUST be 003
+   - Example: If folder contains operation-report-Start-001.md and operation-report-Tasked-002.md, the next file MUST be operation-report-Finished-003.md (NOT 002)
 2. **Generate timestamp** if not provided (readable format in LOCAL timezone: "YYYY-MM-DD HH:MM:SS TZ", e.g., "2025-08-31 17:24:37 EDT" or "2025-08-31 14:24:37 PDT")
 3. **Format the header**: Create a descriptive header like "Groom Operation Finished" or "Deliver Operation Start"
 4. **Write the report file** to `<workingFolder>/operation-report-<action>-XXX.md`
@@ -140,11 +142,18 @@ This operation will implement feature X...
 ```
 
 Expected actions:
-1. Check for existing operation-report-*.md files in /tmp/work/lcr-AM-57
-2. Create /tmp/work/lcr-AM-57/operation-report-Start-001.md with the formatted content above
-3. Read the file to verify
-4. Upload content to Linear issue AM-57 as a comment
-5. Return success status with file path and Linear comment URL
+1. Use `ls /tmp/work/lcr-AM-57/operation-report-*.md` to check for existing files
+2. If no files exist: Create operation-report-Start-001.md
+3. If files exist (e.g., Start-001.md, Tasked-002.md): Create operation-report-<action>-003.md (next sequence)
+4. Read the file to verify content was written correctly
+5. Upload complete content to Linear issue AM-57 as a comment
+6. Return success status with file path and Linear comment URL
+
+**Sequence Number Examples**:
+- Empty folder → First report gets 001
+- Folder has Start-001.md → Next report gets 002
+- Folder has Start-001.md, Tasked-002.md → Next report gets 003 (NOT 001 or 002)
+- Folder has Start-001.md, Finished-002.md → Next report gets 003 (NOT 001 or 002)
 
 ## Important Notes
 

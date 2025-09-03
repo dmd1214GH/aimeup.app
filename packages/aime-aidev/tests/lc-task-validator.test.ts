@@ -26,7 +26,7 @@ describe('LC Task Validator Tests', () => {
         expect(frontmatter.name).toBe('lc-task-validator');
         expect(frontmatter.description).toContain('validation agent');
         expect(frontmatter.description).toContain('quality standards');
-        expect(frontmatter.model).toBe('opus-3');
+        expect(frontmatter.model).toBe('opus');
       }
     });
 
@@ -110,14 +110,9 @@ describe('LC Task Validator Tests', () => {
 
   describe('Input Parameter Compatibility', () => {
     let validatorContent: string;
-    let taskerContent: string;
 
     beforeAll(() => {
       validatorContent = fs.readFileSync(validatorPath, 'utf-8');
-      const taskerPath = path.join(__dirname, '../assets/claude-agents/lc-issue-tasker.md');
-      if (fs.existsSync(taskerPath)) {
-        taskerContent = fs.readFileSync(taskerPath, 'utf-8');
-      }
     });
 
     it('should accept identical parameters as lc-issue-tasker', () => {

@@ -1,14 +1,25 @@
 # Extend base Dockerfile with Claude Code and development tools
 FROM aimeup-aimeup-dev:latest
 
-# Install Claude Code CLI globally
-RUN npm install -g @anthropic-ai/claude-code
+# Switch to root to install global packages
+USER root
+
+# Install Claude Code CLI and MCP servers globally
+RUN npm install -g @anthropic-ai/claude-code mcp-linear
 
 # Setup non-root user (node user already exists from base image with UID 1000)
 # Give node user access to necessary directories and configure zsh
+# Also create symlink to fix Claude Code path issue for both possible home directories
+# And create symlink for Playwright browsers path compatibility
 RUN mkdir -p /home/node/.claude && \
+    mkdir -p /home/aimedev/.claude && \
+    mkdir -p /home/aimedev/.cursor-server && \
+    mkdir -p /Users/dougdanoff && \
+    ln -sfn /home/aimedev/.claude /Users/dougdanoff/.claude && \
+    ln -sf /home/aimedev/.cache/ms-playwright /ms-playwright && \
     chown -R node:node /home/node && \
-    chown -R node:node /aimeup || true && \
+    chown aimedev:aimedev /aimeup && \
+    chmod 777 /home/aimedev/.cursor-server && \
     echo 'export PS1="🐳 docker:%~ %# "' >> /home/node/.zshrc && \
     echo 'export HISTFILE=~/.zsh_history' >> /home/node/.zshrc && \
     echo 'export HISTSIZE=1000' >> /home/node/.zshrc && \
@@ -18,7 +29,7 @@ RUN mkdir -p /home/node/.claude && \
     echo 'export PATH="/aimeup/_scripts:$PATH"' >> /home/node/.zshrc && \
     chown node:node /home/node/.zshrc
 
-# Create entrypoint script for Git configuration
+# Create entrypoint script for Git and Claude configuration
 RUN echo '#!/bin/sh' > /entrypoint.sh && \
     echo '# Configure Git from environment variables' >> /entrypoint.sh && \
     echo 'if [ -n "$GIT_USER_NAME" ]; then' >> /entrypoint.sh && \
@@ -26,6 +37,19 @@ RUN echo '#!/bin/sh' > /entrypoint.sh && \
     echo 'fi' >> /entrypoint.sh && \
     echo 'if [ -n "$GIT_USER_EMAIL" ]; then' >> /entrypoint.sh && \
     echo '  git config --global user.email "$GIT_USER_EMAIL"' >> /entrypoint.sh && \
+    echo 'fi' >> /entrypoint.sh && \
+    echo '# Copy Claude auth files from bind mount with proper ownership' >> /entrypoint.sh && \
+    echo 'if [ -f /home/aimedev/.claude/.claude.json ]; then' >> /entrypoint.sh && \
+    echo '  cp -f /home/aimedev/.claude/.claude.json /home/aimedev/.claude.json' >> /entrypoint.sh && \
+    echo '  chown aimedev:aimedev /home/aimedev/.claude.json' >> /entrypoint.sh && \
+    echo 'fi' >> /entrypoint.sh && \
+    echo 'if [ -f /home/aimedev/.claude/.credentials.json ]; then' >> /entrypoint.sh && \
+    echo '  cp -f /home/aimedev/.claude/.credentials.json /home/aimedev/.credentials.json' >> /entrypoint.sh && \
+    echo '  chown aimedev:aimedev /home/aimedev/.credentials.json' >> /entrypoint.sh && \
+    echo 'fi' >> /entrypoint.sh && \
+    echo '# Run fix-claude-auth.sh in silent mode' >> /entrypoint.sh && \
+    echo 'if [ -f /aimeup/_scripts/fix-claude-auth.sh ]; then' >> /entrypoint.sh && \
+    echo '  /aimeup/_scripts/fix-claude-auth.sh --silent 2>/dev/null || true' >> /entrypoint.sh && \
     echo 'fi' >> /entrypoint.sh && \
     echo '# Execute the original command' >> /entrypoint.sh && \
     echo 'exec "$@"' >> /entrypoint.sh && \
@@ -40,8 +64,22 @@ CMD ["tail", "-f", "/dev/null"]
 # Working directory remains /aimeup from base image
 WORKDIR /aimeup
 
-# Ensure Playwright environment variable is set (inherited from base)
-ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+# Pre-create node_modules directory with correct ownership before volume mount
+USER root
+RUN mkdir -p /aimeup/node_modules && \
+    chown aimedev:aimedev /aimeup/node_modules
+
+# Install dependencies as aimedev user to ensure correct ownership
+USER aimedev
+RUN pnpm install --frozen-lockfile || true
+
+# Continue running as aimedev user
+
+# Set HOME environment variable explicitly for Claude Code
+ENV HOME=/home/aimedev
+
+# Keep Playwright environment variable from base image
+# ENV PLAYWRIGHT_BROWSERS_PATH is already set to /home/aimedev/.cache/ms-playwright in base
 
 # Document optional browser installation commands for Firefox and WebKit
 # Users can run these commands if needed:

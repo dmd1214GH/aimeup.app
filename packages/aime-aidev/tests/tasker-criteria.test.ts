@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -48,36 +49,11 @@ Make the app better and more user-friendly.
 
   describe('Criteria 2: Complete Coverage', () => {
     it('should verify all acceptance criteria are addressed', () => {
-      const taskListComplete = `## Task List
-1. () Create user model with email and password fields
-2. () Implement POST /api/users endpoint
-3. () Add email format validation
-4. () Add password length validation (min 8 chars)
-5. () Return 201 status with user ID on success
-6. () Add integration tests for the endpoint`;
-
-      const acceptanceCriteria = `## Acceptance Criteria
-- [ ] POST /api/users endpoint exists
-- [ ] Email validation implemented
-- [ ] Password length validation
-- [ ] Returns proper status codes`;
-
       // Expected: Pass - all ACs covered by tasks
       expect(true).toBe(true); // Placeholder
     });
 
     it('should fail when acceptance criteria are not fully covered', () => {
-      const taskListIncomplete = `## Task List
-1. () Create user endpoint
-2. () Add some validation`;
-
-      const acceptanceCriteria = `## Acceptance Criteria
-- [ ] POST /api/users endpoint exists
-- [ ] Email validation implemented
-- [ ] Password length validation
-- [ ] Returns proper status codes
-- [ ] Handles duplicate emails`;
-
       // Expected: Fail - missing coverage for duplicate emails and specific validations
       expect(true).toBe(true); // Placeholder
     });
@@ -85,7 +61,8 @@ Make the app better and more user-friendly.
 
   describe('Criteria 3: Standards Compliance', () => {
     it('should include tasks for steps-of-doneness requirements', () => {
-      const taskListWithStandards = `## Task List
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _taskListWithStandards = `## Task List
 1. () Implement feature logic
 2. () Write unit tests with >80% coverage
 3. () Add integration tests
@@ -98,7 +75,8 @@ Make the app better and more user-friendly.
     });
 
     it('should fail without standards compliance tasks', () => {
-      const taskListNoStandards = `## Task List
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _taskListNoStandards = `## Task List
 1. () Build the feature
 2. () Make it work`;
 
@@ -109,7 +87,8 @@ Make the app better and more user-friendly.
 
   describe('Criteria 4: Testing Included', () => {
     it('should include automated testing tasks', () => {
-      const taskListWithTests = `## Task List
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _taskListWithTests = `## Task List
 1. () Implement authentication logic
 2. () Write unit tests for auth service
    - Test successful authentication
@@ -127,7 +106,8 @@ Make the app better and more user-friendly.
     });
 
     it('should fail without testing tasks', () => {
-      const taskListNoTests = `## Task List
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _taskListNoTests = `## Task List
 1. () Build authentication
 2. () Add endpoints
 3. () Update documentation`;
@@ -139,13 +119,14 @@ Make the app better and more user-friendly.
 
   describe('Criteria 5: Scope Adherence', () => {
     it('should stay within acceptance criteria scope', () => {
-      const taskListInScope = `## Task List
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _taskListInScope = `## Task List
 1. () Create user registration endpoint
 2. () Add email validation
 3. () Add password validation
 4. () Write tests for registration`;
 
-      const acceptanceCriteria = `## Acceptance Criteria
+      const _acceptanceCriteria = `## Acceptance Criteria
 - [ ] Users can register with email/password
 - [ ] Email is validated
 - [ ] Password meets requirements`;
@@ -155,16 +136,6 @@ Make the app better and more user-friendly.
     });
 
     it('should fail when tasks exceed scope', () => {
-      const taskListOutOfScope = `## Task List
-1. () Create user registration
-2. () Add social media login
-3. () Implement two-factor authentication
-4. () Add user profile management
-5. () Create admin dashboard`;
-
-      const acceptanceCriteria = `## Acceptance Criteria
-- [ ] Users can register with email/password`;
-
       // Expected: Fail - tasks 2-5 exceed stated scope
       expect(true).toBe(true); // Placeholder
     });
@@ -172,7 +143,8 @@ Make the app better and more user-friendly.
 
   describe('Criteria 6: No Blockers', () => {
     it('should pass with no blocking questions', () => {
-      const issueNoBlockers = `# Issue
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _issueNoBlockers = `# Issue
 ## Requirements
 Clear requirements here
 
@@ -188,7 +160,8 @@ No outstanding questions`;
     });
 
     it('should fail with unresolved blocking questions', () => {
-      const issueWithBlockers = `# Issue
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _issueWithBlockers = `# Issue
 ## Requirements
 Implement caching
 
@@ -207,7 +180,8 @@ Implement caching
 
   describe('Criteria 7: Self-contained Tasks', () => {
     it('should have tasks understandable without context', () => {
-      const selfContainedTasks = `## Task List
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _selfContainedTasks = `## Task List
 1. () Create PostgreSQL user table with columns: id (UUID), email (VARCHAR 255), password_hash (VARCHAR 255), created_at (TIMESTAMP)
 2. () Implement POST /api/auth/register endpoint in auth.controller.ts that accepts {email: string, password: string} and returns {id: string, email: string}
 3. () Add email validation using regex pattern /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/ in validators/email.validator.ts`;
@@ -217,7 +191,8 @@ Implement caching
     });
 
     it('should fail with context-dependent tasks', () => {
-      const contextDependentTasks = `## Task List
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _contextDependentTasks = `## Task List
 1. () Fix the bug
 2. () Update the configuration
 3. () Refactor the code we discussed
@@ -230,7 +205,8 @@ Implement caching
 
   describe('Criteria 8: Verifiable Results', () => {
     it('should have independently verifiable tasks', () => {
-      const verifiableTasks = `## Task List
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _verifiableTasks = `## Task List
 1. () Create /api/users endpoint that returns 200 OK when accessed with GET
 2. () Endpoint returns JSON array of user objects with id, email fields
 3. () Add Jest test file users.test.ts with test "GET /api/users returns user list"
@@ -241,7 +217,8 @@ Implement caching
     });
 
     it('should fail with non-verifiable tasks', () => {
-      const nonVerifiableTasks = `## Task List
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _nonVerifiableTasks = `## Task List
 1. () Improve code quality
 2. () Make it more maintainable
 3. () Optimize performance
@@ -254,7 +231,8 @@ Implement caching
 
   describe('Integration Scenarios', () => {
     it('should handle missing requirements section', () => {
-      const noRequirements = `# Issue
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _noRequirements = `# Issue
 ## Acceptance Criteria
 - [ ] System works
 
@@ -266,7 +244,8 @@ Implement caching
     });
 
     it('should handle missing acceptance criteria', () => {
-      const noACs = `# Issue
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _noACs = `# Issue
 ## Requirements
 Build a feature
 
@@ -278,7 +257,8 @@ Build a feature
     });
 
     it('should validate comprehensive valid issue', () => {
-      const validIssue = `# Create User Authentication System
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _validIssue = `# Create User Authentication System
 
 ## Requirements
 Implement a secure user authentication system using JWT tokens. The system should support user registration with email/password, login functionality, and token-based session management. Passwords must be hashed using bcrypt with a minimum of 10 salt rounds.

@@ -31,3 +31,6 @@ _scripts/aime-env-secrets-*.sh
 
 .claude-docker/
 .claude-backup/
+
+# Cursor IDE
+.cursor-server-docker/

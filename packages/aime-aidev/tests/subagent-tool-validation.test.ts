@@ -84,7 +84,7 @@ describe('Subagent Tool Validation', () => {
                 lineWithMatch.includes('Warning:'));
 
             if (!isWarning) {
-              fail(
+              throw new Error(
                 `${file} contains suspicious pattern suggesting subagent invocation: "${matches[0]}"`
               );
             }
