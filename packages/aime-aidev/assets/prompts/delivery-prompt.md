@@ -17,34 +17,38 @@ Include these delivery-specific pre-operation checks with the other tests in `Ph
 
 #### 3.2: Generate/Validate Task List with Quality Validation
 
-Before beginning delivery work, you MUST use the /aime-task-issue slash command to generate or validate the task list, followed by quality validation:
+Before beginning delivery work, you MUST use the lc-issue-tasker subagent to generate or validate the task list, followed by quality validation:
 
-1. **Create unique tasking result file**:
-   - Generate timestamp: `YYYYMMDDHHMMSS` format  
-   - Create file path: `<workingFolder>/tasking-<timestamp>.md`
-   - This file will receive the operation report path from the slash command
+1. **Invoke the lc-issue-tasker subagent**:
+   - Use the Task tool with `subagent_type="lc-issue-tasker"`
+   - Provide required parameters:
+     - issueId: <issue-id>
+     - workingFolder: <working-folder>
+     - operation: <operation>
+     - repoRoot: <repo-root>
+   - Example prompt: "Please task the following Linear issue:
+     - issueId: AM-68
+     - workingFolder: /aimeup/.linear-watcher/work/lcr-AM-68/op-Deliver-20250904170945
+     - operation: Deliver
+     - repoRoot: /aimeup"
+   - The subagent will run with full conversation context awareness
+   - Wait for subagent completion and capture the response
 
-2. **Invoke the /aime-task-issue slash command**:
-   - Execute: `/aime-task-issue <tasking-result-file-path>`
-   - The command runs in forked context with full conversation awareness
-   - Type the following as a message (not using any tools):
-     `/aime-task-issue <tasking-result-file-path>`
-   - Example: `/aime-task-issue /aimeup/.linear-watcher/work/lcr-AM-68/op-Deliver-20250904170945/tasking-20250904171603.md`
-   - Note: This is a Claude slash command - type it directly as a message, do not use the Bash tool
-   - If the slash command doesn't execute (no response or error), this is a fatal error
-   - Wait for command completion
-
-3. **Read tasking result file for operation report path**:
-   - Read the tasking result file created in step 1
-   - Look for: `OperationReport=<path-to-operation-report>`
-   - If file missing or invalid format: Create failed operation report and stop
-
-4. **Read and evaluate operation report**:
-   - Read the operation report from the path provided
-   - Check the `operationStatus` field in the JSON block:
+2. **Process subagent response and create operation report**:
+   - Parse the JSON response from the subagent
+   - Use lc-issue-saver subagent to create operation report:
+     - action: "Tasked" (if status="Complete") or "Tasking-BLOCKED" (if status="Blocked")
+     - operationStatus: Map status to appropriate value
+     - Include task count and validation details in payload
+   
+3. **Evaluate tasking status**:
+   - Check the status from subagent response:
      - If "Blocked" or "Failed": Stop the operation immediately
-     - If "InProgress": Continue to validation
+     - If "Complete": Continue to implementation
      - If missing/invalid: Create failed report and stop
+
+4. **Save to Linear**:
+  - Use the lc-issue-saver subagent to save the issue, operation report, and status
 
 
 #### 3.3: Implementation

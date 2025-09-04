@@ -18,6 +18,9 @@
 - **Full Check**: `pnpm check` (runs hygiene, typecheck, test)
 - **Clean**: `pnpm clean`
 
+## Keywords
+- **Task Issue**: Execute `/aime-task-issue` command
+
 ## Project Structure
 
 - **Monorepo**: Turborepo-based with apps, packages, services
@@ -45,22 +48,6 @@
 - **CRITICAL**: Adhere to `/_docs/guides/agent-item-delivery.md` when working on official backlog items
 - Rules are more relaxed when not working on backlog items
 - Confirm the mode if unclear
-
-## Running the App
-
-- **Native Development**: `cd apps/eatgpt && npx expo start`
-  - iOS Simulator: Press `i` or scan QR with Camera app
-  - Android Emulator: Press `a` or scan QR with Expo Go
-  - Physical Device: Install Expo Go app and scan QR
-- **Web Development**: `cd apps/eatgpt && npx expo start --web`
-  - Access at http://localhost:8081
-
-## UI Component Demo
-
-- **Kitchen Sink Screen**: Navigate to `/kitchensink` in the app
-  - Demonstrates all @aimeup/ui-native components
-  - Shows Redux state management integration
-  - Tests Button variants, Input components, Card types
 
 ## Git Policy
 
