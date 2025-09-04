@@ -68,7 +68,7 @@ Always check for issue content changes first:
 5. **Update issue status** (if Complete or Blocked):
    - If `operationStatus` is "Complete": use `successStatusTransition` status
    - If `operationStatus` is "Blocked": use `blockedStatusTransition` status
-   - Call `mcp__linear__update_issue` with status parameter
+   - Call `mcp__linear__update_issue` with `stateId` parameter (not `status`)
    - Log status change to `issue-operation-log.md`
 
 ### 2. Operation Report Creation

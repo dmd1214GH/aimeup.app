@@ -14,7 +14,7 @@
       "promptFile": "grooming-prompt.md",
       "defaultArguments": "--headed",
       "transitions": {
-        "success": "Delivery-Ready",
+        "success": "Delivery-ai",
         "blocked": "Grooming"
       }
     },
