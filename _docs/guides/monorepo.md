@@ -254,6 +254,11 @@ The CLI depends on the `@aimeup/aime-aidev` profile package which:
 - Copies runtime assets to `/.linear-watcher/`:
   - `config.json` - Operation mappings and settings
   - `prompts/` - Operation-specific prompt templates
+- Provides subagents including:
+  - `lc-issue-saver` - Unified Linear issue save handler (replaces lc-operation-reporter)
+  - `lc-issue-tasker` - Task list generation for delivery operations
+  - `lc-task-validator` - Task list quality validation
+  - `lc-operation-reporter` (deprecated - use lc-issue-saver)
 
 #### Usage
 

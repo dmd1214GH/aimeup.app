@@ -5,7 +5,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { execSync } from 'child_process';
+
 import * as os from 'os';
 
 describe('lc-runner Integration Tests', () => {

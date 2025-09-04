@@ -450,11 +450,11 @@ These elements are not considered for inclusion at this time:
 
 ## aimequal Fix Patterns
 
-This section defines automated fix patterns for the aimequal-runner subagent. These patterns help the subagent determine which test failures can be automatically fixed versus those that require human review.
+This section defines automated fix patterns for aimequal test failures. These patterns help determine which test failures can be automatically fixed versus those that require human review.
 
-### Interpreting aimequal-runner Results
+### Running aimequal Tests
 
-**CRITICAL**: When the aimequal-runner completes, accurately report its JSON response:
+**Use the `/aimefix` slash command or run `_scripts/aimequal` directly**:
 
 1. **Never assume success** - Check the actual `status` field:
    - `"success"` - All tests pass, no issues remain
@@ -480,7 +480,7 @@ This section defines automated fix patterns for the aimequal-runner subagent. Th
 
 ### Auto-Fixable Patterns
 
-The following test failure patterns can be automatically fixed by the aimequal-runner subagent:
+The following test failure patterns can be automatically fixed:
 
 #### Prettier Formatting
 
@@ -651,9 +651,9 @@ if (output.includes('Snapshot test failed') || output.includes('does not match s
 }
 ```
 
-### Usage by aimequal-runner Subagent
+### Automated Fix Patterns
 
-The aimequal-runner subagent reads this section at runtime to:
+When encountering test failures, these patterns indicate which issues can be fixed automatically:
 
 1. Categorize test failures into auto-fixable or report-only
 2. Apply appropriate fix strategies for auto-fixable issues

@@ -153,7 +153,7 @@ describe('UploadOrchestrator', () => {
         'operation-report-Finished-002.md',
       ]);
       expect(result.uploadedAssets.issueBody).toBe(true);
-      expect(result.uploadedAssets.statusUpdate).toBe(true);
+      // Status updates removed - handled by lc-issue-saver
     });
 
     // Test removed: Comment uploads are now handled by Claude Code MCP integration
@@ -169,7 +169,7 @@ describe('UploadOrchestrator', () => {
     it('should update issue status to success', async () => {
       await orchestrator.upload(mockOptions);
 
-      expect(mockLinearClient.updateIssueStatus).toHaveBeenCalledWith('AM-25', 'Delivery-review');
+      // Status updates removed - handled by lc-issue-saver
     });
 
     it('should update issue status to blocked for Blocked result', async () => {
@@ -186,7 +186,7 @@ describe('UploadOrchestrator', () => {
 
       await orchestrator.upload(mockOptions);
 
-      expect(mockLinearClient.updateIssueStatus).toHaveBeenCalledWith('AM-25', 'Blocked');
+      // Status updates removed - handled by lc-issue-saver
     });
 
     it('should log upload start and completion', async () => {
@@ -228,24 +228,21 @@ describe('UploadOrchestrator', () => {
 
       expect(result.success).toBe(false);
       expect(result.errors).toContain('updated-issue.md is identical to original-issue.md');
-      expect(result.failureReportFilename).toBe('operation-report-UploadPrecheck-001.md');
+      // No UploadPrecheck report generated anymore
     });
 
-    it('should generate precheck failure report', async () => {
+    it('should not generate precheck failure report', async () => {
       await orchestrator.upload(mockOptions);
 
-      expect(mockValidator.generatePrecheckFailureReport).toHaveBeenCalled();
-      // Comment upload for failure reports still happens but will be removed in future
-      expect(mockLinearClient.addComment).toHaveBeenCalledWith(
-        'AM-25',
-        expect.stringContaining('Operation Report')
-      );
+      // UploadPrecheck reports are no longer generated
+      expect(mockValidator.generatePrecheckFailureReport).not.toHaveBeenCalled();
+      expect(mockLinearClient.addComment).not.toHaveBeenCalled();
     });
 
     it('should update status to blocked on validation failure', async () => {
       await orchestrator.upload(mockOptions);
 
-      expect(mockLinearClient.updateIssueStatus).toHaveBeenCalledWith('AM-25', 'Blocked');
+      // Status updates removed - handled by lc-issue-saver
     });
   });
 
@@ -274,19 +271,12 @@ describe('UploadOrchestrator', () => {
 
       expect(result.success).toBe(true); // Should succeed despite no issue body update
       expect(result.uploadedAssets.issueBody).toBe(true); // Marked as handled by MCP
-      expect(result.uploadedAssets.statusUpdate).toBe(true);
+      // Status updates removed - handled by lc-issue-saver
       expect(mockLinearClient.updateIssueBody).not.toHaveBeenCalled();
     });
 
-    it('should handle status update failure', async () => {
-      mockLinearClient.updateIssueStatus.mockResolvedValue(false);
-
-      const result = await orchestrator.upload(mockOptions);
-
-      expect(result.success).toBe(false); // Failed because status update failed
-      expect(result.uploadedAssets.statusUpdate).toBe(false);
-      expect(result.uploadedAssets.issueBody).toBe(true);
-      expect(result.errors).toContain('Failed to update issue status');
+    it.skip('should handle status update failure - REMOVED: status updates now handled by lc-issue-saver', async () => {
+      // Status updates are now handled by lc-issue-saver during operations, not during upload
     });
   });
 
@@ -315,7 +305,7 @@ describe('UploadOrchestrator', () => {
         'AM-25',
         expect.stringContaining('Operation Report')
       );
-      expect(mockLinearClient.updateIssueStatus).toHaveBeenCalledWith('AM-25', 'Blocked');
+      // Status updates removed - handled by lc-issue-saver
     });
   });
 
@@ -339,10 +329,11 @@ describe('UploadOrchestrator', () => {
 
       const result = await orchestrator.upload(optionsWithBadOp);
 
-      expect(result.success).toBe(false); // Failed because status update couldn't happen
-      expect(result.uploadedAssets.statusUpdate).toBe(false);
-      expect(result.errors).toContain('Failed to update issue status');
-      expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('No status mapping found'));
+      expect(result.success).toBe(true); // Status updates removed - no longer affects success
+      // Status updates removed - handled by lc-issue-saver
+      expect(console.warn).not.toHaveBeenCalledWith(
+        expect.stringContaining('No status mapping found')
+      );
     });
 
     it('should handle missing target status', async () => {
@@ -381,10 +372,9 @@ describe('UploadOrchestrator', () => {
 
       const result = await orchestrator.upload(optionsWithBadConfig);
 
-      expect(result.success).toBe(false); // Failed because status update couldn't happen
-      expect(result.uploadedAssets.statusUpdate).toBe(false);
-      expect(result.errors).toContain('Failed to update issue status');
-      expect(console.warn).toHaveBeenCalledWith(
+      expect(result.success).toBe(true); // Status updates removed - no longer affects success
+      // Status updates removed - handled by lc-issue-saver
+      expect(console.warn).not.toHaveBeenCalledWith(
         expect.stringContaining('No target status configured')
       );
     });

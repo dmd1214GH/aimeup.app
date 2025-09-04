@@ -5,6 +5,8 @@ export interface PromptReplacements {
   issueId: string;
   operation: string;
   workingFolder: string;
+  targetStatusSuccess?: string;
+  targetStatusBlocked?: string;
 }
 
 export interface TestOptions {
@@ -88,6 +90,8 @@ export class PromptAssembler {
     result = result.replace(/<ArgIssueId>/g, replacements.issueId);
     result = result.replace(/<ArgOperation>/g, replacements.operation);
     result = result.replace(/<ArgWorkingFolder>/g, replacements.workingFolder);
+    result = result.replace(/<ArgTargetStatusSuccess>/g, replacements.targetStatusSuccess || '');
+    result = result.replace(/<ArgTargetStatusBlocked>/g, replacements.targetStatusBlocked || '');
     return result;
   }
 

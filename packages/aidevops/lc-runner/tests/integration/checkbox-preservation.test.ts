@@ -1,15 +1,13 @@
 import { ClaudeOutputParser } from '../../src/claude-output-parser';
-import { UploadOrchestrator } from '../../src/upload-orchestrator';
 import { cleanIssueBody } from '../../src/content-cleaner';
 
 describe('Checkbox preservation through delivery pipeline', () => {
   let parser: ClaudeOutputParser;
-  let orchestrator: UploadOrchestrator;
 
   beforeEach(() => {
     parser = new ClaudeOutputParser();
     // Mock Linear API for upload orchestrator
-    orchestrator = new UploadOrchestrator('/test', '/test/working');
+    // orchestrator = new UploadOrchestrator('/test', '/test/working');
   });
 
   it('should preserve unchecked checkboxes through parsing', () => {

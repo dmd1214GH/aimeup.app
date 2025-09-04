@@ -102,8 +102,7 @@ export async function uploadCommand(
       console.log(`Using working folder: ${resolvedWorkingFolder}`);
     }
 
-    // Clean up any UploadPrecheck reports before running validation
-    cleanupUploadPrecheckReports(resolvedWorkingFolder);
+    // No longer need to clean up UploadPrecheck reports since we don't create them
 
     // Check for required files
     const requiredFiles = ['original-issue.md', 'updated-issue.md'];

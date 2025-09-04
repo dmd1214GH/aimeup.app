@@ -1,6 +1,6 @@
 /**
- * Test file with auto-fixable failures for testing aimequal-runner
- * These should be automatically fixed by the agent
+ * Test file with auto-fixable failures for testing aimequal
+ * These should be automatically fixed when running /aimequal command
  */
 
 // ESLint error: unused variable (auto-fixable) - FIXED

@@ -24,3 +24,7 @@ test-results/
 # Linear watcher prompts - these need specific formatting for lc-runner
 .linear-watcher/prompts/*.md
 packages/aime-aidev/assets/prompts/*.md
+
+# Test fixtures - dynamically generated and don't need formatting
+packages/aime-aidev/tests/fixtures/**/*.md
+**/fixtures/**/*.md

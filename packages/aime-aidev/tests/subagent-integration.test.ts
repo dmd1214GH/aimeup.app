@@ -192,10 +192,10 @@ describe('Subagent Integration', () => {
       const content = fs.readFileSync(promptPath, 'utf-8');
 
       // Check for subagent integration section
-      expect(content).toContain('#### Subagent Integration for Operation Reports');
-      expect(content).toContain('lc-operation-reporter subagent');
+      expect(content).toContain('#### Unified Issue Save Handler: lc-issue-saver');
+      expect(content).toContain('lc-issue-saver subagent');
       expect(content).toContain('Use the Task tool');
-      expect(content).toContain('subagent_type="lc-operation-reporter"');
+      expect(content).toContain('subagent_type="lc-issue-saver"');
 
       // Should not contain old MCP instructions
       expect(content).not.toContain('#### MCP Integration for Operation Reports');
@@ -207,12 +207,12 @@ describe('Subagent Integration', () => {
 
       // Check Step 2 (Starting Operation Report)
       expect(content).toContain(
-        'use the lc-operation-reporter subagent to create a Starting Operation Report'
+        'use the lc-issue-saver subagent to create a Starting Operation Report'
       );
 
       // Check Step FINAL (Finished Operation Report)
       expect(content).toContain(
-        'use the lc-operation-reporter subagent to create the Finished Operation Report'
+        'Use the lc-issue-saver subagent to create the Finished Operation Report'
       );
     });
   });

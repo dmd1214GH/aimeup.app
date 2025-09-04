@@ -3,7 +3,7 @@
 ### Pre-Delivery checklist
 Include these checks with the standard pre-check tests in Phase 1:
 - Ensure `git status` is clean (no pending commits)
-- Run the aimequal-runner subagent, then summarize results and confirm all tests pass
+- Run `_scripts/aimequal` directly or use `/aimefix` command, then confirm all tests pass
 - Read `<repo-root>/_docs/guides/development-standards.md`
 
 ### Phase 3: Delivery Execution
@@ -33,14 +33,14 @@ Before beginning delivery work, you MUST invoke the lc-issue-tasker subagent to 
      - Stop the Delivery operation immediately
      - Report the operation as Blocked with "Tasking-BLOCKED"
 
-3. **Save to Linear via MCP**:
-   - After the subagent completes (whether successful or failed), save the updated issue content to Linear
-   - Use the `mcp__linear__update_issue` tool as described in the general MCP Integration section
-   - Include the save status in the operation report
+3. **Create operation report with automatic Linear save**:
+   - After the subagent completes, invoke lc-issue-saver to create the operation report
+   - The lc-issue-saver will automatically detect and save any content changes to Linear
+   - Include the save status from the subagent response in subsequent reports
 
-4. **Create initial operation report**:
-   - If tasking failed: Create "Tasking-BLOCKED" report and stop operation
-   - If tasking succeeded: Create "Tasked" report and proceed to validation
+4. **Create initial operation report via lc-issue-saver**:
+   - If tasking failed: Use lc-issue-saver with action="Tasking-BLOCKED", operationStatus="Blocked"
+   - If tasking succeeded: Use lc-issue-saver with action="Tasked", operationStatus="InProgress"
 
 ##### Part B: Task List Quality Validation
 
@@ -56,8 +56,7 @@ Before beginning delivery work, you MUST invoke the lc-issue-tasker subagent to 
      - `requirementsClarity` = "fail": Block with "Requirements-BLOCKED" report
      - `noBlockers` = "fail": Block with "BlockingQuestions-BLOCKED" report
    - If fatal failure detected:
-     - Create appropriate blocking operation report
-     - Save to Linear via MCP
+     - Create appropriate blocking operation report via lc-issue-saver
      - Stop the operation - do NOT attempt refinement
 
 7. **Handle refineable validation failures**:
@@ -65,7 +64,7 @@ Before beginning delivery work, you MUST invoke the lc-issue-tasker subagent to 
      - Create "Validation-Failed" operation report with structured feedback
      - Re-invoke lc-issue-tasker with `validationFeedback` parameter containing the validator's response
      - The tasker will analyze feedback and either regenerate or apply targeted fixes
-     - Save updated content to Linear via MCP after refinement
+     - Invoke lc-issue-saver to save and report the refinement
 
 8. **Second validation cycle (if refinement occurred)**:
    - Re-invoke lc-task-validator with the refined task list
@@ -94,7 +93,7 @@ The validator checks these 8 criteria (fatal failures marked with **FATAL**):
 **CRITICAL**: 
 - Do not proceed to Step 4 if tasking fails, validation identifies fatal failures, or refinement fails
 - The Delivery operation must stop immediately and report as Blocked in these cases
-- Always save to Linear after each agent invocation (tasker and validator)
+- Always use lc-issue-saver after each agent invocation (tasker and validator) to save content and create reports
 
 #### 3.3: Implementation
 
@@ -137,14 +136,15 @@ All of these criteria must be true to consider Delivery Complete:
 - 4.3: Code is in a committable state
 - 4.4: Local repo is up to date with the lastest build and is ready to showcase the results
 - 4.5: The `Delivery Adjustments` section accurately represents adjustments and findings
-- 4.6: The aimequal-runner subagent reports success (all tests passing) following the very last code change
+- 4.6: The aimequal test suite passes (run `_scripts/aimequal` or `/aimefix` command) following the very last code change
+- 4.7: Deliery agent has affirms that all acceptance criteria will pass
 
 If all conditions are true, the operation should be identified as a success.
 
 When creating your Finished operation report with Complete status:
-- You MUST save the updated issue content to Linear via MCP (as described in the general prompt MCP Integration for Issue Content Saving section)
+- Use lc-issue-saver which will automatically save the updated issue content to Linear
 - This ensures the delivered changes are immediately reflected in the Linear issue
-- The mcpSaveStatus should be included in your Finished operation report
+- The subagent response will include the save status for your records
 
 Otherwise, repeat the delivery process to address remaining unfinished work, or end with a BLOCKED status.
 All BLOCKED statuses must be accompanied by BLOCKING QUESTIONS.

@@ -6,5 +6,5 @@ These general Acceptance Criteria apply implicitly to the Delivery of every Line
 - [ ] New or removed packages are properly documented according to the standards in `_docs/guides/monorepo.md`
 - [ ] Task List Status is reported accurately
 - [ ] All acceptance criteria can be demonstrated in some way to a human
-- [ ] `aimequal-runner` (from `_docs/guides/claude-subagents.md`) runs completely without errors or warnings. **IMPORTANT** Do not run other tests as the final confirmation. aimequal runs all necessary tests.
+- [ ] `_scripts/aimequal` runs completely without errors or warnings (can use `/aimefix` command). **IMPORTANT** Do not run other tests as the final confirmation. aimequal runs all necessary tests.
 - [ ] Monorepo is ready to be committed by operator

@@ -190,64 +190,6 @@ Invoke the lc-operation-reporter subagent with all required parameters:
 
 **Integration**: Used by all lc-runner operations (Groom, Task, Deliver)
 
-### aimequal-runner
-
-**Purpose**: Makes `_scripts/aimequal` pass by automatically fixing common test failures with smart retry logic and circular dependency detection.
-
-**Key Features**:
-
-- **Direct Execution**: Runs `_scripts/aimequal` directly, synchronously
-- **Per-Error Tracking**: Each unique error gets up to 5 fix attempts before being marked unfixable
-- **Circular Dependency Detection**: Detects and stops oscillating fixes (A breaks B, B breaks A)
-- **Pattern-Based Fixes**: Reads fix patterns from `/aimeup/_docs/guides/automated-testing.md#aimequal-fix-patterns`
-- **Detailed Reporting**: Comprehensive reports with fix history, error tracking, and unfixable issues
-
-**Usage**:
-
-```
-Invoke the aimequal-runner subagent:
-- No parameters needed
-- Runs automatically and returns JSON with results
-```
-
-**No Parameters Required**: The subagent runs in smart mode automatically, no configuration needed.
-
-**Example Invocation**:
-
-```
-Run the aimequal-runner subagent, then summarize results
-```
-
-That's it! The subagent will:
-
-1. Run `_scripts/aimequal`
-2. Fix any auto-fixable issues it encounters
-3. Track attempts per unique error (max 5)
-4. Detect and avoid circular dependencies
-5. Return detailed report of what was fixed and what couldn't be fixed
-
-**Auto-Fixable Patterns**:
-
-- Prettier formatting issues
-- ESLint errors with auto-fix available
-- Missing TypeScript annotations
-- Jest snapshot mismatches
-- Simple test assertion updates
-- Mock signature mismatches
-- Monorepo configuration issues
-- E2E selector updates
-- Timeout adjustments
-
-**Report-Only Patterns** (won't attempt fixes):
-
-- Business logic failures
-- Security test failures
-- Performance regressions
-- Integration test failures
-- Complex conditional logic issues
-
-**Integration**: Can be invoked manually during development or as part of delivery operations to ensure tests pass
-
 ### lc-issue-tasker
 
 **Purpose**: Complete issue tasking agent that generates or validates task lists for Linear issues, ensuring all requirements are clear and creating comprehensive task lists with proper sequencing.

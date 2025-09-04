@@ -189,6 +189,8 @@ ${issue.description}
       issueId,
       operation,
       workingFolder: workingFolderPath,
+      targetStatusSuccess: operationMapping.transitions?.success || '',
+      targetStatusBlocked: operationMapping.transitions?.blocked || '',
     };
 
     const testOptions = {

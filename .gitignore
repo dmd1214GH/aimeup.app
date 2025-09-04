@@ -34,3 +34,7 @@ _scripts/aime-env-secrets-*.sh
 
 # Cursor IDE
 .cursor-server-docker/
+
+# Test fixtures - dynamically generated during test runs
+**/tests/fixtures/
+packages/aime-aidev/tests/fixtures/

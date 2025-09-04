@@ -1,8 +1,8 @@
 /**
- * Test file with intentional failures for testing aimequal-runner
+ * Test file with intentional failures for testing aimequal
  * These failures are designed to test:
  * 1. Report-only patterns (business logic, security)
- * 2. Exceeding the 5-attempt limit
+ * 2. Manual intervention requirements
  */
 
 describe('Unfixable Test Scenarios', () => {

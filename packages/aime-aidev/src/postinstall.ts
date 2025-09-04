@@ -158,6 +158,57 @@ function copyAssets(): void {
     console.log('No claude-agents directory found, skipping agent installation');
   }
 
+  // Copy claude-commands directory to .claude/commands
+  const commandsSource = path.join(sourceDir, 'claude-commands');
+  const commandsTarget = path.join(claudeDir, 'commands');
+
+  if (fs.existsSync(commandsSource)) {
+    // Create .claude directory if it doesn't exist
+    if (!fs.existsSync(claudeDir)) {
+      fs.mkdirSync(claudeDir, { recursive: true });
+      console.log(`Created directory: ${claudeDir}`);
+    }
+
+    // Create commands directory if it doesn't exist
+    if (!fs.existsSync(commandsTarget)) {
+      fs.mkdirSync(commandsTarget, { recursive: true });
+      console.log(`Created directory: ${commandsTarget}`);
+    }
+
+    const commandFiles = fs.readdirSync(commandsSource);
+    let copiedCommandCount = 0;
+    commandFiles.forEach((file) => {
+      if (file.endsWith('.md')) {
+        const sourceFile = path.join(commandsSource, file);
+        const targetFile = path.join(commandsTarget, file);
+
+        // Force remove existing file if it exists using rm -f (handles read-only files)
+        if (fs.existsSync(targetFile)) {
+          try {
+            execSync(`rm -f "${targetFile}"`);
+          } catch (rmError) {
+            console.error(`Failed to remove existing command file ${file}: ${rmError}`);
+            process.exit(1);
+          }
+        }
+
+        fs.copyFileSync(sourceFile, targetFile);
+        // Make the file read-only to prevent accidental editing
+        fs.chmodSync(targetFile, 0o444);
+        console.log(`Copied command file: ${file} to .claude/commands/ (read-only)`);
+        copiedCommandCount++;
+      }
+    });
+
+    if (copiedCommandCount === 0) {
+      console.warn('Warning: No command files (.md) found to copy');
+    } else {
+      console.log(`Successfully copied ${copiedCommandCount} command(s) to .claude/commands/`);
+    }
+  } else {
+    console.log('No claude-commands directory found, skipping command installation');
+  }
+
   console.log('AI Dev assets installation complete');
 }
 

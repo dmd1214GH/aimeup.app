@@ -164,7 +164,7 @@ Grooming agent should take a careful look at the final issue definition.  Assume
 - `updated-issue.md` fully describes requirements, solution, and acceptance criteria per Template standards
 - Blocking Questions section contains only "No outstanding questions"
 - Exit criteria for both **Requirements** and **Solution Design** still hold true
-- **Operator approval was obtained for both Requirements and Design sub-phases** (not assumed or inferred)
+- You explicitly asked: "The issue looks solid to me, ready to move to Delivery?", and operator responded affirmatively.  **NEVER** assume or inferr this answer.
 - No Breakout Issues remain in document (all have been separated into their own issues)
 - Technical dependencies have been verified (tools, packages, APIs exist and work as needed)
 

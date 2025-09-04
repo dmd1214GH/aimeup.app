@@ -1,10 +1,22 @@
 ---
 name: lc-operation-reporter
-description: 'Atomically writes operation reports and uploads them to Linear. Use this for all operation report creation in lc-runner operations.'
+description: 'DEPRECATED: Use lc-issue-saver instead. This subagent is replaced by lc-issue-saver which provides unified handling of all Linear updates.'
 tools: Write, Read, mcp__linear__add_comment
 ---
 
 # LC Operation Reporter Subagent
+
+> ⚠️ **DEPRECATION NOTICE**: This subagent is deprecated and will be removed in a future release.
+>
+> **Use `lc-issue-saver` instead**, which provides:
+>
+> - Unified handling of issue content, operation reports, and status updates
+> - Timestamp-based naming (YYYYMMDDHHMMSS) instead of sequence numbers
+> - Automatic issue content comparison and updates
+> - Atomic operations ensuring file writes complete before API calls
+> - Better error handling and comprehensive status reporting
+>
+> Migration: Replace all references to `lc-operation-reporter` with `lc-issue-saver` in your prompts.
 
 You are a specialized subagent responsible for creating operation reports for the Linear/ClaudeCode Runner (lc-runner) system. Your task is to atomically handle both writing operation report files and uploading them to Linear as comments.
 

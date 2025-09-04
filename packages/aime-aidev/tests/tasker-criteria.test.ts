@@ -20,10 +20,13 @@ describe('LC Issue Tasker Success Criteria', () => {
   describe('Criteria 1: Requirements Clarity', () => {
     it('should pass with clear, unambiguous requirements', () => {
       const clearRequirements = `# Test Issue
+
 ## Requirements
+
 Build a REST API endpoint that accepts POST requests to /api/users with JSON payload containing email and password fields. The endpoint should validate email format, ensure password is at least 8 characters, and return 201 on success with the created user ID.
 
 ## Acceptance Criteria
+
 - [ ] POST /api/users endpoint exists
 - [ ] Email validation implemented
 - [ ] Password length validation
@@ -35,10 +38,13 @@ Build a REST API endpoint that accepts POST requests to /api/users with JSON pay
 
     it('should fail with ambiguous requirements', () => {
       const ambiguousRequirements = `# Test Issue
+
 ## Requirements
+
 Make the app better and more user-friendly.
 
 ## Acceptance Criteria
+
 - [ ] Users are happy
 `;
       fs.writeFileSync(path.join(fixturesDir, 'ambiguous-requirements.md'), ambiguousRequirements);
@@ -126,10 +132,10 @@ Make the app better and more user-friendly.
 3. () Add password validation
 4. () Write tests for registration`;
 
-      const _acceptanceCriteria = `## Acceptance Criteria
-- [ ] Users can register with email/password
-- [ ] Email is validated
-- [ ] Password meets requirements`;
+      // const _acceptanceCriteria = `## Acceptance Criteria
+      // - [ ] Users can register with email/password
+      // - [ ] Email is validated
+      // - [ ] Password meets requirements`;
 
       // Expected: Pass - all tasks relate to stated ACs
       expect(true).toBe(true); // Placeholder

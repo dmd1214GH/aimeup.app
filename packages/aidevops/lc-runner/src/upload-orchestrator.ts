@@ -80,25 +80,7 @@ export class UploadOrchestrator {
         console.error('Pre-upload validation failed:');
         validationResult.errors.forEach((error) => console.error(`  - ${error}`));
 
-        // Generate and upload failure report
-        const failureReportFilename = this.validator.generatePrecheckFailureReport(
-          {
-            issueId: options.issueId,
-            operation: options.operation,
-            workingFolder: options.workingFolder,
-            config: options.config,
-          },
-          validationResult
-        );
-
-        result.failureReportFilename = failureReportFilename;
-
-        // Try to upload the failure report as a comment
-        await this.uploadFailureReport(options, failureReportFilename);
-
-        // Update issue to blocked status
-        await this.updateIssueStatusToBlocked(options);
-
+        // Don't generate UploadPrecheck reports anymore - just fail with errors
         result.errors = validationResult.errors;
         return result;
       }
@@ -146,19 +128,12 @@ export class UploadOrchestrator {
       result.uploadedAssets.issueBody = true;
       const bodyUpdated = true;
 
-      // Step 5: Update issue status based on terminal status
-      console.log('Updating issue status...');
-      const statusUpdated = await this.updateIssueStatus(
-        options,
-        validationResult.assets.terminalStatus!
-      );
-      result.uploadedAssets.statusUpdate = statusUpdated;
-      if (!statusUpdated) {
-        result.errors.push('Failed to update issue status');
-      }
+      // Step 5: Skip status update - this is handled by lc-issue-saver during operations
+      // Status transitions should happen when operations complete, not during upload
+      console.log('Status updates are now handled by lc-issue-saver during operations');
 
       // Only mark as success if ALL uploads succeeded
-      result.success = allCommentsUploaded && bodyUpdated && statusUpdated;
+      result.success = allCommentsUploaded && bodyUpdated;
 
       // Step 6: Log upload completion
       this.logUploadCompletion(options, result);
@@ -350,8 +325,7 @@ export class UploadOrchestrator {
       // Try to upload it
       await this.uploadFailureReport(options, failureReportFilename);
 
-      // Update to blocked status
-      await this.updateIssueStatusToBlocked(options);
+      // Skip status update - status should be managed by operations, not uploads
     } catch (error) {
       console.error(
         `Failed to handle upload failure: ${error instanceof Error ? error.message : 'Unknown error'}`

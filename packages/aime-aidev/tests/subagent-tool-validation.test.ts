@@ -113,26 +113,6 @@ describe('Subagent Tool Validation', () => {
       }
     });
 
-    it('aimequal-runner should have Bash tool', () => {
-      const runnerPath = path.join(claudeAgentsDir, 'aimequal-runner.md');
-      if (fs.existsSync(runnerPath)) {
-        const content = fs.readFileSync(runnerPath, 'utf-8');
-        const yamlMatch = content.match(/^---\n([\s\S]*?)\n---/);
-
-        if (yamlMatch) {
-          // Parse YAML manually - simple parsing for our needs
-          const frontmatter: any = {};
-          yamlMatch[1].split('\n').forEach((line) => {
-            const match = line.match(/^(\w+):\s*(.+)$/);
-            if (match) {
-              frontmatter[match[1]] = match[2].replace(/['"]/g, '');
-            }
-          });
-          expect(frontmatter.tools).toContain('Bash');
-        }
-      }
-    });
-
     it('lc-task-validator should have only read-only tools', () => {
       const validatorPath = path.join(claudeAgentsDir, 'lc-task-validator.md');
       if (fs.existsSync(validatorPath)) {

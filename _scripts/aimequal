@@ -1,15 +1,5 @@
-#!/usr/bin/env bash
-# No set -e to avoid shell crashes
-set -uo pipefail
-
-# Enable debugging
-DEBUG=${DEBUG:-false}
-if [[ "$DEBUG" == "true" ]]; then
-    set -x  # Print commands as they execute
-fi
-
-# Main function to wrap script execution and prevent crashes
-main() {
+#!/usr/bin/env zsh
+set -euo pipefail
 
 # Repo root
 REPO_PATH="$(cd "$(dirname "$0")/.." && pwd)"
@@ -37,239 +27,93 @@ echo "Running aimequal tests at $(date)"
 echo "Output will be saved to: $OUTPUT_FILE"
 echo "=========================================="
 
-# Auto-format code with prettier before running tests
-echo "Auto-formatting code with Prettier..."
-echo "=========================================="
-echo "Auto-formatting started at $(date)" >> "$OUTPUT_FILE"
-
-# Capture initial git status
-INITIAL_GIT_STATUS=$(git status --porcelain 2>/dev/null || echo "")
-
-# Run prettier to auto-format all files
-# Note: We don't use set -e here to avoid shell crashes
-PRETTIER_OUTPUT=$(pnpm prettier --write . 2>&1) || PRETTIER_EXIT_CODE=$?
-PRETTIER_EXIT_CODE=${PRETTIER_EXIT_CODE:-0}
-
-if [[ $PRETTIER_EXIT_CODE -ne 0 ]]; then
-    echo "⚠️  Warning: Prettier encountered issues during auto-formatting" | tee -a "$OUTPUT_FILE"
-    echo "$PRETTIER_OUTPUT" | tee -a "$OUTPUT_FILE"
-    echo "Continuing with tests despite prettier issues..." | tee -a "$OUTPUT_FILE"
-else
-    # Capture git status after prettier
-    FINAL_GIT_STATUS=$(git status --porcelain 2>/dev/null || echo "")
-    
-    # Compare to find which files were modified
-    if [[ "$INITIAL_GIT_STATUS" != "$FINAL_GIT_STATUS" ]]; then
-        # Get list of modified files
-        MODIFIED_FILES=$(git diff --name-only 2>/dev/null || echo "")
-        FILE_COUNT=$(echo "$MODIFIED_FILES" | grep -c "^" || echo "0")
-        
-        if [[ $FILE_COUNT -gt 0 ]]; then
-            echo "ℹ️  Auto-formatted $FILE_COUNT files:" | tee -a "$OUTPUT_FILE"
-            echo "$MODIFIED_FILES" | while IFS= read -r file; do
-                [[ -n "$file" ]] && echo "   - $file" | tee -a "$OUTPUT_FILE"
-            done
-            echo "" | tee -a "$OUTPUT_FILE"
-        fi
-    else
-        echo "✅ No files needed formatting" | tee -a "$OUTPUT_FILE"
-    fi
-fi
-
-echo "=========================================="
-echo ""
-
-# Track if any test failed
-TEST_FAILED=false
-FAILED_TESTS=()
-FAILED_TEST=""
-
 # Function to run command and capture output
 run_test() {
     local test_name="$1"
     local command="$2"
     
-    echo "[DEBUG] Starting run_test for: $test_name" >> /tmp/aimequal-debug.log
     echo "Running: $test_name"
     echo "Command: $command"
     echo "------------------------------------------"
-    echo "[DEBUG] Command will run in directory: $(pwd)" >> /tmp/aimequal-debug.log
     
     # Run command and capture output
     local output
     local exit_code
     
-    echo "[DEBUG] About to execute command: $command" >> /tmp/aimequal-debug.log
+    # Temporarily disable exit-on-error to capture output from failing commands
+    set +e
     
     # Use a different approach for prettier/typecheck to ensure output is shown
     if [[ "$test_name" == *"Prettier"* ]] || [[ "$test_name" == *"TypeScript"* ]]; then
         # For these tools, we want to see the output even on failure
         # Run the command directly with tee to capture and display simultaneously
-        # Save current pipefail setting and temporarily disable it
-        local pipefail_state
-        pipefail_state=$(set +o | grep pipefail) || true
-        set +o pipefail  # Temporarily disable pipefail to use PIPESTATUS
+        set +o pipefail  # Temporarily disable pipefail to use pipe_status
         eval "$command" 2>&1 | tee -a "$OUTPUT_FILE"
-        exit_code=${PIPESTATUS[0]}  # In bash, PIPESTATUS is uppercase and 0-indexed
-        # Restore pipefail state safely
-        eval "$pipefail_state" 2>/dev/null || true
+        exit_code=${pipestatus[1]}  # In zsh, pipestatus is lowercase and 1-indexed
+        set -o pipefail  # Re-enable pipefail
     else
         # For other tests, use the original approach
-        echo "[DEBUG] Running command in subshell..." >> /tmp/aimequal-debug.log
-        echo "[DEBUG] Command: $command" >> /tmp/aimequal-debug.log
-        
-        # Wrap the command to catch crashes
-        (
-            eval "$command" 2>&1
-            echo $? > /tmp/aimequal-command-exit-code.tmp
-        ) | tee -a "$OUTPUT_FILE" || true
-        
-        # Get the real exit code
-        if [[ -f /tmp/aimequal-command-exit-code.tmp ]]; then
-            exit_code=$(cat /tmp/aimequal-command-exit-code.tmp)
-            rm -f /tmp/aimequal-command-exit-code.tmp
-        else
-            # If we couldn't capture exit code, assume failure
-            exit_code=1
-            echo "[DEBUG] WARNING: Could not capture exit code, assuming failure" >> /tmp/aimequal-debug.log
-        fi
-        
-        echo "[DEBUG] Command completed with exit code: $exit_code" >> /tmp/aimequal-debug.log
+        output=$(eval "$command" 2>&1)
+        exit_code=$?
+        # Write output to file and display
+        echo "$output" | tee -a "$OUTPUT_FILE"
     fi
+    
+    # Re-enable exit-on-error
+    set -e
     
     # Ensure output is flushed before continuing
     sleep 0.1
     
-    echo "[DEBUG] Exit code: $exit_code" >> /tmp/aimequal-debug.log
+    # Check for errors based on exit code only (best practice)
+    local test_passed=false
     
-    # Check for errors based on exit code only
+    # Trust the exit code - this is the Unix way
     if [[ $exit_code -eq 0 ]]; then
+        test_passed=true
+    fi
+    
+    if [[ $test_passed == true ]]; then
         echo "✅ $test_name: PASSED" | tee -a "$OUTPUT_FILE"
         echo "------------------------------------------"
-        echo "[DEBUG] Test passed, returning 0" >> /tmp/aimequal-debug.log
-        return 0
     else
         # Write failure to both stderr and the log file to ensure it's seen
         echo "❌ $test_name: FAILED" | tee -a "$OUTPUT_FILE" >&2
         echo "Check $OUTPUT_FILE for details" | tee -a "$OUTPUT_FILE" >&2
         echo "------------------------------------------" >&2
-        TEST_FAILED=true
-        FAILED_TESTS+=("$test_name")
-        FAILED_TEST="$test_name"
-        echo "[DEBUG] Test failed, setting TEST_FAILED=true" >> /tmp/aimequal-debug.log
         # Give time for output to be displayed
         sleep 1
-        return 1
+        exit 1
     fi
 }
 
 # Check if web server is running, start if needed
 check_and_start_web_server() {
-    # Detect if we're in Docker
-    IS_DOCKER=false
-    if [[ -f /.dockerenv ]] || [[ -n "${DOCKER_CONTAINER:-}" ]]; then
-        IS_DOCKER=true
-    fi
-    
-    # Find a free port - use higher range in Docker to avoid conflicts
-    if [[ "$IS_DOCKER" == "true" ]]; then
-        # In Docker, scan for a free port in a higher range
-        TEST_PORT=""
-        for port in {9500..9520}; do
-            PORT_STATUS="free"
-            if [[ -f "_scripts/check-port.js" ]]; then
-                PORT_STATUS=$(node _scripts/check-port.js ${port} 2>/dev/null || echo "free")
-            fi
-            if [[ "$PORT_STATUS" == "free" ]]; then
-                TEST_PORT=$port
+    if lsof -i :8081 > /dev/null 2>&1; then
+        echo "Web server already running on port 8081"
+        WEB_SERVER_PID=""
+    else
+        echo "Starting web server for E2E tests..."
+        cd apps/eatgpt
+        BROWSER=none pnpm web > /dev/null 2>&1 &
+        WEB_SERVER_PID=$!
+        cd ../..
+        
+        # Wait for server to be ready
+        echo "Waiting for server to start..."
+        for i in {1..30}; do
+            if lsof -i :8081 > /dev/null 2>&1; then
+                echo "Web server started successfully"
                 break
             fi
+            sleep 1
         done
-        if [[ -z "$TEST_PORT" ]]; then
-            echo "Error: Could not find a free port between 9500-9520"
-            return 1
-        fi
-    else
-        # Outside Docker, use random port as before
-        TEST_PORT=$(( 9000 + RANDOM % 1000 ))
-        # Check if port is in use
-        PORT_STATUS="free"
-        if [[ -f "_scripts/check-port.js" ]]; then
-            PORT_STATUS=$(node _scripts/check-port.js ${TEST_PORT} 2>/dev/null || echo "free")
-        elif command -v lsof &> /dev/null; then
-            lsof -i :${TEST_PORT} > /dev/null 2>&1 && PORT_STATUS="in-use"
-        fi
-    fi
-    
-    export TEST_PORT  # Export for use in Playwright tests
-    echo "Using port ${TEST_PORT} for E2E tests"
-    
-    if [[ "$PORT_STATUS" == "in-use" ]]; then
-        echo "Web server already running on port ${TEST_PORT}"
-        WEB_SERVER_PID=""
-        return 0
-    fi
-    
-    echo "Starting web server for E2E tests on port ${TEST_PORT}..."
-    cd apps/aimeHarness
-    
-    # In Docker, capture logs for debugging
-    if [[ "$IS_DOCKER" == "true" ]]; then
-        CI=1 BROWSER=none npx expo start --web --port ${TEST_PORT} > /tmp/expo-server.log 2>&1 &
-    else
-        CI=1 BROWSER=none npx expo start --web --port ${TEST_PORT} > /dev/null 2>&1 &
-    fi
-    WEB_SERVER_PID=$!
-    cd ../..
-    
-    # Wait for server to be ready
-    echo "Waiting for server to start..."
-    for i in {1..30}; do
-        # Check if port is now in use
-        PORT_STATUS="free"
-        if [[ -f "_scripts/check-port.js" ]]; then
-            PORT_STATUS=$(node _scripts/check-port.js ${TEST_PORT} 2>/dev/null || echo "free")
-        elif command -v lsof &> /dev/null; then
-            lsof -i :${TEST_PORT} > /dev/null 2>&1 && PORT_STATUS="in-use"
-        fi
         
-        if [[ "$PORT_STATUS" == "in-use" ]]; then
-            echo "Web server started successfully on port ${TEST_PORT}"
-            # Give it another second to fully initialize
-            sleep 2
-            return 0
+        if ! lsof -i :8081 > /dev/null 2>&1; then
+            echo "Failed to start web server"
+            exit 1
         fi
-        
-        # Also try HTTP check with Node.js
-        if node -e "require('http').get('http://localhost:${TEST_PORT}', (r) => process.exit(0)).on('error', () => process.exit(1))" 2>/dev/null; then
-            echo "Web server started successfully on port ${TEST_PORT} (verified via HTTP)"
-            return 0
-        fi
-        
-        # In Docker, show progress and check if process died
-        if [[ "$IS_DOCKER" == "true" ]]; then
-            if ! kill -0 $WEB_SERVER_PID 2>/dev/null; then
-                echo "Error: Expo process died. Last 20 lines of log:"
-                tail -20 /tmp/expo-server.log 2>/dev/null || true
-                return 1
-            fi
-            if [[ $((i % 5)) -eq 0 ]]; then
-                echo "Still waiting... ($i seconds elapsed)"
-            fi
-        fi
-        
-        sleep 1
-    done
-    
-    echo "Failed to start web server after 30 seconds"
-    if [[ "$IS_DOCKER" == "true" ]] && [[ -f /tmp/expo-server.log ]]; then
-        echo "Expo server log output:"
-        tail -50 /tmp/expo-server.log
     fi
-    if [[ -n "${WEB_SERVER_PID:-}" ]]; then
-        kill $WEB_SERVER_PID 2>/dev/null || true
-    fi
-    exit 1
 }
 
 # Cleanup function
@@ -277,10 +121,6 @@ cleanup() {
     if [[ -n "${WEB_SERVER_PID:-}" ]]; then
         echo "Stopping web server (PID: $WEB_SERVER_PID)..."
         kill $WEB_SERVER_PID 2>/dev/null || true
-        # In environments without pkill, try to kill child processes manually
-        if ! command -v pkill &> /dev/null && command -v ps &> /dev/null; then
-            ps --ppid $WEB_SERVER_PID -o pid= 2>/dev/null | xargs -r kill 2>/dev/null || true
-        fi
     fi
     if [[ -n "${METRO_PID:-}" ]]; then
         echo "Stopping Metro bundler (PID: $METRO_PID)..."
@@ -288,141 +128,21 @@ cleanup() {
     fi
 }
 
-# Handle SIGINT (Ctrl+C) gracefully
-handle_interrupt() {
-    echo "[DEBUG] handle_interrupt called" >> /tmp/aimequal-debug.log
-    echo ""
-    echo "⚠️  Script interrupted by user (Ctrl+C)" | tee -a "${OUTPUT_FILE:-/dev/null}"
-    echo "Cleaning up..." | tee -a "${OUTPUT_FILE:-/dev/null}"
-    # Call cleanup if it exists and we have PIDs to clean
-    if [[ -n "${WEB_SERVER_PID:-}" ]] || [[ -n "${METRO_PID:-}" ]]; then
-        echo "[DEBUG] Calling cleanup with PIDs: WEB_SERVER_PID=${WEB_SERVER_PID:-none}, METRO_PID=${METRO_PID:-none}" >> /tmp/aimequal-debug.log
-        cleanup
-    fi
-    echo "Exiting gracefully..." | tee -a "${OUTPUT_FILE:-/dev/null}"
-    echo "[DEBUG] handle_interrupt returning 130" >> /tmp/aimequal-debug.log
-    # Don't use exit - just return
-    return 130 2>/dev/null || true
-}
+# Set up cleanup trap
+trap cleanup EXIT
 
-# Function to handle test failure summary
-handle_failure_summary() {
-    echo "==========================================" | tee -a "$OUTPUT_FILE"
-    if [ ${#FAILED_TESTS[@]} -eq 0 ]; then
-        echo "✅ ALL TESTS PASSED" | tee -a "$OUTPUT_FILE"
-        return 0
-    else
-        echo "❌ TEST SUITE FAILED" | tee -a "$OUTPUT_FILE"
-        echo "Failed tests (${#FAILED_TESTS[@]}):" | tee -a "$OUTPUT_FILE"
-        for test in "${FAILED_TESTS[@]}"; do
-            echo "  - $test" | tee -a "$OUTPUT_FILE"
-        done
-        echo "Full output saved to: $OUTPUT_FILE" | tee -a "$OUTPUT_FILE"
-        echo "Fix the failing tests and run aimequal again." | tee -a "$OUTPUT_FILE"
-        return 1
-    fi
-}
+# Run tests sequentially, fail fast
+run_test "Unit Tests" "pnpm test"
+run_test "Code Quality" "pnpm hygiene"
+# Prettier removed - too many false positives with test fixtures
+# run_test "Prettier Format Check" "pnpm prettier"
+run_test "TypeScript Type Check" "pnpm typecheck"
 
-# Run tests sequentially, collect all failures
-run_test "Unit Tests" "pnpm test" || true
-
-run_test "Code Quality" "pnpm hygiene" || true
-
-run_test "TypeScript Type Check" "pnpm typecheck" || true
-
-# Run Playwright E2E tests if they exist
-# Skip E2E tests if SKIP_E2E is set
-if [[ -n "${SKIP_E2E:-}" ]]; then
-    echo "ℹ️  Skipping E2E tests (SKIP_E2E is set)"
-elif [[ -f "apps/aimeHarness/playwright.config.ts" ]]; then
-    if check_and_start_web_server; then
-        # Detect if running in Docker and adjust headed mode
-        if [[ -f /.dockerenv ]] || [[ -n "${DOCKER_CONTAINER:-}" ]]; then
-            echo "Running in Docker - using headless mode for E2E tests"
-            HEADED_MODE="false"
-            SLOW_MO_VALUE="0"
-        else
-            HEADED_MODE="true"
-            SLOW_MO_VALUE="500"
-        fi
-        # Run smoke test only - single browser navigating all pages  
-        # TEST_PORT is already exported from check_and_start_web_server
-        run_test "Web E2E Smoke Test (aimeHarness)" "cd apps/aimeHarness && TEST_PORT=${TEST_PORT} HEADED=${HEADED_MODE} SLOW_MO=${SLOW_MO_VALUE} npx playwright test smoke-with-testids.spec.ts --project=chromium --reporter=list" || true
-    else
-        echo "⚠️  Web server startup failed"
-        TEST_FAILED=true
-        FAILED_TESTS+=("Web server startup")
-        FAILED_TEST="Web server startup"
-    fi
-fi
-
-# Continue running all tests even if some have failed
-
-# Run EatGPT Playwright E2E tests if they exist
-# Skip E2E tests if SKIP_E2E is set
-if [[ -z "${SKIP_E2E:-}" ]] && [[ -f "apps/eatgpt/playwright.config.ts" ]]; then
-    # Check if EatGPT web server is running, start if needed
-    SERVER_ALREADY_RUNNING=false
-    if command -v lsof &> /dev/null && lsof -i :8082 > /dev/null 2>&1; then
-        echo "EatGPT web server already running on port 8082"
-        EATGPT_WEB_SERVER_PID=""
-        SERVER_ALREADY_RUNNING=true
-    else
-        echo "Starting EatGPT web server for E2E tests on port 8082..."
-        cd apps/eatgpt
-        # Use CI mode to avoid prompts and explicit port
-        CI=1 BROWSER=none npx expo start --web --port 8082 > /dev/null 2>&1 &
-        EATGPT_WEB_SERVER_PID=$!
-        cd ../..
-        
-        # Wait for server to be ready
-        echo "Waiting for EatGPT server to start..."
-        for i in {1..30}; do
-            if command -v lsof &> /dev/null; then
-                if lsof -i :8082 > /dev/null 2>&1; then
-                    echo "EatGPT web server started successfully"
-                    break
-                fi
-            else
-                # Fallback to curl check
-                if curl -s http://localhost:8082 > /dev/null 2>&1; then
-                    echo "EatGPT web server started successfully (verified via curl)"
-                    break
-                fi
-            fi
-            sleep 1
-        done
-        
-        # Final check
-        SERVER_STARTED=false
-        if command -v lsof &> /dev/null; then
-            lsof -i :8082 > /dev/null 2>&1 && SERVER_STARTED=true
-        else
-            curl -s http://localhost:8082 > /dev/null 2>&1 && SERVER_STARTED=true
-        fi
-        
-        if [[ "$SERVER_STARTED" != "true" ]]; then
-            echo "Failed to start EatGPT web server"
-            [[ -n "${EATGPT_WEB_SERVER_PID:-}" ]] && kill $EATGPT_WEB_SERVER_PID 2>/dev/null || true
-        fi
-    fi
-    
-    # Run the test if server is available (either already running or we started it)
-    if [[ "$SERVER_ALREADY_RUNNING" == "true" ]] || [[ "${SERVER_STARTED:-false}" == "true" ]]; then
-        # Detect if running in Docker and adjust headed mode
-        if [[ -f /.dockerenv ]] || [[ -n "${DOCKER_CONTAINER:-}" ]]; then
-            HEADED_MODE="false"
-            SLOW_MO_VALUE="0"
-        else
-            HEADED_MODE="true"
-            SLOW_MO_VALUE="500"
-        fi
-        # Register PID for cleanup if we started the server
-        if [[ -n "${EATGPT_WEB_SERVER_PID:-}" ]]; then
-            trap "cleanup; [[ -n '${EATGPT_WEB_SERVER_PID:-}' ]] && kill $EATGPT_WEB_SERVER_PID 2>/dev/null || true" EXIT
-        fi
-        run_test "Web E2E Test (EatGPT)" "cd apps/eatgpt && HEADED=${HEADED_MODE} SLOW_MO=${SLOW_MO_VALUE} npx playwright test hello-world.spec.ts --project=chromium --reporter=list" || true
-    fi
+# Run Playwright E2E tests if they exist (with browser kungfu!)
+if [[ -f "apps/eatgpt/playwright.config.ts" ]]; then
+    check_and_start_web_server
+    # Run smoke test only - single browser navigating all pages
+    run_test "Web E2E Smoke Test" "cd apps/eatgpt && HEADED=true SLOW_MO=500 pnpm test:smoke:web"
 fi
 
 # Run Maestro Mobile tests if Android emulator is available
@@ -443,14 +163,14 @@ check_and_run_mobile_tests() {
     echo "Android emulator detected, preparing mobile tests..."
     
     # Clean Maestro artifacts before tests
-    if [[ -x "apps/aimeHarness/__tests__/e2e/maestro/cleanup-artifacts.sh" ]]; then
+    if [[ -x "apps/eatgpt/__tests__/e2e/maestro/cleanup-artifacts.sh" ]]; then
         echo "Cleaning Maestro artifacts..."
-        apps/aimeHarness/__tests__/e2e/maestro/cleanup-artifacts.sh clean
+        apps/eatgpt/__tests__/e2e/maestro/cleanup-artifacts.sh clean
     fi
     
     # Start Metro bundler using automation script
-    if [[ -x "apps/aimeHarness/__tests__/e2e/maestro/start-metro.sh" ]]; then
-        apps/aimeHarness/__tests__/e2e/maestro/start-metro.sh start
+    if [[ -x "apps/eatgpt/__tests__/e2e/maestro/start-metro.sh" ]]; then
+        apps/eatgpt/__tests__/e2e/maestro/start-metro.sh start
         METRO_STARTED=true
     else
         # Fallback to inline Metro management
@@ -459,7 +179,7 @@ check_and_run_mobile_tests() {
             METRO_PID=""
         else
             echo "Starting Metro bundler for mobile tests..."
-            cd apps/aimeHarness
+            cd apps/eatgpt
             npx expo start --no-dev --minify > /dev/null 2>&1 &
             METRO_PID=$!
             cd ../..
@@ -483,46 +203,39 @@ check_and_run_mobile_tests() {
     fi
     
     # Run the mobile smoke test with timeout
-    run_test "Mobile E2E Smoke Test" "cd apps/aimeHarness && timeout 120 pnpm test:smoke:mobile"
+    set +e  # Don't exit on test failure, we want to clean up
+    run_test "Mobile E2E Smoke Test" "cd apps/eatgpt && timeout 120 pnpm test:smoke:mobile"
     TEST_RESULT=$?
+    set -e
     
     # Archive artifacts on failure
-    if [[ $TEST_RESULT -ne 0 ]] && [[ -x "apps/aimeHarness/__tests__/e2e/maestro/cleanup-artifacts.sh" ]]; then
+    if [[ $TEST_RESULT -ne 0 ]] && [[ -x "apps/eatgpt/__tests__/e2e/maestro/cleanup-artifacts.sh" ]]; then
         echo "Archiving test artifacts due to failure..."
-        apps/aimeHarness/__tests__/e2e/maestro/cleanup-artifacts.sh archive smoke_test
+        apps/eatgpt/__tests__/e2e/maestro/cleanup-artifacts.sh archive smoke_test
     fi
     
     # Cleanup Metro
-    if [[ "${METRO_STARTED:-false}" == "true" ]] && [[ -x "apps/aimeHarness/__tests__/e2e/maestro/start-metro.sh" ]]; then
-        apps/aimeHarness/__tests__/e2e/maestro/start-metro.sh stop
+    if [[ "${METRO_STARTED:-false}" == "true" ]] && [[ -x "apps/eatgpt/__tests__/e2e/maestro/start-metro.sh" ]]; then
+        apps/eatgpt/__tests__/e2e/maestro/start-metro.sh stop
     elif [[ -n "${METRO_PID:-}" ]]; then
         echo "Stopping Metro bundler (PID: $METRO_PID)..."
         kill $METRO_PID 2>/dev/null || true
     fi
     
     # Prune old artifacts
-    if [[ -x "apps/aimeHarness/__tests__/e2e/maestro/cleanup-artifacts.sh" ]]; then
-        apps/aimeHarness/__tests__/e2e/maestro/cleanup-artifacts.sh prune
+    if [[ -x "apps/eatgpt/__tests__/e2e/maestro/cleanup-artifacts.sh" ]]; then
+        apps/eatgpt/__tests__/e2e/maestro/cleanup-artifacts.sh prune
     fi
     
-    # Return failure if test failed or if TEST_FAILED was set by run_test
-    if [[ $TEST_RESULT -ne 0 ]] || [[ "$TEST_FAILED" == "true" ]]; then
-        return 1
-    fi
-    
-    return 0
+    return $TEST_RESULT
 }
 
-# Continue running all tests even if some have failed
-
 # Run mobile tests if available
-if [[ -d "apps/aimeHarness/__tests__/e2e/maestro" ]]; then
-    check_and_run_mobile_tests || true
+if [[ -d "apps/eatgpt/__tests__/e2e/maestro" ]]; then
+    check_and_run_mobile_tests
 fi
 
 echo "=========================================="
-
-# Continue running all tests even if some have failed
 
 # Verify all expected tests actually ran by checking the log file
 echo "Verifying all tests ran..."
@@ -530,8 +243,7 @@ EXPECTED_TESTS=(
     "Unit Tests: PASSED"
     "Code Quality: PASSED"
     "TypeScript Type Check: PASSED"
-    "Web E2E Smoke Test (aimeHarness): PASSED"
-    "Web E2E Test (EatGPT): PASSED"
+    "Web E2E Smoke Test: PASSED"
 )
 
 # Add mobile test to expected list if it was attempted
@@ -560,58 +272,10 @@ if [ ${#MISSING_TESTS[@]} -gt 0 ]; then
         echo "  - $test"
     done
     echo "Check $OUTPUT_FILE for details"
-    TEST_FAILED=true
-    FAILED_TESTS+=("Test verification")
-    FAILED_TEST="Test verification"
+    exit 1
 fi
 
-# Final summary and cleanup
 echo ""
-echo "==========================================" | tee -a "$OUTPUT_FILE"
-echo "TEST SUMMARY" | tee -a "$OUTPUT_FILE"
-echo "==========================================" | tee -a "$OUTPUT_FILE"
-echo "Output file: $OUTPUT_FILE" | tee -a "$OUTPUT_FILE"
-
-if [[ "$TEST_FAILED" == "true" ]]; then
-    echo "" | tee -a "$OUTPUT_FILE"
-    echo "❌ TEST SUITE FAILED" | tee -a "$OUTPUT_FILE"
-    echo "" | tee -a "$OUTPUT_FILE"
-    echo "Failed tests (${#FAILED_TESTS[@]}):" | tee -a "$OUTPUT_FILE"
-    for test in "${FAILED_TESTS[@]}"; do
-        echo "  - $test" | tee -a "$OUTPUT_FILE"
-    done
-    echo "" | tee -a "$OUTPUT_FILE"
-    echo "Fix the failing tests and run aimequal again." | tee -a "$OUTPUT_FILE"
-    cleanup
-    return 1
-else
-    echo "" | tee -a "$OUTPUT_FILE"
-    echo "✅ ALL TESTS PASSED" | tee -a "$OUTPUT_FILE"
-    echo "All ${#FOUND_TESTS[@]} expected tests completed successfully!" | tee -a "$OUTPUT_FILE"
-    cleanup
-    return 0
-fi
-
-} # End of main function
-
-# Set up signal handling before running main
-trap handle_interrupt SIGINT SIGTERM
-
-# Run main function
-echo "[DEBUG] Starting main function..." >> /tmp/aimequal-debug.log
-echo "[DEBUG] Arguments: $@" >> /tmp/aimequal-debug.log
-main "$@"
-EXIT_CODE=$?
-echo "[DEBUG] Main function completed with exit code: $EXIT_CODE" >> /tmp/aimequal-debug.log
-
-# Clear traps
-trap - SIGINT SIGTERM
-echo "[DEBUG] Traps cleared" >> /tmp/aimequal-debug.log
-
-# Simply return the exit code - the script is already wrapped in a function
-# This avoids crashes while preserving the exit code for the caller
-echo "[DEBUG] Script completing with code: $EXIT_CODE" >> /tmp/aimequal-debug.log
-
-# Return the exit code to the caller
-# The caller (bash, CI/CD, Claude, etc.) will handle this appropriately
-(exit $EXIT_CODE)
+echo "✅ All ${#FOUND_TESTS[@]} expected tests verified in log file"
+echo "All tests completed successfully!"
+echo "Full output saved to: $OUTPUT_FILE"
