@@ -1,24 +1,36 @@
 ## Instructions for Grooming Linear issues with ClaudeCode (v0.1)
 
-### Pre-Grooming checklist
-Include this check with the standard pre-check tests in Phase 1:
-- `<ArgWorkingFolder>/updated-issue.md` contains a clearly stated Requirement(s) that are in a condition to begin or continue grooming
+### Grooming-specific Pre-operation checklist
+Include these grooming-specific pre-operation checks with the other tests in `Phase 1: Pre-operation Checklist`
+- `<working-folder>/updated-issue.md` contains a clearly stated requirement(s) that are in a condition to begin or continue grooming
 
-> **⚠️ Verify, Don't Assume**: If requirements mention specific tools, packages, or capabilities, test them during grooming. Unverified assumptions lead to blocked tasks.
 
 ### Phase 3: Grooming Execution
 
-**⚠️ CRITICAL: COMPLY WITH OPERATOR APPROVAL REQUIREMENTS**
+
+#### Grooming Guidelines
+
+##### **⚠️ CRITICAL: COMPLY WITH OPERATOR APPROVAL REQUIREMENTS**
 - You MUST engage in conversation with the operator before completing grooming
 - Expect careful deliberation about all issues, the objective is to get it right the first time
 
-**Grooming Rules**
+##### **Grooming Rules**
 - Work with the operator to refine the issue defined in `updated-issue.md`
 - Update `updated-issue.md` directly as the conversation progresses
 - Use the Template below for document structure
 - Never remove content without approval
 - **No strikethrough text**: Never use strikethrough formatting
 - **Remember**: Grooming defines WHAT to build, not HOW to build it
+
+##### **⚠️ Verify, Don't Assume**
+If requirements mention specific tools, packages, or capabilities, test them during grooming. Unverified assumptions lead to blocked tasks.
+
+
+##### Specificity vs. Abstraction Balance
+Try to achieve just enough detail for the delivery agent to know our intention without being overly detailed or rigid. Trust in high competence of delivery capabilities, but share the context of issues that have been resolved.
+
+**Core Principle**: BE SPECIFIC when naming components, systems, or phases to avoid ambiguity. BE ABSTRACT when describing implementation details or code changes. Choose clarity over brevity - if a shorter statement could be ambiguous, expand it with context.
+
 
 
 #### 3.1: Initial Analysis & Operator Engagement (MANDATORY)
@@ -59,8 +71,11 @@ Include this check with the standard pre-check tests in Phase 1:
 - Keep technical details minimal but sufficient to guide implementation
 - Allow and encourage requirements refinement during this phase
 - **Solution Design Phase Exit Criteria**: 
-  - Requirements Phase Exit Criteria still hold true
-  - Solution elements would fully deliver the stated requirements, and only the stated requirements
+  - **Requirements Phase Exit Criteria** still hold true
+  - Solution design does not provide functionality beyond the stated requirements scope
+  - Solution design fully delivers the stated requirements in an optimal way
+  - Process flows reference high-level code base elements (new or reused) to ensure viability and communicate vision to delivery agent (e.g., "Add verification during the final operation report phase")
+  - Acceptance Criteria **Fully** expresses all expected functionality described in the requirements and realized by the flows
   - Operator **EXPLICITLY agrees** that Solution Design is complete
     - **Required approval**: Say something like:  "The solution looks solid. Shall we lock it in and move on?"
 
@@ -84,11 +99,13 @@ Groomed issues should be presented in this standard format:
 4. Requirement Standards
   - Tightly stated (brief and well written)
   - Clear and unambiguous
-  - **Avoid ALL implementation specifics** - State WHAT needs to be done, not HOW
+  - **Avoid ALL implementation specifics** - State WHAT is needed, not HOW to do it
     - ❌ Bad: "Delete files matching the pattern `/tmp/claude-prompt-*.md`"
     - ✅ Good: "Clean up any legacy temporary files created by previous versions"
     - ❌ Bad: "Pass the original `masterPromptPath` directly in the instruction"
     - ✅ Good: "Use direct file references instead of temporary copies"
+    - ❌ Bad: "the agent does X" (too vague about which agent)
+    - ✅ Good: "the Grooming agent does X" or "the lc-runner operation does X"
     - Let the delivery phase determine specific implementation details
   - State as requirements, not as instructions
     - ❌ Bad: Target status values must be passed from lc-runner to operations
@@ -121,9 +138,20 @@ Groomed issues should be presented in this standard format:
   - Identify key components and their relationships
   - Note critical technical decisions (e.g., "Use MCP for status updates" not "Call mcp__linear__update_issue with these parameters")
   - Highlight any architectural constraints or dependencies
-  - **AVOID implementation details**: No line numbers, no specific code changes, no exact function calls
-  - ❌ Bad: "Remove lines 76-77, 145-146 in claude-invoker.ts"
-  - ✅ Good: "The ClaudeInvoker class should skip temp file creation and use direct file references"
+  - **Component and phase references**: Be specific to avoid ambiguity
+    - ❌ Bad: "in Phase 5" (ambiguous without the prompt context)
+    - ❌ Bad: "At the end of the process"
+    - ✅ Good: "in the final phase where operation reports are created"
+    - ✅ Good: "during the verification phase"
+    - ❌ Bad: "the system should..." (too vague)
+    - ✅ Good: "the lc-issue-saver subagent handles..." (identifies the component)
+    - ✅ Good: "operation prompts need guards added" (specific component, abstract implementation)
+  - **Minimize implementation details**: No line numbers, no specific code changes, no exact function calls
+    - ❌ Bad: "Remove lines 76-77, 145-146 in claude-invoker.ts"
+    - ✅ Good: "The ClaudeInvoker class should skip temp file creation and use direct file references"
+    - ❌ Bad: "modify lines 45-67 in grooming-prompt.md" (too specific)
+    - ✅ Good: "operation prompts need guards to prevent issue modifications" (identifies what, not how)
+  - Weave in references to high-level code base elements when helpful, but do not be overly prescriptive
   - Use "```fenceposts" sparingly for critical configuration or API examples only
   - Assume the implementer knows how to code - they need direction, not instruction
   - Process flows fully cover the stated requirements
@@ -164,7 +192,7 @@ Grooming agent should take a careful look at the final issue definition.  Assume
 - `updated-issue.md` fully describes requirements, solution, and acceptance criteria per Template standards
 - Blocking Questions section contains only "No outstanding questions"
 - Exit criteria for both **Requirements** and **Solution Design** still hold true
-- You explicitly asked: "The issue looks solid to me, ready to move to Delivery?", and operator responded affirmatively.  **NEVER** assume or inferr this answer.
+- You explicitly asked: "The issue looks solid to me, ready to move to Delivery?", and operator responded affirmatively.  **NEVER** assume or infer this answer.
 - No Breakout Issues remain in document (all have been separated into their own issues)
 - Technical dependencies have been verified (tools, packages, APIs exist and work as needed)
 

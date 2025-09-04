@@ -88,10 +88,19 @@ Blockers are unclear or incomplete requirements for performing the operation.  I
 - Collect the list of blockers encountered during the operation, and include in the final Operation Report within a `### Blockers` section
 
 ### Phase 1: Pre-operation Checklist
-First, perform all pre-operation checks mentioned anywhere in this prompt. If any required element is missing or contains unexpected content, Fail the operation by using the lc-issue-saver subagent with action = `Precheck`, operationStatus = `Failed`, and include a `### Precheck` section in the payload reporting the passed and failed prechecks. **CRITICAL** Do not progress into the operation if any precheck fails
-- 1.1: Check folder exists: `working-folder`
-- 1.2: Read and understand the main requirement document in `<ArgWorkingFolder>/updated-issue.md`
-- 1.3: Check operation-specific prerequisites (if any)
+Verify that all pre-operation checks are valid before continuing with the operation:
+- 1.1 Use the TodoWrite tool to systematically track ALL pre-operation checks found throughout this prompt (search for both general Phase 1 checks and operation-specific prerequisites)
+- 1.2 General pre-operation checks (applies to all operation types)
+  - Check folder exists: `working-folder`
+  - Read and understand the main requirement document in `<ArgWorkingFolder>/updated-issue.md`
+  - Check operation-specific prerequisites (if any)
+- 1.3 If any pre-operation check fails
+  - If running in headed/interactive mode, provide the operator with an opportunity to correct the issue (e.g. commit to git)
+  - If any issues remain unresolved, use the lc-issue-saver subagent
+    - action = `Precheck`
+    - operationStatus = `Failed`
+    - `### Precheck` section in the payload reporting the passed and failed prechecks. 
+    - **CRITICAL** Do not progress into the operation if any precheck remains unresolved
 
 ### Phase 2: Starting Operation Report
 If all pre-checks have passed, use the lc-issue-saver subagent to create a Starting Operation Report:

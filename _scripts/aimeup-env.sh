@@ -26,7 +26,7 @@ alias build='pnpm build'
 alias dev='pnpm dev'
 alias test='pnpm test'
 alias check='pnpm check'
-alias install='pnpm install'
+alias install="pnpm install && cd packages/aime-aidev && pnpm build && node dist/postinstall.js && cd -"
 alias lcr='pnpm lc-runner'
 alias aimefix='yolo "run agent aimequal-runner, then summarize resulting json"'
 

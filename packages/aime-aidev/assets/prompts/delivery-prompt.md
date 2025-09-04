@@ -1,10 +1,11 @@
 ## Instructions for Delivering Linear issues with ClaudeCode (v0.1)
 
-### Pre-Delivery checklist
-Include these checks with the standard pre-check tests in Phase 1:
+### Delivery-specific Pre-Operation checklist
+Include these delivery-specific pre-operation checks with the other tests in `Phase 1: Pre-operation Checklist`
 - Ensure `git status` is clean (no pending commits)
 - Run `_scripts/aimequal` directly or use `/aimefix` command, then confirm all tests pass
 - Read `<repo-root>/_docs/guides/development-standards.md`
+
 
 ### Phase 3: Delivery Execution
 
@@ -80,7 +81,7 @@ All of these criteria must be true to consider Delivery Complete:
 - 4.1: Task list status accurately reflects the status of each task
 - 4.2: Every task has been completed
 - 4.3: Code is in a committable state
-- 4.4: Local repo is up to date with the lastest build and is ready to showcase the results
+- 4.4: Local repo is up to date with the latest build and is ready to showcase the results
 - 4.5: The `Delivery Adjustments` section accurately represents adjustments and findings
 - 4.6: The aimequal test suite passes (run `_scripts/aimequal` or `/aimefix` command) following the very last code change
 - 4.7: Delivery agent has affirms that all acceptance criteria will pass

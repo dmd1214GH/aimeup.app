@@ -40,9 +40,9 @@ If any of these variables are not well-understood, exit the operation with an er
 ### Step 3: Add the task list to the issue
 
 Write updated issue to `<working-folder>/updated-issue.md` with:
-- Generated/validated `## Task List`
-- `## Assumptions` (if material assumptions exist)
-- `## Blocking Questions` (if requirements unclear)
+- Append or add to `## Assumptions` (if material assumptions were made while tasking)
+- Append or add to `## Blocking Questions` (if requirements unclear)
+- Append or adjust `## Task List` section with the new task list
 - Preserve all original content
 
 ### Step 4: Validate Task List
