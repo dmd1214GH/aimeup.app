@@ -27,6 +27,11 @@ Before beginning delivery work, you MUST use the /aime-task-issue slash command 
 2. **Invoke the /aime-task-issue slash command**:
    - Execute: `/aime-task-issue <tasking-result-file-path>`
    - The command runs in forked context with full conversation awareness
+   - Type the following as a message (not using any tools):
+     `/aime-task-issue <tasking-result-file-path>`
+   - Example: `/aime-task-issue /aimeup/.linear-watcher/work/lcr-AM-68/op-Deliver-20250904170945/tasking-20250904171603.md`
+   - Note: This is a Claude slash command - type it directly as a message, do not use the Bash tool
+   - If the slash command doesn't execute (no response or error), this is a fatal error
    - Wait for command completion
 
 3. **Read tasking result file for operation report path**:
