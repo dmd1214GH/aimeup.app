@@ -54,6 +54,69 @@ pnpm test:smoke:web
 
 ```
 
+### Test File Management Standards
+
+**PROHIBITED: Tests Must Not Create Persistent Files**
+
+Tests that create fixture files, test data, or other artifacts during execution MUST follow these rules:
+
+1. **Never commit test-generated files to git**
+   - Test fixtures created during execution must be in `.gitignore`
+   - Use temporary directories (e.g., `.temp/`, `tmp/`) for test artifacts
+   - Clean up all created files in `afterEach()` or `afterAll()` hooks
+
+2. **Use in-memory or temporary fixtures**
+   - Prefer in-memory test data over file system operations
+   - If files are required, use system temp directories: `os.tmpdir()` or `/tmp`
+   - Never create files in `fixtures/` directories that get committed
+
+3. **Example of BAD practice (DO NOT DO THIS)**:
+   ```typescript
+   // ❌ BAD: Creates files that might be committed
+   it('test something', () => {
+     fs.writeFileSync('tests/fixtures/test-data.md', content);
+     // Test runs...
+   });
+   ```
+
+4. **Example of GOOD practice**:
+   ```typescript
+   // ✅ GOOD: Uses temp directory and cleans up
+   import { tmpdir } from 'os';
+   import { join } from 'path';
+   
+   describe('test suite', () => {
+     const tempDir = join(tmpdir(), 'test-' + Date.now());
+     
+     beforeAll(() => {
+       fs.mkdirSync(tempDir, { recursive: true });
+     });
+     
+     afterAll(() => {
+       fs.rmSync(tempDir, { recursive: true, force: true });
+     });
+     
+     it('test something', () => {
+       const testFile = join(tempDir, 'test-data.md');
+       fs.writeFileSync(testFile, content);
+       // Test runs...
+     });
+   });
+   ```
+
+5. **Required .gitignore entries**:
+   ```gitignore
+   # Test artifacts - never commit these
+   **/tests/fixtures/
+   **/test-output/
+   **/*.tmp
+   **/*.temp
+   .temp/
+   tmp/
+   ```
+
+**Violations of this standard will result in test rejection during code review.**
+
 ### Timeout Standards
 
 All automated tests must enforce reasonable timeouts to prevent runaway processes:
