@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "Running tests..."
+echo "=========================================="
+
+# Run tests directly (no subshells, no eval)
+echo "1. Unit Tests..."
+if pnpm test > /dev/null 2>&1; then
+    echo "✅ Unit Tests: PASSED"
+else
+    echo "❌ Unit Tests: FAILED"
+    echo "   Run 'pnpm test' to see details"
+fi
+
+echo "2. Code Quality..."
+if pnpm hygiene > /dev/null 2>&1; then
+    echo "✅ Code Quality: PASSED"
+else
+    echo "❌ Code Quality: FAILED"
+    echo "   Run 'pnpm hygiene' to see details"
+fi
+
+echo "3. TypeScript..."
+if pnpm typecheck > /dev/null 2>&1; then
+    echo "✅ TypeScript: PASSED"
+else
+    echo "❌ TypeScript: FAILED"
+    echo "   Run 'pnpm typecheck' to see details"
+fi
+
+echo "=========================================="
+echo "Done!"

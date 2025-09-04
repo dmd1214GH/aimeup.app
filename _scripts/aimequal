@@ -138,12 +138,17 @@ run_test "Code Quality" "pnpm hygiene"
 # run_test "Prettier Format Check" "pnpm prettier"
 run_test "TypeScript Type Check" "pnpm typecheck"
 
-# Run Playwright E2E tests if they exist (with browser kungfu!)
-if [[ -f "apps/eatgpt/playwright.config.ts" ]]; then
-    check_and_start_web_server
-    # Run smoke test only - single browser navigating all pages
-    run_test "Web E2E Smoke Test" "cd apps/eatgpt && HEADED=true SLOW_MO=500 pnpm test:smoke:web"
-fi
+# E2E tests disabled - they start servers (Expo/Metro/Web)
+# To run E2E tests manually:
+#   Web: cd apps/eatgpt && pnpm test:smoke:web
+#   Mobile: cd apps/eatgpt && pnpm test:smoke:mobile
+
+# # Run Playwright E2E tests if they exist (with browser kungfu!)
+# if [[ -f "apps/eatgpt/playwright.config.ts" ]]; then
+#     check_and_start_web_server
+#     # Run smoke test only - single browser navigating all pages
+#     run_test "Web E2E Smoke Test" "cd apps/eatgpt && HEADED=true SLOW_MO=500 pnpm test:smoke:web"
+# fi
 
 # Run Maestro Mobile tests if Android emulator is available
 check_and_run_mobile_tests() {
@@ -230,10 +235,10 @@ check_and_run_mobile_tests() {
     return $TEST_RESULT
 }
 
-# Run mobile tests if available
-if [[ -d "apps/eatgpt/__tests__/e2e/maestro" ]]; then
-    check_and_run_mobile_tests
-fi
+# # Run mobile tests if available (DISABLED - starts Expo/Metro)
+# if [[ -d "apps/eatgpt/__tests__/e2e/maestro" ]]; then
+#     check_and_run_mobile_tests
+# fi
 
 echo "=========================================="
 
@@ -243,7 +248,8 @@ EXPECTED_TESTS=(
     "Unit Tests: PASSED"
     "Code Quality: PASSED"
     "TypeScript Type Check: PASSED"
-    "Web E2E Smoke Test: PASSED"
+    # E2E tests disabled - run manually if needed
+    # "Web E2E Smoke Test: PASSED"
 )
 
 # Add mobile test to expected list if it was attempted

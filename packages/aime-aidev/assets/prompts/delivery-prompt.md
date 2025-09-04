@@ -16,84 +16,30 @@ Include these checks with the standard pre-check tests in Phase 1:
 
 #### 3.2: Generate/Validate Task List with Quality Validation
 
-Before beginning delivery work, you MUST invoke the lc-issue-tasker subagent to generate or validate the task list, followed by quality validation:
+Before beginning delivery work, you MUST use the /aime-task-issue slash command to generate or validate the task list, followed by quality validation:
 
-##### Part A: Task List Generation
+1. **Create unique tasking result file**:
+   - Generate timestamp: `YYYYMMDDHHMMSS` format  
+   - Create file path: `<workingFolder>/tasking-<timestamp>.md`
+   - This file will receive the operation report path from the slash command
 
-1. **Invoke the lc-issue-tasker subagent**:
-   - Use the Task tool with `subagent_type="lc-issue-tasker"`
-   - Pass the complete issue content from `updated-issue.md` to the subagent
-   - The subagent will run in a separate context window, preserving the Delivery context
+2. **Invoke the /aime-task-issue slash command**:
+   - Execute: `/aime-task-issue <tasking-result-file-path>`
+   - The command runs in forked context with full conversation awareness
+   - Wait for command completion
 
-2. **Handle tasker response**:
-   - If the subagent succeeds:
-     - Verify that a non-empty task list was generated in `updated-issue.md`
-     - If task list is empty, treat as failure and stop the operation
-   - If the subagent fails (crash, timeout, error, or non-successful status):
-     - Stop the Delivery operation immediately
-     - Report the operation as Blocked with "Tasking-BLOCKED"
+3. **Read tasking result file for operation report path**:
+   - Read the tasking result file created in step 1
+   - Look for: `OperationReport=<path-to-operation-report>`
+   - If file missing or invalid format: Create failed operation report and stop
 
-3. **Create operation report with automatic Linear save**:
-   - After the subagent completes, invoke lc-issue-saver to create the operation report
-   - The lc-issue-saver will automatically detect and save any content changes to Linear
-   - Include the save status from the subagent response in subsequent reports
+4. **Read and evaluate operation report**:
+   - Read the operation report from the path provided
+   - Check the `operationStatus` field in the JSON block:
+     - If "Blocked" or "Failed": Stop the operation immediately
+     - If "InProgress": Continue to validation
+     - If missing/invalid: Create failed report and stop
 
-4. **Create initial operation report via lc-issue-saver**:
-   - If tasking failed: Use lc-issue-saver with action="Tasking-BLOCKED", operationStatus="Blocked"
-   - If tasking succeeded: Use lc-issue-saver with action="Tasked", operationStatus="InProgress"
-
-##### Part B: Task List Quality Validation
-
-**Only proceed to validation if tasking succeeded**
-
-5. **Invoke the lc-task-validator subagent**:
-   - Use the Task tool with `subagent_type="lc-task-validator"`
-   - Pass the updated issue content from `updated-issue.md` for validation
-   - The validator will analyze the task list against 8 quality criteria
-
-6. **Check for fatal validation failures**:
-   - Fatal failures that block immediately without refinement:
-     - `requirementsClarity` = "fail": Block with "Requirements-BLOCKED" report
-     - `noBlockers` = "fail": Block with "BlockingQuestions-BLOCKED" report
-   - If fatal failure detected:
-     - Create appropriate blocking operation report via lc-issue-saver
-     - Stop the operation - do NOT attempt refinement
-
-7. **Handle refineable validation failures**:
-   - If no fatal failures but other criteria fail (refineable failures):
-     - Create "Validation-Failed" operation report with structured feedback
-     - Re-invoke lc-issue-tasker with `validationFeedback` parameter containing the validator's response
-     - The tasker will analyze feedback and either regenerate or apply targeted fixes
-     - Invoke lc-issue-saver to save and report the refinement
-
-8. **Second validation cycle (if refinement occurred)**:
-   - Re-invoke lc-task-validator with the refined task list
-   - Handle second validation results:
-     - If validation passes: Create "Validated" report, continue to Step 4
-     - If validation fails: Create "Validation-BLOCKED" report and stop operation
-   - Note: Only ONE refinement attempt is allowed
-
-9. **Handle successful initial validation**:
-   - If all criteria pass on first validation:
-     - Create "Validated" operation report
-     - Continue directly to Step 4
-
-##### Validation Criteria Reference
-
-The validator checks these 8 criteria (fatal failures marked with **FATAL**):
-- `requirementsClarity`: **FATAL** - Requirements must be clear and unambiguous
-- `completeCoverage`: All requirements must have corresponding tasks
-- `standardsCompliance`: Tasks must follow project standards
-- `testingIncluded`: Appropriate testing tasks must be present
-- `scopeAdherence`: Tasks must stay within issue scope
-- `noBlockers`: **FATAL** - No blocking questions can remain
-- `selfContainedTasks`: Each task must be independently executable
-- `verifiableResults`: Each task must have clear success criteria
-
-**CRITICAL**: 
-- Do not proceed to Step 4 if tasking fails, validation identifies fatal failures, or refinement fails
-- The Delivery operation must stop immediately and report as Blocked in these cases
-- Always use lc-issue-saver after each agent invocation (tasker and validator) to save content and create reports
 
 #### 3.3: Implementation
 
@@ -137,7 +83,7 @@ All of these criteria must be true to consider Delivery Complete:
 - 4.4: Local repo is up to date with the lastest build and is ready to showcase the results
 - 4.5: The `Delivery Adjustments` section accurately represents adjustments and findings
 - 4.6: The aimequal test suite passes (run `_scripts/aimequal` or `/aimefix` command) following the very last code change
-- 4.7: Deliery agent has affirms that all acceptance criteria will pass
+- 4.7: Delivery agent has affirms that all acceptance criteria will pass
 
 If all conditions are true, the operation should be identified as a success.
 
