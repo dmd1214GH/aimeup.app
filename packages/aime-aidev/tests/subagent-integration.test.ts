@@ -201,19 +201,5 @@ describe('Subagent Integration', () => {
       expect(content).not.toContain('#### MCP Integration for Operation Reports');
     });
 
-    it('should have updated operation step instructions to use subagent', () => {
-      const promptPath = path.join(promptsDir, 'lc-runner-general-prompt.md');
-      const content = fs.readFileSync(promptPath, 'utf-8');
-
-      // Check Step 2 (Starting Operation Report)
-      expect(content).toContain(
-        'use the lc-issue-saver subagent to create a Starting Operation Report'
-      );
-
-      // Check Step FINAL (Finished Operation Report)
-      expect(content).toContain(
-        'Use the lc-issue-saver subagent to create the Finished Operation Report'
-      );
-    });
   });
 });

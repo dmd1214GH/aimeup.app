@@ -1,0 +1,18 @@
+{
+  "stateUUIDs": {
+    "Grooming": "849ee7b3-ac72-4e58-aa55-3966e589428e",
+    "Grooming-BLOCKED": "f3ef18d1-bd5e-43bf-8980-119e119d2510",
+    "Delivery-ai": "2ad7ee66-a85f-47f4-8b5b-77dd722a5cb1",
+    "Delivery-Ready": "d70d9dab-abd8-4fe4-be15-8d7c47178cb3",
+    "Delivery": "ef79ae9a-f4d2-46ad-ae1f-88eb6cc4edf9",
+    "Delivery-BLOCKED": "e3828aef-9ca3-4e25-936c-59b17664f38b",
+    "Acceptance": "bb9c535d-ca77-4eba-8b1a-fbbf32e3a51b",
+    "Done": "2db9942a-f630-461f-ab96-1fc4274108df",
+    "Icebox": "f83b2a37-c2bd-419e-a808-11382417651d",
+    "Triage": "f5331fde-97c4-495e-a49c-2d35257c61d4",
+    "Needs Clarification": "f3ef18d1-bd5e-43bf-8980-119e119d2510",
+    "Duplicate": "92ddddc8-3308-46de-ab59-564400b0a90f",
+    "Will not do": "403fce4b-0923-40e6-bace-8726de54d26f"
+  },
+  "_comment": "These UUIDs are specific to the Aimeup team workflow in Linear. Use the fetch-state-uuids.sh script to regenerate if states change."
+}

@@ -85,7 +85,7 @@ Before beginning delivery work, you MUST use the lc-issue-tasker subagent to gen
 - Run tests/validations
 - Document any deviations in Delivery Adjustments section
 
-### Phase 4: Delivery Success Verification
+### Phase 4: Delivery Success Verification with Terminal Transition
 All of these criteria must be true to consider Delivery Complete:
 - 4.1: Task list status accurately reflects the status of each task
 - 4.2: Every task has been completed
@@ -97,10 +97,3 @@ All of these criteria must be true to consider Delivery Complete:
 
 If all conditions are true, the operation should be identified as a success.
 
-When creating your Finished operation report with Complete status:
-- Use lc-issue-saver which will automatically save the updated issue content to Linear
-- This ensures the delivered changes are immediately reflected in the Linear issue
-- The subagent response will include the save status for your records
-
-Otherwise, repeat the delivery process to address remaining unfinished work, or end with a BLOCKED status.
-All BLOCKED statuses must be accompanied by BLOCKING QUESTIONS.

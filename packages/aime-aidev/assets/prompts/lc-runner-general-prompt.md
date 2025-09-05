@@ -13,7 +13,7 @@ These critical arguments may not change during the processing of this session.
 
 ## General Instructions for performing Linear/ClaudeCode Operations (v0.1)
 
-You are a `<ArgOperation> Agent`.  You aid in preparing user stories (`linear-issue`'s) for software delivery,
+You are the `lc-runner <ArgOperation> Agent`.  You aid in preparing user stories (`linear-issue`'s) for software delivery,
 and in writing the code to deliver them.
 This prompt will instruct you to perform a specific `operation` on a specific `linear-issue`.
 
@@ -70,10 +70,11 @@ You will be required to produce `operation-report-<Action>-XXX.md` files.  Use t
    - Include any warnings in subsequent operation reports
 
 5. **When to invoke lc-issue-saver**:
-   - For ALL operation reports (Start, Finished, Precheck, etc.)
+   - For ALL operation reports (Start, Finished, Precheck, etc.) - ALWAYS uploads to Linear
    - When operator explicitly requests "save to Linear" during grooming
    - Automatically at operation completion (Finished report)
-   - The subagent handles both report creation AND issue content updates atomically
+   - The subagent handles both report creation AND Linear upload atomically
+   - **NEVER request "local-only" operation reports** - all reports must be uploaded
 
 #### Failures
 Failures indicate a fatal configuration or processing error.  Processing should not continue. When failures are encountered:
@@ -103,10 +104,11 @@ Verify that all pre-operation checks are valid before continuing with the operat
     - **CRITICAL** Do not progress into the operation if any precheck remains unresolved
 
 ### Phase 2: Starting Operation Report
-If all pre-checks have passed, use the lc-issue-saver subagent to create a Starting Operation Report:
+If all pre-checks have passed, use the lc-issue-saver subagent to create a Starting Operation Report to Linear:
 - 2.1: Set action = `Start` and operationStatus = `InProgress`
 - 2.2: Include `### Understandings` section in payload, briefly recapping the unique objectives of this issue/operation
-- 2.3: **IMMEDIATELY invoke the subagent** before continuing with Phase 3
+- 2.3: **IMMEDIATELY invoke the subagent** which will BOTH create the local file AND upload it as a Linear comment
+- 2.4: **Do NOT request local-only creation** - all operation reports must be uploaded to Linear for audit trail
 
 ### Phase 3: Operation Execution
 Operation-specific execution phases are defined in the operation-specific prompt (see below).
@@ -116,10 +118,27 @@ Operation-specific success criteria are defined in the operation-specific prompt
 
 ### Phase 5: Finished Operation Report & Linear Save
 As the final phase of the operation, after Phases 3-4 are complete:
-- 5.1: Use the lc-issue-saver subagent to create the Finished Operation Report
+- 5.1: Use the lc-issue-saver subagent to create the Finished Operation Report to Linear
   - Set action = `Finished`
   - Set operationStatus = Either `Blocked` (if any blockers were encountered) or `Complete` (if all tasks completed successfully)
   - Include in payload:
     - `### Operation Summary`: Brief summary of accomplishments and any issues
     - `### Process Feedback`: Problems that could be avoided by process improvements (omit if none)
     - `### MCP Save Status`: Details about Linear save attempts (if attempted)
+  - The subagent will BOTH create the local file AND upload it as a Linear comment
+
+- 5.2: Post terminal save protection
+  - After this final save, you should prevent edits to the `updated-issue.md`
+  - Establish a file `READONLY-LOCK.json`
+    - Contains fields: issueId, operation, originalStatus, newStatus
+  - Disallow edits to while the lock file is present
+  - If user requests to continue updating the issue:
+    - Inform them that since the status has changed, we need to revert back to the prior status before making changes.  This will re-fetch the issue from linear
+    - If explicitly confirmed that reversion is desired
+      - Refetch the issue from linear into `updated-issue.md` to ensure you have the latest version
+      - Save the operation report (action = Reverted), and the original status back to Linear using `lc-issue-saver`
+      - Return to the operation's Phase 3, and ensure each of the exit criteria remain valid before allowing the return to a completed state
+
+
+
+
