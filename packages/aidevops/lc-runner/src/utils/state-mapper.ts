@@ -15,7 +15,9 @@ export class StateMapper {
   private mappingsPath: string;
 
   constructor(configPath?: string) {
-    this.mappingsPath = configPath || join(__dirname, '../../config/state-mappings.json');
+    // Default to .linear-watcher/state-mappings.json in repo root
+    const defaultPath = join(process.cwd(), '.linear-watcher', 'state-mappings.json');
+    this.mappingsPath = configPath || defaultPath;
     this.loadMappings();
   }
 
@@ -82,66 +84,6 @@ export class StateMapper {
    */
   hasState(stateName: string): boolean {
     return Boolean(this.mappings?.stateUUIDs?.[stateName]);
-  }
-
-  /**
-   * Update issue status using Linear API directly
-   * Note: This requires LINEAR_API_KEY to be set
-   */
-  async updateIssueStatus(issueId: string, stateName: string): Promise<boolean> {
-    const uuid = this.getStateUUID(stateName);
-    if (!uuid) {
-      console.error(`[StateMapper] Cannot update status: No UUID for state "${stateName}"`);
-      return false;
-    }
-
-    const apiKey = process.env.LINEAR_API_KEY;
-    if (!apiKey) {
-      console.error('[StateMapper] LINEAR_API_KEY not set');
-      return false;
-    }
-
-    try {
-      const response = await fetch('https://api.linear.app/graphql', {
-        method: 'POST',
-        headers: {
-          'Authorization': apiKey,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          query: `
-            mutation UpdateIssueState($id: String!, $stateId: String!) {
-              issueUpdate(id: $id, input: { stateId: $stateId }) {
-                success
-                issue {
-                  identifier
-                  state {
-                    name
-                  }
-                }
-              }
-            }
-          `,
-          variables: {
-            id: issueId,
-            stateId: uuid
-          }
-        })
-      });
-
-      const result: any = await response.json();
-      
-      if (result.data?.issueUpdate?.success) {
-        console.log(`[StateMapper] Successfully updated ${issueId} to ${stateName}`);
-        return true;
-      } else {
-        console.error(`[StateMapper] Failed to update status:`, result.errors);
-        return false;
-      }
-    } catch (error) {
-      console.error(`[StateMapper] Error updating status:`, error);
-      return false;
-    }
   }
 }
 

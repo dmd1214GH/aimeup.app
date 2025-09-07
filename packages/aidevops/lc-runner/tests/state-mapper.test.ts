@@ -90,25 +90,4 @@ describe('StateMapper', () => {
     });
   });
 
-  describe('updateIssueStatus', () => {
-    it('should fail without LINEAR_API_KEY', async () => {
-      const originalKey = process.env.LINEAR_API_KEY;
-      delete process.env.LINEAR_API_KEY;
-
-      const result = await stateMapper.updateIssueStatus('AM-68', 'Acceptance');
-      expect(result).toBe(false);
-
-      // Restore
-      if (originalKey) {
-        process.env.LINEAR_API_KEY = originalKey;
-      }
-    });
-
-    it('should fail with unknown state', async () => {
-      const result = await stateMapper.updateIssueStatus('AM-68', 'UnknownState');
-      expect(result).toBe(false);
-    });
-
-    // Note: Actual API call test would require mocking or integration test setup
-  });
 });

@@ -11,6 +11,7 @@ import { PromptAssembler } from './prompt-assembler';
 import { ClaudeInvoker } from './claude-invoker';
 import { OutputManager } from './output-manager';
 import { uploadCommand } from './commands/upload';
+import { StateMappingRefresher } from './utils/state-mapping-refresher';
 
 /**
  * Runs a Linear/ClaudeCode operation
@@ -21,6 +22,31 @@ export async function runOperation(operation: string, issueId: string, options: 
   try {
     const configLoader = new ConfigLoader();
     const config = configLoader.loadConfig();
+    
+    // Get the repo root once for all uses
+    const repoRoot = configLoader.repoRoot;
+
+    // Refresh state mappings if needed
+    const stateMappingPath = path.join(repoRoot, '.linear-watcher', 'state-mappings.json');
+    const refresher = new StateMappingRefresher({
+      outputPath: stateMappingPath,
+      staleThresholdMinutes: 90,
+      lockTimeout: 10000,
+    });
+
+    if (refresher.isConfigured()) {
+      try {
+        const refreshed = await refresher.refresh();
+        if (refreshed) {
+          console.log('State mappings refreshed successfully');
+        }
+      } catch (error) {
+        console.warn('Warning: Failed to refresh state mappings:', error instanceof Error ? error.message : 'Unknown error');
+        // Non-fatal: continue with existing mappings or without them
+      }
+    } else {
+      console.log('Linear API key not configured - skipping state mapping refresh');
+    }
 
     // Get operation mapping from CLI operation name
     const operationMapping = configLoader.getOperationByCliName(operation, config);
@@ -50,8 +76,7 @@ export async function runOperation(operation: string, issueId: string, options: 
       process.exit(1);
     }
 
-    // Get the workroot from config - use ConfigLoader's repo root finding logic
-    const repoRoot = configLoader['repoRoot'];
+    // Get the workroot from config - use the repo root we already have
     const workroot = path.join(repoRoot, '.linear-watcher', 'work');
 
     // Create WorkingFolder first (so we have a place to log issues)

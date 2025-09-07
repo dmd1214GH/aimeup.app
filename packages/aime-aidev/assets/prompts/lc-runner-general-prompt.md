@@ -117,7 +117,9 @@ Operation-specific execution phases are defined in the operation-specific prompt
 Operation-specific success criteria are defined in the operation-specific prompt (see below).
 
 ### Phase 5: Finished Operation Report & Linear Save
-As the final phase of the operation, after Phases 3-4 are complete:
+Perform these steps to as the final phase of the operation, after Phases 3-4 are verified to be complete.
+Use your TodoWrite tool to track the completion of these **CRITICL** tasks.
+
 - 5.1: Use the lc-issue-saver subagent to create the Finished Operation Report to Linear
   - Set action = `Finished`
   - Set operationStatus = Either `Blocked` (if any blockers were encountered) or `Complete` (if all tasks completed successfully)

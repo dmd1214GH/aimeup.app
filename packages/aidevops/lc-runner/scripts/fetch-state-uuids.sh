@@ -1,6 +1,7 @@
 #!/bin/bash
 
 # Fetch Linear workflow state UUIDs and save them to config
+# This script is for manual troubleshooting only - lc-runner automatically refreshes state mappings
 # Usage: ./fetch-state-uuids.sh
 
 if [ -z "$LINEAR_API_KEY" ]; then
@@ -9,9 +10,16 @@ if [ -z "$LINEAR_API_KEY" ]; then
     exit 1
 fi
 
-OUTPUT_FILE="../config/state-mappings.json"
+# Default to .linear-watcher/state-mappings.json in repo root
+# Can be overridden by REPO_ROOT environment variable
+REPO_ROOT="${REPO_ROOT:-$(git rev-parse --show-toplevel 2>/dev/null || echo ".")}"
+OUTPUT_FILE="$REPO_ROOT/.linear-watcher/state-mappings.json"
+
+# Ensure directory exists
+mkdir -p "$(dirname "$OUTPUT_FILE")"
 
 echo "Fetching Linear workflow states..."
+echo "Output will be saved to: $OUTPUT_FILE"
 
 # Fetch states from Linear API
 STATES=$(curl -s -X POST https://api.linear.app/graphql \

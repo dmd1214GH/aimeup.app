@@ -68,18 +68,13 @@ Always check for issue content changes first:
 5. **Update issue status** (if Complete or Blocked):
    - If `operationStatus` is "Complete": use `successStatusTransition` status name
    - If `operationStatus` is "Blocked": use `blockedStatusTransition` status name
-   - **UUID Mapping**: Load state UUIDs from `/packages/aidevops/lc-runner/config/state-mappings.json`
+   - **UUID Mapping**: Load state UUIDs from `<repo-root>/.linear-watcher/state-mappings.json`
    - Map the status name to its UUID using the stateUUIDs object
-   - If UUID found: Call Linear API directly with mutation:
-     ```graphql
-     mutation { 
-       issueUpdate(id: "[issueId]", input: { stateId: "[uuid]" }) { 
-         success 
-         issue { state { name } } 
-       } 
-     }
-     ```
-   - If UUID not found: Log warning and skip status update
+   - If UUID found: Call `mcp__linear__update_issue` with:
+     - `id`: issueId
+     - `status`: uuid (the mapped UUID, not the status name)
+   - If UUID not found: Log warning and skip status update (non-fatal)
+   - If state-mappings.json doesn't exist: Log warning and skip status update (non-fatal)
    - Log status change to `issue-operation-log.md`
 
 ### 2. Operation Report Creation
