@@ -13,6 +13,30 @@ export interface IssueDetails {
   url: string;
 }
 
+export interface IssueCreateData {
+  title: string;
+  description?: string;
+  teamId: string;
+  parentId?: string;
+  labelIds?: string[];
+  projectId?: string;
+  priority?: number;
+  assigneeId?: string;
+}
+
+export interface IssueRelationData {
+  issueId: string;
+  relatedIssueId: string;
+  type: 'blocks' | 'blocked_by';
+}
+
+export interface CreatedIssue {
+  id: string;
+  identifier: string;
+  url: string;
+  title: string;
+}
+
 export interface LinearApiError extends Error {
   code:
     | 'API_KEY_MISSING'
@@ -259,5 +283,167 @@ export class LinearApiService {
    */
   isConfigured(): boolean {
     return !!this.apiKey;
+  }
+
+  /**
+   * Creates a new issue in Linear
+   */
+  async createIssue(data: IssueCreateData): Promise<CreatedIssue> {
+    try {
+      const client = this.ensureClient();
+
+      const createInput: any = {
+        title: data.title,
+        description: data.description || '',
+        teamId: data.teamId,
+      };
+
+      // Add optional fields if provided
+      if (data.parentId) {
+        createInput.parentId = data.parentId;
+      }
+      if (data.labelIds && data.labelIds.length > 0) {
+        createInput.labelIds = data.labelIds;
+      }
+      if (data.projectId) {
+        createInput.projectId = data.projectId;
+      }
+      if (data.priority !== undefined) {
+        createInput.priority = data.priority;
+      }
+      if (data.assigneeId) {
+        createInput.assigneeId = data.assigneeId;
+      }
+
+      const issuePayload = await client.createIssue(createInput);
+      
+      // Get the created issue to retrieve its details
+      const issue = await issuePayload.issue;
+      if (!issue) {
+        throw new Error('Failed to retrieve created issue');
+      }
+
+      return {
+        id: issue.id,
+        identifier: issue.identifier,
+        url: issue.url,
+        title: issue.title,
+      };
+    } catch (error) {
+      const apiError = new Error(
+        `Failed to create issue: ${error instanceof Error ? error.message : 'Unknown error'}`
+      ) as LinearApiError;
+      apiError.code = 'UNKNOWN_ERROR';
+      throw apiError;
+    }
+  }
+
+  /**
+   * Creates a relationship between two issues
+   */
+  async createIssueRelation(data: IssueRelationData): Promise<void> {
+    try {
+      const client = this.ensureClient();
+
+      // Determine the correct relationship type for Linear API
+      const relationType = data.type === 'blocks' ? 'blocks' : 'related';
+
+      await client.createIssueRelation({
+        issueId: data.issueId,
+        relatedIssueId: data.relatedIssueId,
+        type: relationType as any,
+      });
+    } catch (error) {
+      const apiError = new Error(
+        `Failed to create issue relation: ${error instanceof Error ? error.message : 'Unknown error'}`
+      ) as LinearApiError;
+      apiError.code = 'UNKNOWN_ERROR';
+      throw apiError;
+    }
+  }
+
+  /**
+   * Gets child issues of a parent issue
+   */
+  async getChildIssues(parentId: string): Promise<Array<{ id: string; identifier: string; title: string; url: string }>> {
+    try {
+      const client = this.ensureClient();
+      const issue = await client.issue(parentId);
+
+      if (!issue) {
+        const error = new Error(`Issue ${parentId} not found in Linear`) as LinearApiError;
+        error.code = 'ISSUE_NOT_FOUND';
+        throw error;
+      }
+
+      const children = await issue.children();
+      return children.nodes.map((child) => ({
+        id: child.id,
+        identifier: child.identifier,
+        title: child.title,
+        url: child.url,
+      }));
+    } catch (error) {
+      if ((error as LinearApiError).code) {
+        throw error;
+      }
+
+      const apiError = new Error(
+        `Failed to fetch child issues: ${error instanceof Error ? error.message : 'Unknown error'}`
+      ) as LinearApiError;
+      apiError.code = 'UNKNOWN_ERROR';
+      throw apiError;
+    }
+  }
+
+  /**
+   * Gets issue metadata including team, labels, project, etc.
+   */
+  async getIssueMetadata(issueId: string): Promise<{
+    teamId: string;
+    labelIds: string[];
+    projectId?: string;
+    priority?: number;
+    assigneeId?: string;
+  }> {
+    try {
+      const client = this.ensureClient();
+      const issue = await client.issue(issueId);
+
+      if (!issue) {
+        const error = new Error(`Issue ${issueId} not found in Linear`) as LinearApiError;
+        error.code = 'ISSUE_NOT_FOUND';
+        throw error;
+      }
+
+      const [team, labels, project, assignee] = await Promise.all([
+        issue.team,
+        issue.labels(),
+        issue.project,
+        issue.assignee,
+      ]);
+
+      if (!team) {
+        throw new Error('Issue does not belong to a team');
+      }
+
+      return {
+        teamId: team.id,
+        labelIds: labels.nodes.map((label) => label.id),
+        projectId: project?.id,
+        priority: issue.priority || undefined,
+        assigneeId: assignee?.id,
+      };
+    } catch (error) {
+      if ((error as LinearApiError).code) {
+        throw error;
+      }
+
+      const apiError = new Error(
+        `Failed to fetch issue metadata: ${error instanceof Error ? error.message : 'Unknown error'}`
+      ) as LinearApiError;
+      apiError.code = 'UNKNOWN_ERROR';
+      throw apiError;
+    }
   }
 }

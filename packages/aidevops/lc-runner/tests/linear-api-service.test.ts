@@ -19,6 +19,8 @@ describe('LinearApiService', () => {
       issue: jest.fn(),
       viewer: jest.fn().mockResolvedValue({ id: 'user-id' }),
       createComment: jest.fn(),
+      createIssue: jest.fn(),
+      createIssueRelation: jest.fn(),
     } as any;
 
     // Mock the LinearClient constructor
@@ -352,6 +354,284 @@ describe('LinearApiService', () => {
         expect(error.code).toBe('UNKNOWN_ERROR');
         expect(error.message).toContain('Something went wrong');
       }
+    });
+  });
+
+  describe('createIssue', () => {
+    it('should create issue with all fields', async () => {
+      const mockCreatedIssue = {
+        id: 'new-issue-id',
+        identifier: 'AM-100',
+        url: 'https://linear.app/team/issue/AM-100',
+        title: 'New Sub-Issue',
+      };
+
+      const mockIssuePayload = {
+        issue: Promise.resolve(mockCreatedIssue),
+      };
+
+      mockClient.createIssue.mockResolvedValue(mockIssuePayload as any);
+
+      const result = await service.createIssue({
+        title: 'New Sub-Issue',
+        description: 'Issue description',
+        teamId: 'team-123',
+        parentId: 'parent-issue-id',
+        labelIds: ['label1', 'label2'],
+        projectId: 'project-123',
+        priority: 2,
+        assigneeId: 'user-123',
+      });
+
+      expect(mockClient.createIssue).toHaveBeenCalledWith({
+        title: 'New Sub-Issue',
+        description: 'Issue description',
+        teamId: 'team-123',
+        parentId: 'parent-issue-id',
+        labelIds: ['label1', 'label2'],
+        projectId: 'project-123',
+        priority: 2,
+        assigneeId: 'user-123',
+      });
+
+      expect(result).toEqual({
+        id: 'new-issue-id',
+        identifier: 'AM-100',
+        url: 'https://linear.app/team/issue/AM-100',
+        title: 'New Sub-Issue',
+      });
+    });
+
+    it('should create issue with minimal fields', async () => {
+      const mockCreatedIssue = {
+        id: 'new-issue-id',
+        identifier: 'AM-101',
+        url: 'https://linear.app/team/issue/AM-101',
+        title: 'Minimal Issue',
+      };
+
+      const mockIssuePayload = {
+        issue: Promise.resolve(mockCreatedIssue),
+      };
+
+      mockClient.createIssue.mockResolvedValue(mockIssuePayload as any);
+
+      const result = await service.createIssue({
+        title: 'Minimal Issue',
+        teamId: 'team-123',
+      });
+
+      expect(mockClient.createIssue).toHaveBeenCalledWith({
+        title: 'Minimal Issue',
+        description: '',
+        teamId: 'team-123',
+      });
+
+      expect(result).toEqual({
+        id: 'new-issue-id',
+        identifier: 'AM-101',
+        url: 'https://linear.app/team/issue/AM-101',
+        title: 'Minimal Issue',
+      });
+    });
+
+    it('should handle creation errors', async () => {
+      mockClient.createIssue.mockRejectedValue(new Error('Failed to create'));
+
+      await expect(
+        service.createIssue({
+          title: 'Test Issue',
+          teamId: 'team-123',
+        })
+      ).rejects.toThrow('Failed to create issue: Failed to create');
+    });
+  });
+
+  describe('createIssueRelation', () => {
+    it('should create blocks relationship', async () => {
+      mockClient.createIssueRelation.mockResolvedValue({} as any);
+
+      await service.createIssueRelation({
+        issueId: 'issue-1',
+        relatedIssueId: 'issue-2',
+        type: 'blocks',
+      });
+
+      expect(mockClient.createIssueRelation).toHaveBeenCalledWith({
+        issueId: 'issue-1',
+        relatedIssueId: 'issue-2',
+        type: 'blocks',
+      });
+    });
+
+    it('should create blocked_by relationship', async () => {
+      mockClient.createIssueRelation.mockResolvedValue({} as any);
+
+      await service.createIssueRelation({
+        issueId: 'issue-1',
+        relatedIssueId: 'issue-2',
+        type: 'blocked_by',
+      });
+
+      expect(mockClient.createIssueRelation).toHaveBeenCalledWith({
+        issueId: 'issue-1',
+        relatedIssueId: 'issue-2',
+        type: 'related',
+      });
+    });
+
+    it('should handle relation creation errors', async () => {
+      mockClient.createIssueRelation.mockRejectedValue(new Error('Relation failed'));
+
+      await expect(
+        service.createIssueRelation({
+          issueId: 'issue-1',
+          relatedIssueId: 'issue-2',
+          type: 'blocks',
+        })
+      ).rejects.toThrow('Failed to create issue relation: Relation failed');
+    });
+  });
+
+  describe('getChildIssues', () => {
+    it('should get child issues', async () => {
+      const mockChildren = {
+        nodes: [
+          {
+            id: 'child-1',
+            identifier: 'AM-101',
+            title: 'Child Issue 1',
+            url: 'https://linear.app/team/issue/AM-101',
+          },
+          {
+            id: 'child-2',
+            identifier: 'AM-102',
+            title: 'Child Issue 2',
+            url: 'https://linear.app/team/issue/AM-102',
+          },
+        ],
+      };
+
+      const mockIssue = {
+        id: 'parent-id',
+        children: jest.fn().mockResolvedValue(mockChildren),
+      };
+
+      mockClient.issue.mockResolvedValue(mockIssue as any);
+
+      const result = await service.getChildIssues('AM-100');
+
+      expect(result).toEqual([
+        {
+          id: 'child-1',
+          identifier: 'AM-101',
+          title: 'Child Issue 1',
+          url: 'https://linear.app/team/issue/AM-101',
+        },
+        {
+          id: 'child-2',
+          identifier: 'AM-102',
+          title: 'Child Issue 2',
+          url: 'https://linear.app/team/issue/AM-102',
+        },
+      ]);
+    });
+
+    it('should handle empty children', async () => {
+      const mockIssue = {
+        id: 'parent-id',
+        children: jest.fn().mockResolvedValue({ nodes: [] }),
+      };
+
+      mockClient.issue.mockResolvedValue(mockIssue as any);
+
+      const result = await service.getChildIssues('AM-100');
+      expect(result).toEqual([]);
+    });
+
+    it('should throw error when parent not found', async () => {
+      mockClient.issue.mockResolvedValue(null as any);
+
+      await expect(service.getChildIssues('AM-999')).rejects.toThrow(
+        'Issue AM-999 not found in Linear'
+      );
+    });
+  });
+
+  describe('getIssueMetadata', () => {
+    it('should get complete issue metadata', async () => {
+      const mockIssue = {
+        id: 'issue-id',
+        priority: 2,
+        team: Promise.resolve({ id: 'team-123' }),
+        labels: jest.fn().mockResolvedValue({
+          nodes: [
+            { id: 'label-1' },
+            { id: 'label-2' },
+          ],
+        }),
+        project: Promise.resolve({ id: 'project-123' }),
+        assignee: Promise.resolve({ id: 'user-123' }),
+      };
+
+      mockClient.issue.mockResolvedValue(mockIssue as any);
+
+      const result = await service.getIssueMetadata('AM-50');
+
+      expect(result).toEqual({
+        teamId: 'team-123',
+        labelIds: ['label-1', 'label-2'],
+        projectId: 'project-123',
+        priority: 2,
+        assigneeId: 'user-123',
+      });
+    });
+
+    it('should handle partial metadata', async () => {
+      const mockIssue = {
+        id: 'issue-id',
+        priority: null,
+        team: Promise.resolve({ id: 'team-123' }),
+        labels: jest.fn().mockResolvedValue({ nodes: [] }),
+        project: Promise.resolve(null),
+        assignee: Promise.resolve(null),
+      };
+
+      mockClient.issue.mockResolvedValue(mockIssue as any);
+
+      const result = await service.getIssueMetadata('AM-50');
+
+      expect(result).toEqual({
+        teamId: 'team-123',
+        labelIds: [],
+        projectId: undefined,
+        priority: undefined,
+        assigneeId: undefined,
+      });
+    });
+
+    it('should throw error when issue not found', async () => {
+      mockClient.issue.mockResolvedValue(null as any);
+
+      await expect(service.getIssueMetadata('AM-999')).rejects.toThrow(
+        'Issue AM-999 not found in Linear'
+      );
+    });
+
+    it('should throw error when issue has no team', async () => {
+      const mockIssue = {
+        id: 'issue-id',
+        team: Promise.resolve(null),
+        labels: jest.fn().mockResolvedValue({ nodes: [] }),
+        project: Promise.resolve(null),
+        assignee: Promise.resolve(null),
+      };
+
+      mockClient.issue.mockResolvedValue(mockIssue as any);
+
+      await expect(service.getIssueMetadata('AM-50')).rejects.toThrow(
+        'Issue does not belong to a team'
+      );
     });
   });
 });

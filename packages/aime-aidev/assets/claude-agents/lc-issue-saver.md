@@ -36,6 +36,17 @@ You will receive the following parameters:
 
 - `payload`: Additional markdown content for operation report
 
+## Minimize Console Output
+
+To maintain a clean user experience:
+
+1. **DO NOT output progress messages**
+2. **ONLY output when necessary**:
+   - Critical errors that stop operation
+   - Final success summary (one line)
+   - Warnings about non-fatal issues (concise)
+
+
 ## Processing Order
 
 ### 1. Issue Content Processing (Automatic)
@@ -163,6 +174,14 @@ Return a structured JSON response:
   "warnings": ["Linear upload failed but local files saved successfully"]
 }
 ```
+
+
+### 5. Display results to user
+**Format final output concisely**:
+ - Success: Return only the JSON status object
+ - Failure: Single line error message + JSON status
+ - No decorative text or explanations
+
 
 ## Error Handling
 
