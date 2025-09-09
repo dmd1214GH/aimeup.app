@@ -78,7 +78,7 @@ If any pre-check fails, return Failed status immediately.
 ### Task List Format
 
 ```markdown
-## Task List for <issueId>
+## Task List
 
 1. () Task 1 description
    - Implementation detail 1

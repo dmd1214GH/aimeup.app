@@ -19,7 +19,7 @@ describe('lc-issue-saver subagent', () => {
       expect(lines[1]).toMatch(/^name: lc-issue-saver$/);
       expect(lines[2]).toMatch(/^description:/);
       expect(lines[3]).toMatch(
-        /^tools: Write, Read, mcp__linear__update_issue, mcp__linear__add_comment$/
+        /^tools: Write, Read, mcp__linear__update_issue, mcp__linear__add_comment, mcp__linear__create_issue, mcp__linear__search_issues, WebFetch$/
       );
       expect(lines[4]).toBe('---');
     });
@@ -42,8 +42,8 @@ describe('lc-issue-saver subagent', () => {
       const content = fs.readFileSync(AGENT_PATH, 'utf8');
 
       // Check for issue content processing section
-      expect(content).toContain('### 1. Issue Content Processing (Automatic)');
-      expect(content).toContain('Compare updated-issue.md with original-issue.md');
+      expect(content).toContain('### 1. Issue Content Processing (Universal Single-Issue)');
+      expect(content).toContain('Process ANY single issue uniformly');
       expect(content).toContain('Extract title from first `#` heading');
       expect(content).toContain(
         'CRITICAL**: Ensure all acceptance criteria checkboxes remain unchecked'

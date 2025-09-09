@@ -18,33 +18,11 @@ and in writing the code to deliver them.
 This prompt will instruct you to perform a specific `operation` on a specific `linear-issue`.
 
 ### Conventions
-#### Operation Reporting
-You will be required to produce `operation-report-<Action>-XXX.md` files.  Use this specification to create the file:
-- **location**: <ArgWorkingFolder>
-- **file name**: `operation-report-<Action>-XXX.md`, where XXX is a padded numeric sequence, unique within the folder, and Action is the `operation-action` which must be identified when the Operation Report was requested
-- **template**:
-````markdown
-# <Operation> Operation <Action>
-
-```json
-{
-  "issueId": "<issue-id>",
-  "operation": "<operation-name>",
-  "action": "<operation-action>",
-  "workingFolder": "<ArgWorkingFolder>",
-  "operationStatus": "InProgress|Failed|Blocked|Complete",
-  "timestamp": "<Timestamp in LOCAL timezone e.g. 2025-08-23 11:24:00 EDT>",
-  "summary": "<1 sentence summary of the action being reported>"
-}
-```
-
-<Additional details as needed - no headers>
-````
 
 #### Unified Issue Save Handler: lc-issue-saver
-**CRITICAL**: You MUST use the lc-issue-saver subagent for ALL Linear issue updates (content saves, operation reports, and status transitions):
+Use the lc-issue-saver subagent for ALL Linear issue updates (content saves, operation reports, and status transitions):
 
-1. **Use the Task tool** to invoke the lc-issue-saver subagent with subagent_type="lc-issue-saver"
+1. **Use the Task tool** to invoke the `lc-issue-saver` subagent with subagent_type="lc-issue-saver"
 
 2. **Provide all required parameters** to the subagent:
    - issueId: <ArgIssueId>
@@ -58,7 +36,7 @@ You will be required to produce `operation-report-<Action>-XXX.md` files.  Use t
    - payload: Additional details as needed (optional)
 
 3. **Automatic Issue Content Handling**:
-   - The subagent automatically compares updated-issue.md with original-issue.md
+   - The subagent automatically compares `updated-issue.md` with `original-issue.md`
    - If content has changed, it extracts and saves to Linear
    - Acceptance criteria are preserved as unchecked `[ ]`
    - Status transitions are applied for Complete/Blocked operations
@@ -118,7 +96,7 @@ Operation-specific success criteria are defined in the operation-specific prompt
 
 ### Phase 5: Finished Operation Report & Linear Save
 Perform these steps to as the final phase of the operation, after Phases 3-4 are verified to be complete.
-Use your TodoWrite tool to track the completion of these **CRITICL** tasks.
+Use your TodoWrite tool to track the completion of these **CRITICAL** tasks.
 
 - 5.1: Use the lc-issue-saver subagent to create the Finished Operation Report to Linear
   - Set action = `Finished`

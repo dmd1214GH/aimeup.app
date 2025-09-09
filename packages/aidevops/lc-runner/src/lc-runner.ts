@@ -139,6 +139,14 @@ export async function runOperation(operation: string, issueId: string, options: 
 
     try {
       const issue = await linearClient.getIssue(issueId);
+      
+      // Fetch additional metadata including teamId and other fields
+      let metadata: any = {};
+      try {
+        metadata = await linearClient.getIssueMetadata(issueId);
+      } catch (metaError) {
+        console.warn('Could not fetch issue metadata:', metaError);
+      }
 
       // Format the full issue content with metadata
       const fullIssueContent = `# ${issue.title}
@@ -152,7 +160,7 @@ ${issue.description}
 - Priority: ${issue.priority ? `Priority ${issue.priority}` : 'No priority'}
 - Assignee: ${issue.assignee || 'Unassigned'}
 - Created: ${issue.createdAt}
-- Updated: ${issue.updatedAt}
+- Updated: ${issue.updatedAt}${metadata.teamId ? `\n- TeamId: ${metadata.teamId}` : ''}${metadata.projectId ? `\n- ProjectId: ${metadata.projectId}` : ''}${metadata.projectMilestoneId ? `\n- ProjectMilestoneId: ${metadata.projectMilestoneId}` : ''}${metadata.cycleId ? `\n- CycleId: ${metadata.cycleId}` : ''}${metadata.labelIds && metadata.labelIds.length > 0 ? `\n- LabelIds: ${metadata.labelIds.join(', ')}` : ''}${metadata.assigneeId ? `\n- AssigneeId: ${metadata.assigneeId}` : ''}
 `;
 
       // Save to original-issue.md

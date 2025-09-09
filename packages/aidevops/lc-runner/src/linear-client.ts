@@ -191,4 +191,37 @@ export class LinearClient {
       return false;
     }
   }
+
+  /**
+   * Gets issue metadata including team, labels, project, etc.
+   * Exposes the apiService.getIssueMetadata method.
+   *
+   * @param issueId - The Linear issue ID
+   * @returns Issue metadata including teamId, labelIds, etc.
+   * @throws LinearApiError if API call fails
+   */
+  public async getIssueMetadata(issueId: string): Promise<{
+    teamId: string;
+    labelIds: string[];
+    projectId?: string;
+    projectMilestoneId?: string;
+    cycleId?: string;
+    priority?: number;
+    assigneeId?: string;
+  }> {
+    try {
+      return await this.apiService.getIssueMetadata(issueId);
+    } catch (error) {
+      const apiError = error as LinearApiError;
+      if (apiError.code === 'API_KEY_MISSING') {
+        console.warn(`[Linear API] Cannot fetch metadata - ${apiError.message}`);
+        // Return minimal metadata for compatibility
+        return {
+          teamId: '',
+          labelIds: [],
+        };
+      }
+      throw error;
+    }
+  }
 }

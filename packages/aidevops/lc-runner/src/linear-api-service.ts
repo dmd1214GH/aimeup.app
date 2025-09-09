@@ -403,6 +403,8 @@ export class LinearApiService {
     teamId: string;
     labelIds: string[];
     projectId?: string;
+    projectMilestoneId?: string;
+    cycleId?: string;
     priority?: number;
     assigneeId?: string;
   }> {
@@ -416,10 +418,12 @@ export class LinearApiService {
         throw error;
       }
 
-      const [team, labels, project, assignee] = await Promise.all([
+      const [team, labels, project, projectMilestone, cycle, assignee] = await Promise.all([
         issue.team,
         issue.labels(),
         issue.project,
+        issue.projectMilestone,
+        issue.cycle,
         issue.assignee,
       ]);
 
@@ -431,6 +435,8 @@ export class LinearApiService {
         teamId: team.id,
         labelIds: labels.nodes.map((label) => label.id),
         projectId: project?.id,
+        projectMilestoneId: projectMilestone?.id,
+        cycleId: cycle?.id,
         priority: issue.priority || undefined,
         assigneeId: assignee?.id,
       };

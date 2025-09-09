@@ -6,17 +6,8 @@ import * as fs from 'fs';
 import { ConfigLoader } from './config';
 import { uploadCommand } from './commands/upload';
 import { runOperation } from './lc-runner';
-import { linearApiCommand } from './commands/linear-api';
 
 const program = new Command();
-
-// Add linear-api subcommand
-program
-  .command('linear-api <action> [args...]')
-  .description('Execute Linear API operations')
-  .action(async (action: string, args: string[]) => {
-    await linearApiCommand(action, args);
-  });
 
 // Main program definition
 program

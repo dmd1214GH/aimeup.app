@@ -54,7 +54,7 @@ Before beginning delivery work, you MUST use the lc-issue-tasker subagent to gen
 #### 3.3: Implementation
 
 ##### Prime Delivery Directives
-1. Update the task list in `updated-issue.md` with every status change.
+1. Locate and update the `Task List` in `updated-issue.md` with every status change.
   - key: `(X)`=Completed the task, `(O)`=Started the task, `(-)`=Blocked, `(D)`=Deleted/Not Needed
   - **CRITICAL**: Do NOT modify acceptance criteria checkboxes `[ ]` - these must remain unchecked for human verification
 2. Do not resort to "hacky" solutions, consider the task blocked if a good solution cannot be found
@@ -64,6 +64,7 @@ Before beginning delivery work, you MUST use the lc-issue-tasker subagent to gen
 
 **Task status examples**:
 ```
+## Task List
 1. () Non-started task
   - Task 1 component 1.1
 2. (-) Task 2 (BLOCKED example)

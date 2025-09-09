@@ -80,6 +80,10 @@ Technical Verification
 - Verify assumptions about how systems work
 - Don't trust documentation blindly - test it
 
+##### Formatting Rules
+1. Accept either `*` or `-` for bullet items.  No not alter for consistency.  Default to `-`.  This helps to avoid noise during the review process.
+2. Wrap all file references with backticks (e.g. `somefile.md`).  This avoids undesireble links (e.g. `[somefile.md](http://somefile.md)`)
+
 ##### Breaking Out Issues
 Breakout Issues are collected in the `## Breakout Issues` section during the grooming process.  They should remain there until the user explicitly requests or agrees to break them out into their own linear issue.  This can happen at any point during the operation.
 
@@ -94,13 +98,42 @@ Breakout Issues are collected in the `## Breakout Issues` section during the gro
        - selectedBreakouts: [list of selected titles or 'all']"
      ```
 2. **Process subagent results**:
-   - Review created/updated issues from subagent response
-   - Confirm parent issue was updated with sub-issue references
-   - Report results to operator
-3. **Save updated parent issue**:
+   - Review extracted files from subagent response
+   - Note the filenames and paths of created breakout files
+   - Confirm parent issue was updated with placeholders
+
+3. **Create Linear sub-issues from breakout files**:
+   - For EACH breakout file returned by lc-breakout-handler:
+   - Invoke lc-issue-saver subagent to create the sub-issue:
+     ```
+     subagent_type: "lc-issue-saver"
+     prompt: "Please create a new Linear sub-issue from breakout file:
+       - filePath: <path-to-breakout-file>
+       - operation: Groom
+       - action: CreateBreakout
+       - operationStatus: InProgress
+       - summary: Creating sub-issue from breakout"
+     ```
+   - The subagent will extract Parent from the file's Metadata section
+   - The subagent will get teamId by looking up the parent issue
+   - Track which sub-issues were successfully created
+   - Note any failures for reporting
+
+4. **Update parent issue with created sub-issue IDs**:
+   - If sub-issues were successfully created:
+     - Update the parent's Breakout Issues section
+     - Replace the entire Breakout Issues section with just the issue IDs as bullet points:
+       ```markdown
+       ## Breakout Issues
+       - AM-83
+       - AM-84
+       ```
+     - The Linear API will auto-render these as proper sub-issue cards
+   
+5. **Save updated parent issue**:
    - Invoke lc-issue-saver subagent to save the updated parent issue to Linear
    - Use action type "Breakout" or "Update" to document the change
-   - This ensures the parent issue in Linear reflects the breakout changes
+   - This ensures the parent issue in Linear reflects the breakout changes and created sub-issues
 
 
 
@@ -159,11 +192,13 @@ Breakout Issues are collected in the `## Breakout Issues` section during the gro
   - Requirements crystal clear and sensible
   - Requirements are properly sized and scoped to be focused, breakout issues have been considered and resolved
   - All known questions are resolved and incorporated
-  - Operator **EXPLICITLY agrees** that requirements are complete
+  - When all criteria are met, gently seek operator approval.  Otherwise, prompt operator for outstanding resolutions.  Do not rush or pressure the user.
+  - **⚠️ CRITICAL REQUIREMENTS APPROVAL GATE**
+    - Operator must **EXPLICITLY agree** that requirements are complete AND that operation should move to Solution Design.
     - **Required approval**: Say something like:  "The requirements look complete. Shall we move to **Solution Design**?
-    - Output the full **## Requirements** and **## Solution Summary** sections when seeking approval to move on
-  - **Breakout Trigger Point 2**: Before transitioning to Solution Design, if breakout issues exist, ask: "Before we move to solution design, we have X breakout issues. Should we break them out into their own linear issue first (recommended)?"
-  - When all criteria are met, gently seek operator approval to move on.  Otherwise, prompt operator for outstanding resolutions
+    - You MUST see one of these EXACT responses to proceed: "yes", "approved", "proceed", "go ahead", "move on..."
+    - ANY other response (including "sounds good", "that's right", "correct") is NOT approval - it's just acknowledgment
+    - **Breakout Trigger Point**: If breakout issues are still listed suggest "Before we move to solution design, we have X breakout issues. Should we break them out into their own linear issue first (recommended)?"
 
 #### 3.3: Solution Design
 - Design solution and iterate with Operator
