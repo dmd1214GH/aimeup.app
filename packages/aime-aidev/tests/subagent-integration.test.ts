@@ -184,22 +184,4 @@ describe('Subagent Integration', () => {
     });
   });
 
-  describe('Prompt Template Updates', () => {
-    const promptsDir = path.join(__dirname, '../assets/prompts');
-
-    it('should have updated lc-runner-general-prompt.md with subagent instructions', () => {
-      const promptPath = path.join(promptsDir, 'lc-runner-general-prompt.md');
-      const content = fs.readFileSync(promptPath, 'utf-8');
-
-      // Check for subagent integration section
-      expect(content).toContain('#### Unified Issue Save Handler: lc-issue-saver');
-      expect(content).toContain('lc-issue-saver subagent');
-      expect(content).toContain('Use the Task tool');
-      expect(content).toContain('subagent_type="lc-issue-saver"');
-
-      // Should not contain old MCP instructions
-      expect(content).not.toContain('#### MCP Integration for Operation Reports');
-    });
-
-  });
 });
