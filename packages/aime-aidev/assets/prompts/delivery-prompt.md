@@ -1,66 +1,22 @@
-## Instructions for Delivering Linear issues with ClaudeCode (v0.1)
+## Instructions for Delivering Linear Stories with ClaudeCode (v0.1)
 
-### Delivery-specific Pre-Operation checklist
-Include these delivery-specific pre-operation checks with the other tests in `Phase 1: Pre-operation Checklist`
+### Story Delivery-specific Prechecks
+Include these delivery-specific checklist items with `Phase 1: Validate and Prime`
 - Ensure `git status` is clean (no pending commits)
-- Run `_scripts/aimequal` directly or use `/aimefix` command, then confirm all tests pass
+- Run `_scripts/aimequal` and confirm all tests pass
 - Read `<repo-root>/_docs/guides/development-standards.md`
+- Review the story as defined in `updated-issue.md` and validate that it is completely clear and achievable
 
 
-### Phase 3: Delivery Execution
+### Story Delivery Execution Guidelines
 
-#### 3.1: Understand Requirements
-- Review groomed requirements in `updated-issue.md`
-- Validate Process Flows are clear and actionable
-- Identify any blockers immediately
-- If requirements are unclear or incomplete, report as blocker
-
-#### 3.2: Generate/Validate Task List with Quality Validation
-
-Before beginning delivery work, you MUST use the lc-issue-tasker subagent to generate or validate the task list, followed by quality validation:
-
-1. **Invoke the lc-issue-tasker subagent**:
-   - Use the Task tool with `subagent_type="lc-issue-tasker"`
-   - Provide required parameters:
-     - issueId: <issue-id>
-     - workingFolder: <working-folder>
-     - operation: <operation>
-     - repoRoot: <repo-root>
-   - Example prompt: "Please task the following Linear issue:
-     - issueId: AM-68
-     - workingFolder: /aimeup/.linear-watcher/work/lcr-AM-68/op-Deliver-20250904170945
-     - operation: Deliver
-     - repoRoot: /aimeup"
-   - The subagent will run with full conversation context awareness
-   - Wait for subagent completion and capture the response
-
-2. **Process subagent response and create operation report**:
-   - Parse the JSON response from the subagent
-   - Use lc-issue-saver subagent to create operation report:
-     - action: "Tasked" (if status="Complete") or "Tasking-BLOCKED" (if status="Blocked")
-     - operationStatus: Map status to appropriate value
-     - Include task count and validation details in payload
-   
-3. **Evaluate tasking status**:
-   - Check the status from subagent response:
-     - If "Blocked" or "Failed": Stop the operation immediately
-     - If "Complete": Continue to implementation
-     - If missing/invalid: Create failed report and stop
-
-4. **Save to Linear**:
-  - Use the lc-issue-saver subagent to save the issue, operation report, and status
-
-
-#### 3.3: Implementation
-
-##### Prime Delivery Directives
-1. Locate and update the `Task List` in `updated-issue.md` with every status change.
-  - key: `(X)`=Completed the task, `(O)`=Started the task, `(-)`=Blocked, `(D)`=Deleted/Not Needed
-  - **CRITICAL**: Do NOT modify acceptance criteria checkboxes `[ ]` - these must remain unchecked for human verification
-2. Do not resort to "hacky" solutions, consider the task blocked if a good solution cannot be found
-3. When a task is blocked, move on to other **non-validation** tasks that are not impacted by the blockage. End the operation when all work is blocked.  Validation tasks should only be performed after all other delivery tasks are completed.
-4. Never commit to git. Operator will do this after accepting delivery.
-5. Stick to established patterns and standards in the codebase
+#### Updating the Task List
+Phase `2.2: Implementation` guides the Delivery Agent through delivering each task in the task list.  Use these guidelines for updating the task list in `updated-issue.md`:
+  - Each task has a `()` status indicator
+  - Task status indicator **SHALL** be updated **BEFORE** and **AFTER** performing work on each task
+  - key: `()`=Not started `(X)`=Completed the task, `(O)`=Started the task, `(-)`=Blocked, `(D)`=Deleted/Not Needed
+  - Save `updated-issue.md` after every task list update
+  - **CRITICAL**: Never lie about task status.  It only causes problems!!!!
 
 **Task status examples**:
 ```
@@ -77,24 +33,90 @@ Before beginning delivery work, you MUST use the lc-issue-tasker subagent to gen
 5. (O) Started task
 ```
 
-##### Delivery steps
-- Complete the Tasks as defined in `updated-issue.md`, updating status as you progress
-- If unexpected problems are encountered, address them as long as the solution is obvious and complies with standards.
+#### Coding Standards
+1. Do not resort to "hacky" solutions, consider the task blocked if a good solution cannot be found in a reasonable amount of attempts
+2. Never commit to git. Operator will do this after accepting delivery.
+3. Stick to established patterns and standards in the codebase
+4. Adhere to standards included in `development-standards.md`
 
-#### 3.4: Final Delivery Verification
-- Confirm all ACs are met
-- Run tests/validations
-- Document any deviations in Delivery Adjustments section
 
-### Phase 4: Delivery Success Verification with Terminal Transition
-All of these criteria must be true to consider Delivery Complete:
-- 4.1: Task list status accurately reflects the status of each task
-- 4.2: Every task has been completed
-- 4.3: Code is in a committable state
-- 4.4: Local repo is up to date with the latest build and is ready to showcase the results
-- 4.5: The `Delivery Adjustments` section accurately represents adjustments and findings
-- 4.6: The aimequal test suite passes (run `_scripts/aimequal` or `/aimefix` command) following the very last code change
-- 4.7: Delivery agent has affirms that all acceptance criteria will pass
+### Phase 2: Delivery Execution
 
-If all conditions are true, the operation should be identified as a success.
+
+#### 2.1: Generate/Validate Task List
+Before beginning delivery work, you MUST use the lc-issue-tasker subagent to generate or validate the task list, followed by quality validation:
+
+1. **Invoke the lc-issue-tasker subagent**:
+  - Use the subagent `lc-issue-tasker` to task the issue
+    ```
+    subagent_type: "lc-issue-tasker"
+    issueId: <issue-id>
+    workingFolder: <working-folder>
+    operation: <operation>
+    repoRoot: <repo-root>
+    ```
+  - Wait for subagent completion and capture the response
+
+2. **Process subagent response and create operation report**:
+  - Parse the JSON response from the subagent
+  - Use lc-issue-saver subagent to create operation report:
+    ```
+    subagent_type: "lc-issue-saver"
+    action: "Tasked" or "Tasking-BLOCKED" depending on tasker status
+    operationStatus: "InProgress" or "Blocked" depending on tasker status
+    summary: operation + " tasking " + status result
+    payload: |
+      ### Tasking Results
+      Summarized task list, noting blockers if existing
+    ```
+
+3. **Calculate Next Steps**:
+  - Check the status from subagent response:
+    - If "Blocked" or "Failed": 
+      - `OPERATION_COMPLETION` = `BLOCKED` or `FAILED` accordingly
+      - Skip to Phase 3 to end the operation
+    - If "Complete": Continue to implementation
+    - If missing/invalid: 
+      - `OPERATION_COMPLETION` = `FAILED`
+      - Create failed report and skip to Phase 3
+
+   
+
+#### 2.2: Implementation
+Read and understand the newly created task list in `updated-issue.md`, and process it using these guidelines:
+
+1. Read the first uncompleted task
+  a. If no other tasks are processable, end the `2.2 Implementation phase`
+2. Update the `()` status indicator with `(O)` to indicate that processing has started, save the file
+3. Formulate a detailed `Task Delivery Plan` for completing the task
+4. Execute the plan to deliver the task, iterate and adjust the plan as needed to deliver a high-quality result
+5. Evaluate completion of the `Task Delivery Plan` 
+  a. If the `Task Delivery Plan` is not viable, or any part of the plan cannot be completed, indicate the task to be blocked:
+    - Replace the status indicator with `(-)` to indicate "Blocked"
+    - Append a `- BLOCKED: + Reason` sub-item to the task's sub-list
+    - Review the remaining uncompleted tasks to evaluate if they should be blocked by this task, and indicate their blockages as well.
+    - Save the file to update the status
+  b. Otherwise, (the task delivery plan was fully completed)
+    - Indicate the task as complete `(X)`
+    - Append a `- UPDATED: File1.md, File2.ts` sub-item to the task's sub-list
+6. If any deviation from the plan was required to progress the task, create or append a summary to the `## Delivery Adjustments` section of `updated-issue.md`
+7. Return to Step 1 to see if there is another task to deliver
+
+
+#### 2.3: Final Delivery Verification
+Perform these steps after `2.2: Implementation` finishes its work
+
+1. Calculate the Blocked/Complete operation status.  Complete depends on ALL **Delivery Phase Exit Criteria** being true
+  - Task list status accurately reflects the status of each task
+  - Every task has been **HONESTLY** marked completed
+  - Code is in a committable state (high quality, no known bugs, aimequal works)
+  - Local repo is up to date with the latest build and is ready to showcase the results
+  - The `Delivery Adjustments` section accurately represents adjustments and findings
+  - The aimequal test suite passes (run `_scripts/aimequal`) following the very last code change
+  - Delivery agent affirms that all acceptance criteria will pass either through direct testing or careful code review
+    - **CRITICAL**: Do NOT modify acceptance criteria checkboxes `[ ]` - these must remain unchecked for human verification
+2. If all of the **Delivery Phase Exit Criteria** are true
+  - `OPERATION_COMPLETION` = `COMPLETE`
+  - Otherwise, `OPERATION_COMPLETION` = `BLOCKED`
+
 

@@ -19,7 +19,7 @@ describe('lc-issue-saver subagent', () => {
       expect(lines[1]).toMatch(/^name: lc-issue-saver$/);
       expect(lines[2]).toMatch(/^description:/);
       expect(lines[3]).toMatch(
-        /^tools: Write, Read, mcp__linear__update_issue, mcp__linear__add_comment, mcp__linear__create_issue, mcp__linear__search_issues, WebFetch$/
+        /^tools: Write, Read, mcp__linear__update_issue, mcp__linear__add_comment, mcp__linear__create_issue, mcp__linear__search_issues, WebFetch, Bash$/
       );
       expect(lines[4]).toBe('---');
     });

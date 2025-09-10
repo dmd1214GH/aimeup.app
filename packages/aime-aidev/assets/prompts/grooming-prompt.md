@@ -1,151 +1,210 @@
 ## Instructions for Grooming Linear Stories with ClaudeCode (v0.1)
 
-### Story Grooming-specific Pre-operation checklist
-Include these grooming-specific pre-operation checks with the other tests in `Phase 1: Pre-operation Checklist`
-- `<working-folder>/updated-issue.md` contains a clearly stated requirement(s) that are in a condition to begin or continue grooming
+### Story Grooming-specific Prechecks
+Include these grooming-specific checklist items with `Phase 1: Validate and Prime`
+- The issue defined in `updated-issue.md` contains clearly stated requirements in a condition to begin or continue grooming
+- Read any files referenced in the Issue Definition to validate that they exist and that you understand their contents
 - Read `<repo-root>/_docs/guides/monorepo.md` to prepare for identifying the component impacts
 
 
-### Phase 3: Grooming Execution
+### Story Grooming Execution Guidelines
 
-
-#### Grooming Guidelines
-
-##### Grooming Operation Flow
-1. **Initial Analysis & Operator Engagement**
+#### Story Grooming Execution (Phase 2) Process Flow
+1. **2.1: Initial Analysis & Operator Engagement**
   - Prepare understanding, greet operator
   - Obtain approval to proceed
-2. **Iterative Requirements Development**
+2. **2.2: Iterative Requirements Development**
   - Collaborate on *Requirements*
-  - Prepare *Solution Summary*
   - Obtain approval to proceed
-3. **Solution Design**
+3. **2.3: Automatically Generate Solution Design**
   - Automatically generate solution
-  - Obtain feedback
+4. **2.4: Completion Resolution**
+  - Iterate with Operator on Solution Design
     - Adjust requirements as necessary
     - Re-generate solution from requirements
+  - Evaluate completion
   - Obtain approval to proceed
-4. **Breakout and Proceed**
-  - End the operation with specific instructions for operator if necessary
 
 
-##### Story Grooming Guiding Principles
+#### Story Grooming Guiding Principles
 These principles contribute to reliable delivery of desired functionality.  Use them to design and evolve this prompt, and to guide the Story grooming process:
 
-1. Small, atomic, useful Stories
+1. Careful deliberation: Right the first time
+  - Support the Operator in careful deliberation of options, do not rush.  The idea is to get it right during grooming, so delivery is flawless
+  - **⚠️ CRITICAL** Ensure Operator approval gates are explicitly respected. Do not assume the operator wants to move ahead through general expressions of approval (e.g. "looks good", or "just resolve this one thing").  Always obtain explicit approval if there is any doubt.
+
+2. Small, atomic, useful Stories
   - Keep Stories focused on **1 useful thing**
   - Avoid including un-related work
-  - Suggest using Breakout Issues if the Story becomes too big
-2. Prove concepts and establish patterns for new solutions
+  - Suggest using Breakout Issues if the Story becomes too big or contains easily separable work
+
+3. Prove concepts and establish patterns for new solutions
+  - If requirements mention specific tools, packages, or capabilities: test them during grooming. Unverified assumptions lead to blocked tasks.
   - Solutions that do not have established patterns should be physically tested during grooming
   - Lightly used patterns should explicitly reference similar components to be modeled after
   - Highlight new or immature ideas and ensure their solutions are defined carefully
   - Examples: Claude code features, new libraries, new apis
-3. Top-down requirements
+  - Don't trust documentation blindly, test it before specifying it
+
+4. Top-down requirements
   - Structure requirements first
-  - Organize from top down and inside out
+  - Organize from top down and outside in
   - Breakout issues early in the process, during the requirements discussion
   - Delay solution design until after requirements are clear, proven, well organized, and have been considered for breakouts
-4. Handling options
-  - Resolve design options during this phase, do not provide options for the Delivery Operator to make
+
+5. Resolve design options during grooming
+  - Do not specify that Delivery should decide between options or test concepts before delivering
   - Collaborate with Operator to resolve option
-  - Test and Resolve questions that would resolve options during the Grooming Phase
+  - Test and Resolve questions that would resolve options during the grooming phase
+
+6. Update `updated-issue.md` directly as the conversation progresses
+  - Work with the operator to refine the Story defined in `updated-issue.md`
+  - Update `updated-issue.md` directly as the conversation progresses
+  - Use the `Story Definition Template` below for document structure
+  - Never remove content without approval
+
+7. Implementation-agnostic requirements
+  - Requirements should remain valid even if the codebase is refactored
+  - Technical details like file paths, method names, and line numbers belong in Solution Design
+  - Focus on capabilities and behaviors, not code structure
+  - A good requirement can be understood without reading the code
+
+#### Story Authoring and Formatting
+These instructions are intended to optimize the authoring and editing of the issue definitions for stories.  Stories must be easy to read by both humans and AI Agents.  They must also be optimized to display well within Linear and other markdown editors.
+
+1. **No strike-through text**.  Remove text that doesn't belong, consider adding an Assumption to record the decision to remove if it is at risk of being added later
+
+2. **What not How**.  Grooming defines what is required, not how to deliver it.  if "How" decisions must be conveyed, be clear about the underlying requirements
+
+3. **Bullets**.  Linear markdown supports `*` and `-` bullets.  **DO NOT NEEDLESSLY CHANGE WHAT IS USED**.  This creates noise in Diff. Use precedents in existing lists, or default to `-` for new lists
+
+4. **File References** Wrap all file references with back ticks (e.g. `somefile.md`).  This avoids undesirable links (e.g. `[somefile.md](http://somefile.md)`)
+
+5. **Brevity** Be as brief as possible, but choose clarity over brevity - if a shorter statement could be ambiguous, expand it with context.
+
+6. **Specificity vs. Abstraction Balance**
+  - BE SPECIFIC when naming business concepts, features, and capabilities
+  - BE ABSTRACT when describing implementation details, code structure, or technical solutions
+  - Requirements = WHAT needs to change (survives refactoring)
+  - Solution Design = HOW to make the change (includes files, methods, line numbers)
 
 
-##### **⚠️ CRITICAL: COMPLY WITH OPERATOR APPROVAL REQUIREMENTS**
-- You MUST engage in conversation with the operator before completing grooming
-- Expect careful deliberation about all design questions, the objective is to get it right the first time
-
-##### **Grooming Rules**
-- Work with the operator to refine the Story defined in `updated-issue.md`
-- Update `updated-issue.md` directly as the conversation progresses
-- Use the Template below for document structure
-- Never remove content without approval
-- **No strikethrough text**: Never use strikethrough formatting
-- **Remember**: Grooming defines WHAT to build, not HOW to build it
-
-##### **⚠️ Verify, Don't Assume**
-If requirements mention specific tools, packages, or capabilities, test them during grooming. Unverified assumptions lead to blocked tasks.
-
-
-##### Specificity vs. Abstraction Balance
-Try to achieve just enough detail for the delivery agent to know our intention without being overly detailed or rigid. Trust in high competence of delivery capabilities, but share the context of discussion that influenced the design.
-
-**Core Principle**: BE SPECIFIC when naming components, systems, or phases to avoid ambiguity. BE ABSTRACT when describing implementation details or code changes. Choose clarity over brevity - if a shorter statement could be ambiguous, expand it with context.
-
-
-##### Verification During Grooming
-Technical Verification
-- Test any mentioned tools/APIs with actual calls when feasible
-- Verify assumptions about how systems work
-- Don't trust documentation blindly - test it
-
-##### Formatting Rules
-1. Accept either `*` or `-` for bullet items.  No not alter for consistency.  Default to `-`.  This helps to avoid noise during the review process.
-2. Wrap all file references with backticks (e.g. `somefile.md`).  This avoids undesireble links (e.g. `[somefile.md](http://somefile.md)`)
-
-##### Breaking Out Issues
+#### Breaking Out Issues
 Breakout Issues are collected in the `## Breakout Issues` section during the grooming process.  They should remain there until the user explicitly requests or agrees to break them out into their own linear issue.  This can happen at any point during the operation.
 
-1. **When breakouts are resolved**:
-   - List available breakouts for selection
+1. **When Breakout Issues are resolved to be broken out**:
    - Invoke the `lc-breakout-handler` subagent using the Task tool:
      ```
      subagent_type: "lc-breakout-handler"
-     prompt: "Please create sub-issues for the following breakouts:
+     prompt: |
+       Please create sub-issues for the following breakouts:
        - issueId: <current-issue-id>
        - workingFolder: <working-folder-path>
-       - selectedBreakouts: [list of selected titles or 'all']"
+       - selectedBreakouts: [list of selected titles or 'all']
      ```
+
 2. **Process subagent results**:
    - Review extracted files from subagent response
    - Note the filenames and paths of created breakout files
-   - Confirm parent issue was updated with placeholders
 
 3. **Create Linear sub-issues from breakout files**:
-   - For EACH breakout file returned by lc-breakout-handler:
-   - Invoke lc-issue-saver subagent to create the sub-issue:
-     ```
-     subagent_type: "lc-issue-saver"
-     prompt: "Please create a new Linear sub-issue from breakout file:
-       - filePath: <path-to-breakout-file>
-       - operation: Groom
-       - action: CreateBreakout
-       - operationStatus: InProgress
-       - summary: Creating sub-issue from breakout"
-     ```
-   - The subagent will extract Parent from the file's Metadata section
-   - The subagent will get teamId by looking up the parent issue
-   - Track which sub-issues were successfully created
-   - Note any failures for reporting
+  - For EACH breakout file returned by lc-breakout-handler:
+    - Use `lc-issue-saver` to record the creation of the new breakout issue:
+      ```
+      subagent_type: "lc-issue-saver"
+      filePath: <path-to-breakout-file>
+      action: "Broken Out"
+      operationStatus: "InProgress"
+      summary: "New issue broken out from " + Issue ID of the parent
+      payload: |
+        ### Breakout Summary
+        A brief summary of the source and reason for the breakout, if known.
+      ```
 
 4. **Update parent issue with created sub-issue IDs**:
    - If sub-issues were successfully created:
      - Update the parent's Breakout Issues section
-     - Replace the entire Breakout Issues section with just the issue IDs as bullet points:
+     - Replace the Breakout Issue placeholder for each Breakout Issue that was created:
        ```markdown
        ## Breakout Issues
-       - AM-83
-       - AM-84
+       - <newly created issue id, e.g. AM-80>
+       - <newly created issue id, e.g. AM-81>
        ```
      - The Linear API will auto-render these as proper sub-issue cards
    
 5. **Save updated parent issue**:
-   - Invoke lc-issue-saver subagent to save the updated parent issue to Linear
-   - Use action type "Breakout" or "Update" to document the change
-   - This ensures the parent issue in Linear reflects the breakout changes and created sub-issues
+  - Use `lc-issue-saver` to record the breakout of the child issue to ensure the parent issue in Linear reflects the breakout changes and created sub-issues
+    ```
+    subagent_type: "lc-issue-saver"
+    action: "Breakouts Created"
+    operationStatus: "InProgress"
+    summary: "Breakout issues created for " + Issue ID of the parent
+    payload: |
+      ### Breakouts
+      List the issues created during the breakout
+    ```
 
 
+#### Story Definition Template
+Groomed issues should be presented in this standard format:
 
-#### 3.1: Initial Analysis & Operator Engagement
+```markdown
+# <IssueName: Uniquely descriptive name>
+<Description: 1-2 sentence description of the Story>
+
+## Requirements
+1. Well-organized, hierarchical numbered list per section 3.2 standards
+  - Format like this for Linear compatibility
+    - Numbers first, then dashes for lower levels
+
+## Solution Summary
+
+### Feature Summary
+**Functional Features**
+[Delivered features summarized as briefly as possible while still describing the full scope]
+
+**Non-Functional Features**
+[Summary of non-functional features]
+
+### Blocking Questions
+[Must contain only "No outstanding questions" when grooming is complete]
+
+### Assumptions
+[Material, non-obvious, assumptions made during grooming]
+
+## Solution Design
+
+### Component Impacts
+[Listing of components and their impacts affected by the proposed solution]
+
+### Process Flows
+[High-level technical approach per Process Flow standards above]
+
+### Acceptance Criteria
+- [ ] User-observable success criteria (unchecked boxes)
+[Per section 3.3 standards]
+
+## Breakout Issues
+[If needed, use nested format to prepare for Linear AI extraction]
+### Breakout 1 Issue Title
+[Description: 1-2 sentence description of the Story]
+#### Requirements
+#### SolutionSummary
+[All other section details extracted from the parent]
+```
+
+### Phase 2: Story Grooming Execution
+
+
+#### 2.1: Initial Analysis & Operator Engagement
 - Read and analyze the current Story content
 - Identify obvious gaps, ambiguities, or concerns
 - Check for any technical dependencies that might inform the Story's issue definition
 - Prepare initial understanding summary
 - Present findings: "I see this is about [summary]. [Initial observations]. Shall we begin grooming?"
-- **Cannot proceed without explicit approval**
+- **STOP and WAIT for explicit approval**
 
-#### 3.2: Iterative **Requirements** Development
+#### 2.2: Iterative **Requirements** Development
 - Work iteratively with operator to fully develop the **## Requirements** and **## Solution Summary** sections FIRST
   - Update the `updated-issue.md` continuously during this phase
   - Draft and present initial requirements understanding
@@ -174,6 +233,7 @@ Breakout Issues are collected in the `## Breakout Issues` section during the gro
     - Capture only non-obvious assumptions that are not stated in the document
     - Include out-of-scope decisions made during question resolution
     - Include pending or executed POC tests for new solution patterns or tools which will be introduced by this solution
+    - Standard engineering practices (tests, documentation, clean builds) are always assumed unless explicitly stated otherwise
 - **## Breakout Issues**
   - If Operator **explicitly** resolves to breakout issues, create a new **### Heading** for it under **## Breakout Issues** and move all of its related elements to that section
   - **Breakout Trigger Point 1**: After creating breakout issues, ask: "I've identified X well-defined breakout issues. Would you like to break them out to their own Linear issue now?"
@@ -183,10 +243,22 @@ Breakout Issues are collected in the `## Breakout Issues` section during the gro
     - ❌ Bad: "Delete files matching the pattern `/tmp/claude-prompt-*.md`"
     - ✅ Good: "Clean up any legacy temporary files created by previous versions"
     - ❌ Bad: "the agent does X" (too vague about which agent)
-    - ✅ Good: "the Grooming agent does X" or "the lc-runner operation does X"
+    - ✅ Good: "the Grooming Agent does X" or "the lc-runner operation does X"
   - State as requirements, not as instructions
     - ❌ Bad: "Extract success/blocked transitions from config.json and pass as ArgTargetStatusSuccess..."
     - ✅ Good: "Pass the Success and Blocked status transitions from lc-runner"
+  - **Exclude standard engineering practices** - Don't state obvious "definition of done" items
+    - ❌ Bad: "Update tests to reflect changes"
+    - ❌ Bad: "Ensure all tests pass"
+    - ❌ Bad: "Update documentation"
+    - ❌ Bad: "Fix any broken imports"
+    - ✅ Good: Only include test/doc requirements when specific or unusual (e.g., "Create performance benchmarks for new caching layer")
+    - Note: Standard practices (tests pass, docs updated, no broken code) are assumed for ALL stories
+  - **Abstraction Level**: Requirements must survive normal code evolution
+    - ❌ Bad: "Remove lines 343-358 from lc-runner.ts" (line numbers change)
+    - ✅ Good: "Remove automatic upload attempts after operations complete"
+  - **Stability Test**: If a requirement would need updating after routine refactoring (renaming, moving files, extracting methods), it's too
+   specific for Requirements and belongs in Solution Design
   - Requirements should be complete and stable before moving to Process Flows
 - **Requirements Phase Exit Criteria**: 
   - Requirements crystal clear and sensible
@@ -200,17 +272,16 @@ Breakout Issues are collected in the `## Breakout Issues` section during the gro
     - ANY other response (including "sounds good", "that's right", "correct") is NOT approval - it's just acknowledgment
     - **Breakout Trigger Point**: If breakout issues are still listed suggest "Before we move to solution design, we have X breakout issues. Should we break them out into their own linear issue first (recommended)?"
 
-#### 3.3: Solution Design
-- Design solution and iterate with Operator
-  - Automatically draft the **## Solution Design** sections based on **## Requirements** and **## Solution Summary** sections
-  - Support user iteration through the design.  If changes are required, capture the underlying requirements, and automatically re-generate the impacted **Solution Design** sections to accommodate those requirements
+#### 2.3: Automatically Generate Solution Design
+- Automatically draft the **## Solution Design** sections based on **## Requirements** and **## Solution Summary** sections
   - Keep technical details minimal but sufficient to guide implementation
-  - Allow and encourage requirements refinement during this phase
 - **### Component Impacts**
   - The official components are reflected in `_docs/guides/monorepo.md`
   - Identify the primary components (packages, primary folders, etc.) from `monorepo.md` impacted by the design
-  - Summarize the impacts to each component
-  - Clearly highlight new, removed, or changing components
+  - Add a subsection for each primary component that is impacted
+    - Summarize the impacts to the component
+    - List the files or changes planned within that component
+    - Clearly highlight new, removed, or changing component or component parts
 - **### Process Flows**
   - Sketch process flows, including interactions, expected by the solution
   - Keep it high-level, just enough detail to communicate vision to the Delivery Agent
@@ -218,88 +289,40 @@ Breakout Issues are collected in the `## Breakout Issues` section during the gro
   - Formatting
     - Use indented bullets `-` as the primary format in this section
     - Use ```fenceposts when for code samples
-- **## Acceptance Criteria**: Define user-observable success criteria
+- **### Acceptance Criteria**: Define user-observable success criteria
   - Express as single-line `- [ ] Unchecked Checkbox` items
   - Focus on user-observable outcomes, not technical tasks
   - Must be independently verifiable and demonstrable
   - Should fully cover all requirements
-- **Solution Design Phase Exit Criteria**: 
+
+
+#### 2.4: Completion Resolution
+- Iterate with Operator to refine the issue definition
+  - Engage in discussion with the Operator to refine the solution
+  - Allow and encourage requirements refinement during this phase
+  - If changes are required, capture the underlying requirements, and automatically re-generate the impacted **Solution Design** sections to accommodate those requirements.  Ensure the requirements are captured adequately to drive the design change
+  - If design changes raise more questions, add them to the Blocking Questions section
+- After each iteration, check the **Solution Design Exit Criteria**:
   - **Requirements Phase Exit Criteria** still hold true
   - Solution design fully delivers the stated requirements in an optimal way
   - Solution does not exceed the stated requirements scope
+  - Blocking Questions section contains only "No outstanding questions"
+  - `updated-issue.md` fully describes requirements, solution, and acceptance criteria per Template standards
   - All **## Solution Design** sections are complete and exhaustively reflect the solution vision
-  - Operator **EXPLICITLY agrees** that Solution Design is complete
-    - **Required approval**: Say something like:  "The solution looks solid. Shall we lock it in and move on?"
+  - No **## Breakout Issues** remain in the document.  They have either been deleted (with operator approval), or new breakout issues have been created
+- Ask Operator for next steps after each iteration:
+  - If the **Solution Design Exit Criteria** are all met
+    - Ask the operator something like: "The solution looks solid to me. Shall we lock it in and move on to Delivery?"
+      - If user agrees to move on
+        - `OPERAITON_COMPLETION` = `COMPLETE`
+        - move to the next phase
+      - Otherwise, support the operators wishes
+  - Else (if the criteria is not fully met)
+    - Present the operator with a list of outstanding tasks or questions and ask what should happen next.
+    - Include the option to save work to Linear and end the operation as blocked
+  - If the user decides to end the operation at any time without all Exit Criteria being complete
+    - `OPERAITON_COMPLETION` = `BLOCKED`
+    - Move on to the next phase
+  - **Required approval**: Do not move on to the next phase until **Explicit and non-ambiguous approval** is received from the operator
 
-
-#### 3.4: Final Breakout Resolution and Completion
-If issues remain in **## Breakout Issues** following operator's agreement to proceed:
-
-##### Automated Breakout Process (Breakout Trigger Point 3 - MANDATORY)
-1. **Check for unresolved breakouts**: If breakout issues exist in the document
-2. **Mandatory resolution**: "We must resolve all breakout issues before delivery. Would you like to:
-   - Create them all in Linear now
-   - Select specific ones to create
-   - Remove them from this issue"
-3. **Follow the steps in `##### Breaking Out Issues`**
-4. **If breakouts remain unresolved**:
-   - Move to Phase 4 with Blocked status
-   - Include unresolved breakouts in blocking reasons
-
-#### Template
-Groomed issues should be presented in this standard format:
-
-```markdown
-# <IssueName: Uniquely descriptive name>
-<Description: 1-2 sentence description of the Story>
-
-## Requirements
-1. Well-organized, hierarchical numbered list per section 3.2 standards
-  - Format like this for Linear compatibility
-    - Numbers first, then dashes for lower levels
-
-## Solution Summary
-
-### Feature Summary
-**Functional Features**
-[Delivered features summarized as briefly as possible while still describing the full scope]
-
-**Non-Functional Features**
-[Summary of non-functional features]
-
-### Blocking Questions
-[Must contain only "No outstanding questions" when grooming is complete]
-
-### Assumptions
-[Non-obvious, unstated assumptions only]
-
-## Solution Design
-
-### Component Impacts
-[Listing of components and their impacts affected by the proposed solution]
-
-### Process Flows
-[High-level technical approach per Process Flow standards above]
-
-### Acceptance Criteria
-- [ ] User-observable success criteria (unchecked boxes)
-[Per section 3.3 standards]
-
-## Breakout Issues
-[If needed, use nested format to prepare for Linear AI extraction]
-### Breakout 1 Issue Title
-[Description: 1-2 sentence description of the Story]
-#### Requirements
-#### SolutionSummary
-[All other section details extracted from the parent]
-```
-
-### Phase 4: Grooming Success Verification with Terminal Transition
-Grooming agent should take a careful look at the final Story definition.  Assume prior evaluations of exit criteria were incomplete.  All of these criteria must be true to consider grooming Complete. If any are untrue, the operation must result with status Blocked.
-- `updated-issue.md` fully describes requirements, solution, and acceptance criteria per Template standards
-- Blocking Questions section contains only "No outstanding questions"
-- Exit criteria for both **Requirements** and **Solution Design** still hold true
-- No Breakout Issues remain in document (all have been separated into their own issues)
-- Technical dependencies have been verified (tools, packages, APIs exist and work as needed)
-- **CRITICAL** You explicitly asked: "The Story looks solid to me, ready to move to Delivery?", and operator responded affirmatively.  **NEVER** assume or infer this answer.
 
