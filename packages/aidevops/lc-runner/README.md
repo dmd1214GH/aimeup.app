@@ -103,7 +103,7 @@ pnpm lc-runner Deliver AM-25 --claude-timeout 10
 
 ### Uploading Results to Linear
 
-After an operation completes, upload the results:
+After an operation completes, upload the results using the Claude-powered recovery system:
 
 ```bash
 # Upload using folder tag (e.g., from a completed operation)
@@ -111,12 +111,16 @@ pnpm lc-runner Deliver AM-25 --upload-only op-Deliver-20250824060442
 
 # Dry run to validate without uploading
 pnpm lc-runner Deliver AM-25 --upload-only op-Deliver-20250824060442 --dry-run
+
+# Test mode to simulate uploads without Linear API calls
+pnpm lc-runner Deliver AM-25 --upload-only op-Deliver-20250824060442 --test-mcp-failure
 ```
 
 **Upload Options:**
 
 - `--upload-only <folderTag>`: Upload existing results from specified working folder
 - `--dry-run`: Validate without performing actual upload
+- `--test-mcp-failure`: Simulate uploads without Linear API calls (for testing)
 
 ### Listing Working Folders
 
@@ -175,9 +179,28 @@ This will:
         └── master-prompt.md         # Combined prompt with issue
 ```
 
-## Upload Feature
+## Upload Recovery System
 
-The upload command allows you to push operation results back to Linear after processing:
+The upload feature uses a Claude Code command file (`lc-upload-files.md`) to orchestrate recovery of failed Linear uploads. This AI-driven approach provides intelligent file interpretation and comprehensive operation logging.
+
+### How It Works
+
+1. **File Recognition**: Automatically identifies files by pattern:
+   - `operation-report-*.md` → Operation reports
+   - `updated-issue.md` → Issue content updates
+   - `breakout-*.md` → Breakout sub-issues
+
+2. **Operation Logging**: Maintains an idempotent log at the issue level:
+   - Located at `.linear-watcher/work/lcr-<issueId>/issue-operation-log.md`
+   - Uses JSON Lines format for efficient append-only operations
+   - Prevents duplicate uploads across recovery attempts
+
+3. **Recovery Process**:
+   - Checks operation log for already-uploaded files
+   - Processes operation reports in chronological order
+   - Invokes `lc-issue-saver` subagent for each pending file
+   - Updates log after successful uploads
+   - Fails fast on first error with clear reporting
 
 ### What Gets Uploaded
 
@@ -186,15 +209,16 @@ The upload command allows you to push operation results back to Linear after pro
 3. **Status Transition**: Issue status is updated based on operation result:
    - `Complete` → Configured success status
    - `Blocked/Failed` → Configured blocked status
+4. **Breakout Issues**: `breakout-*.md` files create new sub-issues with parent references
 
 ### Pre-Upload Validation
 
 Before uploading, the tool validates:
 
-- `updated-issue.md` differs from `original-issue.md`
+- Required files exist (`original-issue.md`, `updated-issue.md`)
 - At least one operation report exists
-- Latest report has a terminal status (Complete/Blocked/Failed)
-- Linear issue is still in expected status
+- Operation log is valid JSON Lines format (if exists)
+- Working folder structure is correct
 
 ### Upload Process
 

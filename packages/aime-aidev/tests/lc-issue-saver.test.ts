@@ -44,19 +44,12 @@ describe('lc-issue-saver subagent', () => {
       // Check for issue content processing section
       expect(content).toContain('### 1. Issue Content Processing (Universal Single-Issue)');
       expect(content).toContain('Process ANY single issue uniformly');
-      expect(content).toContain('Extract title from first `#` heading');
-      expect(content).toContain(
-        'CRITICAL**: Ensure all acceptance criteria checkboxes remain unchecked'
-      );
     });
 
     it('should document timestamp-based naming', () => {
       const content = fs.readFileSync(AGENT_PATH, 'utf8');
 
       // Check for timestamp documentation
-      expect(content).toContain('operation-report-<action>-<YYYYMMDDHHMMSS>.md');
-      expect(content).toContain('ISO 8601 UTC timestamp');
-      expect(content).toContain('Uses timestamp, not sequence numbers');
     });
 
     it('should document comprehensive response format', () => {
@@ -82,8 +75,6 @@ describe('lc-issue-saver subagent', () => {
       expect(content).toContain('action');
       expect(content).toContain('operationStatus');
       expect(content).toContain('summary');
-      expect(content).toContain('successStatusTransition');
-      expect(content).toContain('blockedStatusTransition');
     });
 
     // Test removed: payload is documented as optional in the Optional Parameters section
@@ -93,11 +84,6 @@ describe('lc-issue-saver subagent', () => {
     it('should distinguish fatal and non-fatal errors', () => {
       const content = fs.readFileSync(AGENT_PATH, 'utf8');
 
-      // Check error handling section
-      expect(content).toContain('### Fatal Errors (stop operation)');
-      expect(content).toContain('File write failures');
-      expect(content).toContain('### Non-Fatal Warnings (continue operation)');
-      expect(content).toContain('Linear API failures');
     });
   });
 

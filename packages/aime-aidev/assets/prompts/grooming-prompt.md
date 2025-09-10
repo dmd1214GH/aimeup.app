@@ -25,8 +25,15 @@ Include these grooming-specific checklist items with `Phase 1: Validate and Prim
   - Evaluate completion
   - Obtain approval to proceed
 
+**IMPORTANT** 
+Update `updated-issue.md` directly as the conversation progresses
+  - Work with the operator to refine the Story defined in `updated-issue.md`
+  - Update `updated-issue.md` directly as the conversation progresses
+  - Use the `Story Definition Template` below for document structure
+  - Never remove content without discussion and approval
 
-#### Story Grooming Guiding Principles
+
+#### Story Grooming Requirements Guiding Principles
 These principles contribute to reliable delivery of desired functionality.  Use them to design and evolve this prompt, and to guide the Story grooming process:
 
 1. Careful deliberation: Right the first time
@@ -38,7 +45,26 @@ These principles contribute to reliable delivery of desired functionality.  Use 
   - Avoid including un-related work
   - Suggest using Breakout Issues if the Story becomes too big or contains easily separable work
 
-3. Prove concepts and establish patterns for new solutions
+3. Top-down requirements
+  - Structure requirements first
+  - Organize from top down and outside in
+  - Breakout issues early in the process, during the requirements discussion
+  - Delay solution design until after requirements are clear, proven, well organized, and have been considered for breakouts
+
+4. Implementation-agnostic requirements
+  - Requirements should remain valid even if the codebase is refactored
+  - Technical details like file paths, method names, and line numbers belong in Solution Design
+  - Focus on capabilities and behaviors, not code structure
+  - A good requirement can be understood without reading the code
+
+
+#### Story Grooming Solution Design Guiding Principles
+1. Resolve design options during grooming
+  - Do not specify that Delivery should decide between options or test concepts before delivering
+  - Collaborate with Operator to resolve option
+  - Test and Resolve questions that would resolve options during the grooming phase
+
+2. Prove concepts and establish patterns for new solutions
   - If requirements mention specific tools, packages, or capabilities: test them during grooming. Unverified assumptions lead to blocked tasks.
   - Solutions that do not have established patterns should be physically tested during grooming
   - Lightly used patterns should explicitly reference similar components to be modeled after
@@ -46,47 +72,58 @@ These principles contribute to reliable delivery of desired functionality.  Use 
   - Examples: Claude code features, new libraries, new apis
   - Don't trust documentation blindly, test it before specifying it
 
-4. Top-down requirements
-  - Structure requirements first
-  - Organize from top down and outside in
-  - Breakout issues early in the process, during the requirements discussion
-  - Delay solution design until after requirements are clear, proven, well organized, and have been considered for breakouts
-
-5. Resolve design options during grooming
-  - Do not specify that Delivery should decide between options or test concepts before delivering
-  - Collaborate with Operator to resolve option
-  - Test and Resolve questions that would resolve options during the grooming phase
-
-6. Update `updated-issue.md` directly as the conversation progresses
-  - Work with the operator to refine the Story defined in `updated-issue.md`
-  - Update `updated-issue.md` directly as the conversation progresses
-  - Use the `Story Definition Template` below for document structure
-  - Never remove content without approval
-
-7. Implementation-agnostic requirements
-  - Requirements should remain valid even if the codebase is refactored
-  - Technical details like file paths, method names, and line numbers belong in Solution Design
-  - Focus on capabilities and behaviors, not code structure
-  - A good requirement can be understood without reading the code
 
 #### Story Authoring and Formatting
 These instructions are intended to optimize the authoring and editing of the issue definitions for stories.  Stories must be easy to read by both humans and AI Agents.  They must also be optimized to display well within Linear and other markdown editors.
 
-1. **No strike-through text**.  Remove text that doesn't belong, consider adding an Assumption to record the decision to remove if it is at risk of being added later
+1. **No strike-through text**
+  - Remove text that doesn't belong
+  - consider adding an Assumption to record the decision to remove if it is at risk of being re-added later
 
-2. **What not How**.  Grooming defines what is required, not how to deliver it.  if "How" decisions must be conveyed, be clear about the underlying requirements
+2. **What not How**
+  - Grooming defines what is required, not how to deliver it.  
+  - If "How" decisions must be conveyed to clarify context, be sure it is grounded in the underlying requirements
+  - **Avoid ALL implementation specifics**:
+    - ❌ Bad: "Delete files matching the pattern `/tmp/claude-prompt-*.md`"
+    - ✅ Good: "Clean up any legacy temporary files created by previous versions"
+    - ❌ Bad: "the agent does X" (too vague about which agent)
+    - ✅ Good: "the Grooming Agent does X" or "the lc-runner operation does X"
+    - ❌ Bad: "Extract success/blocked transitions from config.json and pass as ArgTargetStatusSuccess..."
+    - ✅ Good: "Pass the Success and Blocked status transitions from lc-runner"
 
-3. **Bullets**.  Linear markdown supports `*` and `-` bullets.  **DO NOT NEEDLESSLY CHANGE WHAT IS USED**.  This creates noise in Diff. Use precedents in existing lists, or default to `-` for new lists
+3. **Bullets**
+  - Linear markdown supports `*` and `-` bullets.  
+  - **DO NOT NEEDLESSLY CHANGE BULLETS**.  This creates noise in Diff. Use precedents in existing lists, or default to `*` for new lists
 
-4. **File References** Wrap all file references with back ticks (e.g. `somefile.md`).  This avoids undesirable links (e.g. `[somefile.md](http://somefile.md)`)
+4. **File References** 
+  - Wrap all file references with back ticks (e.g. `somefile.md`).  This avoids undesirable links (e.g. `[somefile.md](http://somefile.md)`)
 
-5. **Brevity** Be as brief as possible, but choose clarity over brevity - if a shorter statement could be ambiguous, expand it with context.
+5. **Brevity** 
+  - Tightly stated (brief and well written), clear and unambiguous
+  - Be as brief as possible, but no briefer.  Choose clarity over brevity - if a shorter statement could be ambiguous, expand it with context.
 
 6. **Specificity vs. Abstraction Balance**
   - BE SPECIFIC when naming business concepts, features, and capabilities
   - BE ABSTRACT when describing implementation details, code structure, or technical solutions
   - Requirements = WHAT needs to change (survives refactoring)
   - Solution Design = HOW to make the change (includes files, methods, line numbers)
+
+7. **Stability Test**
+  - If a requirement would need updating after routine refactoring (renaming, moving files, extracting methods), it's too
+   specific for Requirements and belongs in Solution Design
+  - **Abstraction Level**: Requirements must survive normal code evolution
+    - ❌ Bad: "Remove lines 343-358 from lc-runner.ts" (line numbers change)
+    - ✅ Good: "Remove automatic upload attempts after operations complete"
+
+8. **Exclude standard engineering practices**
+  - Don't state obvious "definition of done" items
+    - ❌ Bad: "Update tests to reflect changes"
+    - ❌ Bad: "Ensure all tests pass"
+    - ❌ Bad: "Update documentation"
+    - ❌ Bad: "Fix any broken imports"
+    - ✅ Good: Only include test/doc requirements when specific or unusual (e.g., "Create performance benchmarks for new caching layer")
+    - Note: Standard practices (tests pass, docs updated, no broken code) are assumed for ALL stories
+
 
 
 #### Breaking Out Issues
@@ -199,6 +236,7 @@ Groomed issues should be presented in this standard format:
 #### 2.1: Initial Analysis & Operator Engagement
 - Read and analyze the current Story content
 - Identify obvious gaps, ambiguities, or concerns
+- Make an early assessment about recommendations to breakout issues
 - Check for any technical dependencies that might inform the Story's issue definition
 - Prepare initial understanding summary
 - Present findings: "I see this is about [summary]. [Initial observations]. Shall we begin grooming?"
@@ -209,6 +247,8 @@ Groomed issues should be presented in this standard format:
   - Update the `updated-issue.md` continuously during this phase
   - Draft and present initial requirements understanding
   - Collaborate with operator to refine.  Expect and support careful, non-rushed deliberation
+  - Prioritize the principles in `#### Story Grooming Requirements Guiding Principles`
+  - Prioritize the formatting standards in `#### Story Authoring and Formatting`
   - Identify non-obvious out-of-scope boundaries (record in **### Assumptions**)
   - Identify unclear, ambiguous, improper requirements (record in **### Blocking Questions**)
   - Identify new solution patterns (tools, libraries, etc.) and ensure adoption strategy is clear
@@ -217,7 +257,7 @@ Groomed issues should be presented in this standard format:
   - Continue iteration until requirements are complete, stable, and all questions are resolved
 - Formatting Requirements (important for Linear display)
   - Numbers (1, 2, 3...) for main sections
-  - Bullets (`-`) for lower levels
+  - Bullets (`*`) for lower levels
 - Keep these **## Solution Summary** sections updated as requirements evolve
   - These are not the target of the collaboration, they are the results of the requirements
   - **### Feature Summary**
@@ -233,36 +273,17 @@ Groomed issues should be presented in this standard format:
     - Capture only non-obvious assumptions that are not stated in the document
     - Include out-of-scope decisions made during question resolution
     - Include pending or executed POC tests for new solution patterns or tools which will be introduced by this solution
-    - Standard engineering practices (tests, documentation, clean builds) are always assumed unless explicitly stated otherwise
+    - Standard engineering practices (tests, documentation, clean builds) are always assumed unless explicitly stated in requirements. No need to duplicate here.
 - **## Breakout Issues**
   - If Operator **explicitly** resolves to breakout issues, create a new **### Heading** for it under **## Breakout Issues** and move all of its related elements to that section
   - **Breakout Trigger Point 1**: After creating breakout issues, ask: "I've identified X well-defined breakout issues. Would you like to break them out to their own Linear issue now?"
 - **Requirements Writing Standards**:
-  - Tightly stated (brief and well written), clear and unambiguous
-  - **Avoid ALL implementation specifics** - State WHAT is needed, not HOW to do it
-    - ❌ Bad: "Delete files matching the pattern `/tmp/claude-prompt-*.md`"
-    - ✅ Good: "Clean up any legacy temporary files created by previous versions"
-    - ❌ Bad: "the agent does X" (too vague about which agent)
-    - ✅ Good: "the Grooming Agent does X" or "the lc-runner operation does X"
-  - State as requirements, not as instructions
-    - ❌ Bad: "Extract success/blocked transitions from config.json and pass as ArgTargetStatusSuccess..."
-    - ✅ Good: "Pass the Success and Blocked status transitions from lc-runner"
-  - **Exclude standard engineering practices** - Don't state obvious "definition of done" items
-    - ❌ Bad: "Update tests to reflect changes"
-    - ❌ Bad: "Ensure all tests pass"
-    - ❌ Bad: "Update documentation"
-    - ❌ Bad: "Fix any broken imports"
-    - ✅ Good: Only include test/doc requirements when specific or unusual (e.g., "Create performance benchmarks for new caching layer")
-    - Note: Standard practices (tests pass, docs updated, no broken code) are assumed for ALL stories
-  - **Abstraction Level**: Requirements must survive normal code evolution
-    - ❌ Bad: "Remove lines 343-358 from lc-runner.ts" (line numbers change)
-    - ✅ Good: "Remove automatic upload attempts after operations complete"
-  - **Stability Test**: If a requirement would need updating after routine refactoring (renaming, moving files, extracting methods), it's too
-   specific for Requirements and belongs in Solution Design
+  - **IMPORTANT** Prioritize the formatting standards in `#### Story Authoring and Formatting`
   - Requirements should be complete and stable before moving to Process Flows
 - **Requirements Phase Exit Criteria**: 
   - Requirements crystal clear and sensible
   - Requirements are properly sized and scoped to be focused, breakout issues have been considered and resolved
+  - Standards in `#### Story Grooming Requirements Guiding Principles` have been carefully re-considered and the story definition has been updated to reflect changes
   - All known questions are resolved and incorporated
   - When all criteria are met, gently seek operator approval.  Otherwise, prompt operator for outstanding resolutions.  Do not rush or pressure the user.
   - **⚠️ CRITICAL REQUIREMENTS APPROVAL GATE**
@@ -275,6 +296,8 @@ Groomed issues should be presented in this standard format:
 #### 2.3: Automatically Generate Solution Design
 - Automatically draft the **## Solution Design** sections based on **## Requirements** and **## Solution Summary** sections
   - Keep technical details minimal but sufficient to guide implementation
+  - Prioritize the principles in `#### Story Grooming Solution Design Guiding Principles`
+  - Prioritize the formatting standards in `#### Story Authoring and Formatting`
 - **### Component Impacts**
   - The official components are reflected in `_docs/guides/monorepo.md`
   - Identify the primary components (packages, primary folders, etc.) from `monorepo.md` impacted by the design
@@ -287,7 +310,7 @@ Groomed issues should be presented in this standard format:
   - Keep it high-level, just enough detail to communicate vision to the Delivery Agent
   - Actual components (Types, Scripts, Tools, etc.) are **SPARINGLY** woven into the flows where it aids with vision direction
   - Formatting
-    - Use indented bullets `-` as the primary format in this section
+    - Use indented bullets `*` as the primary format in this section
     - Use ```fenceposts when for code samples
 - **### Acceptance Criteria**: Define user-observable success criteria
   - Express as single-line `- [ ] Unchecked Checkbox` items

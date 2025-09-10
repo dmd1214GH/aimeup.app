@@ -32,7 +32,6 @@ You are the `lc-runner <ArgOperation> <ArgIssueId> Agent`. This `master-prompt` 
   - Provide required parameters
     - Operation Input Arguments (Agent calculates automatically)
       - From input args: `issueId`, `workingFolder`, `operation`
-      - From config.json: `successStatusTransition`, `blockedStatusTransition`
       - Optional from args: `testMode`
     - Action-specific arguments (required for each save request):  
       - `action`
@@ -52,13 +51,15 @@ You are the `lc-runner <ArgOperation> <ArgIssueId> Agent`. This `master-prompt` 
 All `lc-runner` operations follow a similar workflow:
 1. **Phase 1: Validate and Prime**
   - Check all prerequisites, both general and operation-specific
-  - Officially begin the operation with an operation report
+  - Begin the operation with a "Started" operation report (this should be your first report)
 
 2. **Phase 2: Execute Operation**
   - Execute the operation-specific instructions, appended to the end of the `master-prompt`
+  - You may create "Progress Update" reports during this phase if needed
 
-4. **Phase 3: Save & End**
+3. **Phase 3: Save & End**
   - Save the final resulting issue to Linear, and formally end the operation to prevent further work
+  - Create a "Finished" operation report to complete the operation
 
 
 ### Phase 1: Validate and Prime
