@@ -1,7 +1,6 @@
 import * as fs from 'fs';
 import { UploadOrchestrator } from '../src/upload-orchestrator';
 import { UploadValidator } from '../src/upload-validator';
-import { OperationReportGenerator } from '../src/operation-report-generator';
 import { OperationLogger } from '../src/operation-logger';
 import type { LinearClient } from '../src/linear-client';
 import type { UploadOptions } from '../src/upload-orchestrator';
@@ -10,7 +9,6 @@ import type { Config } from '../src/types';
 // Mock modules
 jest.mock('fs');
 jest.mock('../src/upload-validator');
-jest.mock('../src/operation-report-generator');
 jest.mock('../src/operation-logger');
 
 describe('UploadOrchestrator', () => {
@@ -18,7 +16,6 @@ describe('UploadOrchestrator', () => {
   const mockWorkingFolder = '/work/folder';
   let orchestrator: UploadOrchestrator;
   let mockValidator: jest.Mocked<UploadValidator>;
-  let mockReportGenerator: jest.Mocked<OperationReportGenerator>;
   let mockOperationLogger: jest.Mocked<OperationLogger>;
   let mockLinearClient: jest.Mocked<LinearClient>;
 
@@ -83,17 +80,6 @@ describe('UploadOrchestrator', () => {
     (UploadValidator as jest.MockedClass<typeof UploadValidator>).mockImplementation(
       () => mockValidator
     );
-
-    // Setup mock report generator
-    mockReportGenerator = {
-      generateReport: jest.fn().mockReturnValue('operation-report-UploadFailure-001.md'),
-      getAllReports: jest.fn(),
-      readReport: jest.fn(),
-      getLatestReportStatus: jest.fn(),
-    } as any;
-    (
-      OperationReportGenerator as jest.MockedClass<typeof OperationReportGenerator>
-    ).mockImplementation(() => mockReportGenerator);
 
     // Setup mock operation logger
     mockOperationLogger = {
@@ -288,24 +274,19 @@ describe('UploadOrchestrator', () => {
 
       expect(result.success).toBe(false);
       expect(result.errors).toContain('Unexpected error');
-      expect(mockReportGenerator.generateReport).toHaveBeenCalledWith(
-        expect.objectContaining({
-          action: 'UploadFailure',
-          operationStatus: 'Failed',
-        })
-      );
+      // Note: Report generation has been removed - handleUploadFailure now only logs errors
     });
 
-    it('should upload failure report on error', async () => {
+    it('should handle failure without uploading report', async () => {
       mockValidator.validate.mockRejectedValue(new Error('Unexpected error'));
 
-      await orchestrator.upload(mockOptions);
+      const result = await orchestrator.upload(mockOptions);
 
-      expect(mockLinearClient.addComment).toHaveBeenCalledWith(
-        'AM-25',
-        expect.stringContaining('Operation Report')
-      );
-      // Status updates removed - handled by lc-issue-saver
+      // Report generation/upload has been removed - only logging occurs now
+      expect(result.success).toBe(false);
+      expect(result.errors).toContain('Unexpected error');
+      // No Linear comment expected - handleUploadFailure only logs errors now
+      expect(mockLinearClient.addComment).not.toHaveBeenCalled();
     });
   });
 

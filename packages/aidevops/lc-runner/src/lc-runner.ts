@@ -9,7 +9,7 @@ import { WorkingFolderManager } from './working-folder';
 import { OperationLogger } from './operation-logger';
 import { PromptAssembler } from './prompt-assembler';
 import { ClaudeInvoker } from './claude-invoker';
-import { OutputManager } from './output-manager';
+// Upload command import preserved for manual recovery use
 import { uploadCommand } from './commands/upload';
 import { StateMappingRefresher } from './utils/state-mapping-refresher';
 
@@ -284,6 +284,7 @@ ${issue.description}
 
           if (invocationResult.success) {
             console.log('ClaudeCode execution completed successfully.');
+            console.log('[VERSION CHECK] Running AM-93 cleaned version without OutputManager');
 
             // Wait a moment for files to be fully written to disk
             await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -303,59 +304,21 @@ ${issue.description}
               console.log(`DEBUG: All files in folder: ${filesInFolder.join(', ')}`);
             }
 
-            // Create output manager to check for operation reports
-            const outputManager = new OutputManager(workingFolderPath);
-
-            // Get status from operation-report files written by Claude
-            const operationStatus = outputManager.getLatestOperationStatus();
-            console.log(
-              `DEBUG: OutputManager.getLatestOperationStatus() returned: ${operationStatus}`
-            );
-
-            // Determine the final status
-            let finalStatus: 'Completed' | 'Blocked' | 'Failed';
-            if (operationStatus !== 'Unknown') {
-              finalStatus = operationStatus;
-            } else {
-              // Fallback: if no operation report found, assume success based on exit code
-              finalStatus = 'Completed';
-              console.log('No operation-report found, assuming success based on exit code.');
-            }
-
-            // Log ClaudeCode completion
-            const completionStatus =
-              finalStatus === 'Completed'
-                ? 'ClaudeCode Completed'
-                : finalStatus === 'Blocked'
-                  ? 'ClaudeCode Blocked'
-                  : 'ClaudeCode Failed';
-
+            // Log ClaudeCode completion (simplified - no status detection)
             const claudeCompletionEntry = {
               timestamp: OperationLogger.getCurrentTimestamp(),
               operation,
-              status: completionStatus,
+              status: 'ClaudeCode Completed',
               folderPath: folderName,
             };
             logger.appendLogEntry(issueId, claudeCompletionEntry);
 
-            console.log(`ClaudeCode status: ${finalStatus}`);
-
-            // Auto-upload to Linear if operation completed or was blocked
-            if (finalStatus === 'Completed' || finalStatus === 'Blocked') {
-              console.log('\nAutomatically uploading results to Linear...');
-              try {
-                await uploadCommand(issueId, operation, workingFolderPath);
-                console.log('Upload to Linear completed successfully!');
-              } catch (uploadError) {
-                console.error(
-                  'Failed to upload to Linear:',
-                  uploadError instanceof Error ? uploadError.message : 'Unknown error'
-                );
-                console.log(
-                  `You can manually upload later using: pnpm lc-runner ${operation} ${issueId} --upload-only ${folderName}`
-                );
-              }
-            }
+            console.log('ClaudeCode operation completed successfully.');
+            console.log(`Working folder: ${workingFolderPath}`);
+            
+            // Note: Automatic upload has been removed. 
+            // The lc-issue-saver subagent handles all Linear updates during operation.
+            // For manual recovery, use: pnpm lc-runner ${operation} ${issueId} --upload-only ${folderName}
           } else {
             console.error('ClaudeCode execution failed.');
             if (invocationResult.stderr) {

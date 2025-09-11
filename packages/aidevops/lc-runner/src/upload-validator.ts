@@ -1,6 +1,5 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { OperationReportGenerator } from './operation-report-generator';
 import type { LinearClient } from './linear-client';
 import type { Config } from './types';
 
@@ -28,11 +27,9 @@ export interface ValidationOptions {
  */
 export class UploadValidator {
   private workingFolder: string;
-  private reportGenerator: OperationReportGenerator;
 
   constructor(workingFolder: string) {
     this.workingFolder = workingFolder;
-    this.reportGenerator = new OperationReportGenerator(workingFolder);
   }
 
   /**
@@ -140,7 +137,11 @@ export class UploadValidator {
    */
   private checkOperationReports(): { isValid: boolean; errors: string[]; reports: string[] } {
     const errors: string[] = [];
-    const reports = this.reportGenerator.getAllReports();
+    // Get all operation report files directly
+    const files = fs.readdirSync(this.workingFolder);
+    const reports = files
+      .filter(f => f.startsWith('operation-report-') && f.endsWith('.md'))
+      .sort();
 
     if (reports.length === 0) {
       errors.push('No operation-report-*.md files found in working folder');
@@ -159,7 +160,12 @@ export class UploadValidator {
     status?: 'Failed' | 'Blocked' | 'Complete';
   } {
     const errors: string[] = [];
-    const reports = this.reportGenerator.getAllReports();
+    
+    // Get all operation report files directly
+    const files = fs.readdirSync(this.workingFolder);
+    const reports = files
+      .filter(f => f.startsWith('operation-report-') && f.endsWith('.md'))
+      .sort();
 
     if (reports.length === 0) {
       errors.push('Cannot check terminal status - no operation reports found');
@@ -168,7 +174,16 @@ export class UploadValidator {
 
     // Get the highest sequence report (last in sorted array)
     const latestReport = reports[reports.length - 1];
-    const reportData = this.reportGenerator.readReport(latestReport);
+    const reportPath = path.join(this.workingFolder, latestReport);
+    const content = fs.readFileSync(reportPath, 'utf-8');
+    
+    // Parse the operation status from the report content
+    const statusMatch = content.match(/operationStatus:\s*(\w+)/i);
+    const operationStatus = statusMatch ? statusMatch[1] : 'Unknown';
+    
+    const reportData = {
+      operationStatus
+    };
 
     if (!reportData) {
       errors.push(`Failed to parse latest operation report: ${latestReport}`);
@@ -266,7 +281,10 @@ export class UploadValidator {
       payload: this.formatPrecheckFailurePayload(validationResult),
     };
 
-    return this.reportGenerator.generateReport(reportData);
+    // Note: Report generation has been removed. 
+    // The lc-issue-saver subagent handles all reporting during operations.
+    // This method now returns an empty string for compatibility.
+    return '';
   }
 
   /**

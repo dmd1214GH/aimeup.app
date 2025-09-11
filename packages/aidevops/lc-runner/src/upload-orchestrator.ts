@@ -1,10 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import type { LinearClient } from './linear-client';
-import { OperationReportGenerator } from './operation-report-generator';
 import { UploadValidator } from './upload-validator';
 import { OperationLogger } from './operation-logger';
-import { OutputManager } from './output-manager';
 import { cleanIssueBody, cleanCommentContent } from './content-cleaner';
 import type { Config } from './types';
 
@@ -39,16 +37,12 @@ export interface UploadResult {
  */
 export class UploadOrchestrator {
   private validator: UploadValidator;
-  private reportGenerator: OperationReportGenerator;
   private operationLogger: OperationLogger;
-  private outputManager: OutputManager;
   private failedUploads: string[] = [];
 
   constructor(workroot: string, workingFolder: string) {
     this.validator = new UploadValidator(workingFolder);
-    this.reportGenerator = new OperationReportGenerator(workingFolder);
     this.operationLogger = new OperationLogger(workroot);
-    this.outputManager = new OutputManager(workingFolder);
   }
 
   /**
@@ -308,24 +302,14 @@ export class UploadOrchestrator {
    */
   private async handleUploadFailure(options: UploadOptions, result: UploadResult): Promise<void> {
     try {
-      // Generate UploadFailure report
-      const reportData = {
-        issueId: options.issueId,
-        operation: options.operation,
-        action: 'UploadFailure',
-        workingFolder: options.workingFolder,
-        operationStatus: 'Failed' as const,
-        summary: 'Upload to Linear failed',
-        payload: this.formatUploadFailurePayload(result),
-      };
-
-      const failureReportFilename = this.reportGenerator.generateReport(reportData);
-      result.failureReportFilename = failureReportFilename;
-
-      // Try to upload it
-      await this.uploadFailureReport(options, failureReportFilename);
-
-      // Skip status update - status should be managed by operations, not uploads
+      // Log the failure but don't generate operation reports anymore
+      // Operation reports are now handled by lc-issue-saver subagent during operations
+      console.error('Upload to Linear failed');
+      console.error('Errors:', result.errors);
+      
+      // Note: Operation report generation has been removed.
+      // The lc-issue-saver subagent handles all reporting during operations.
+      // This method is retained for logging purposes only.
     } catch (error) {
       console.error(
         `Failed to handle upload failure: ${error instanceof Error ? error.message : 'Unknown error'}`

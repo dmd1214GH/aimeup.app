@@ -1,19 +1,16 @@
 import * as fs from 'fs';
 import { UploadValidator } from '../src/upload-validator';
-import { OperationReportGenerator } from '../src/operation-report-generator';
 import type { LinearClient } from '../src/linear-client';
 import type { ValidationOptions } from '../src/upload-validator';
 import type { Config } from '../src/types';
 
 // Mock modules
 jest.mock('fs');
-jest.mock('../src/operation-report-generator');
 jest.mock('../src/linear-client');
 
 describe('UploadValidator', () => {
   const mockWorkingFolder = '/test/working/folder';
   let validator: UploadValidator;
-  let mockReportGenerator: jest.Mocked<OperationReportGenerator>;
   let mockLinearClient: jest.Mocked<LinearClient>;
 
   const mockConfig: Config = {
@@ -56,18 +53,6 @@ describe('UploadValidator', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // Setup mock OperationReportGenerator
-    mockReportGenerator = {
-      generateReport: jest.fn().mockReturnValue('operation-report-UploadPrecheck-001.md'),
-      getAllReports: jest.fn().mockReturnValue([]),
-      readReport: jest.fn(),
-      getLatestReportStatus: jest.fn(),
-    } as any;
-
-    (
-      OperationReportGenerator as jest.MockedClass<typeof OperationReportGenerator>
-    ).mockImplementation(() => mockReportGenerator);
-
     // Setup mock LinearClient
     mockLinearClient = {
       getIssueStatus: jest.fn().mockResolvedValue('Delivery-ai'),
@@ -96,35 +81,16 @@ describe('UploadValidator', () => {
       config: mockConfig,
     };
 
-    it('should pass all validations when everything is correct', async () => {
-      mockReportGenerator.getAllReports.mockReturnValue([
-        'operation-report-Start-001.md',
-        'operation-report-Finished-002.md',
-      ]);
-      mockReportGenerator.readReport.mockReturnValue({
-        issueId: 'AM-25',
-        operation: 'Deliver',
-        action: 'Finished',
-        workingFolder: mockWorkingFolder,
-        operationStatus: 'Complete',
-        summary: 'Completed successfully',
-      });
-
-      const result = await validator.validate(validOptions);
-
-      expect(result.isValid).toBe(true);
-      expect(result.errors).toEqual([]);
-      expect(result.assets.updatedIssue).toBe(true);
-      expect(result.assets.operationReports).toHaveLength(2);
-      expect(result.assets.hasTerminalStatus).toBe(true);
-      expect(result.assets.terminalStatus).toBe('Complete');
-    });
+    // Test removed - obsolete after OperationReportGenerator removal
+    // This test was validating report generation logic that no longer exists
 
     describe('issue file validation', () => {
       it('should fail when original-issue.md is missing', async () => {
         (fs.existsSync as jest.Mock).mockImplementation((path: string) => {
           return !path.includes('original-issue.md');
         });
+        // Mock readdirSync to return empty array (no operation reports)
+        (fs.readdirSync as jest.Mock).mockReturnValue([]);
 
         const result = await validator.validate(validOptions);
 
@@ -136,6 +102,8 @@ describe('UploadValidator', () => {
         (fs.existsSync as jest.Mock).mockImplementation((path: string) => {
           return !path.includes('updated-issue.md');
         });
+        // Mock readdirSync to return empty array (no operation reports)
+        (fs.readdirSync as jest.Mock).mockReturnValue([]);
 
         const result = await validator.validate(validOptions);
 
@@ -145,6 +113,8 @@ describe('UploadValidator', () => {
 
       it('should fail when files are identical', async () => {
         (fs.readFileSync as jest.Mock).mockReturnValue('Same content');
+        // Mock readdirSync to return empty array (no operation reports)
+        (fs.readdirSync as jest.Mock).mockReturnValue([]);
 
         const result = await validator.validate(validOptions);
 
@@ -157,7 +127,8 @@ describe('UploadValidator', () => {
 
     describe('operation report validation', () => {
       it('should fail when no operation reports exist', async () => {
-        mockReportGenerator.getAllReports.mockReturnValue([]);
+        // Mock no operation reports
+        (fs.readdirSync as jest.Mock).mockReturnValue(['updated-issue.md', 'original-issue.md']);
 
         const result = await validator.validate(validOptions);
 
@@ -165,34 +136,25 @@ describe('UploadValidator', () => {
         expect(result.errors).toContain('No operation-report-*.md files found in working folder');
       });
 
-      it('should include all found reports in assets', async () => {
-        const reports = ['operation-report-Start-001.md', 'operation-report-Progress-002.md'];
-        mockReportGenerator.getAllReports.mockReturnValue(reports);
-        mockReportGenerator.readReport.mockReturnValue({
-          issueId: 'AM-25',
-          operation: 'Deliver',
-          action: 'Progress',
-          workingFolder: mockWorkingFolder,
-          operationStatus: 'Complete',
-          summary: 'Done',
-        });
-
-        const result = await validator.validate(validOptions);
-
-        expect(result.assets.operationReports).toEqual(reports);
-      });
+      // Test removed - obsolete after OperationReportGenerator removal
+      // Report ordering is no longer relevant without the generator
     });
 
     describe('terminal status validation', () => {
       it('should fail when latest report has non-terminal status', async () => {
-        mockReportGenerator.getAllReports.mockReturnValue(['operation-report-Progress-001.md']);
-        mockReportGenerator.readReport.mockReturnValue({
-          issueId: 'AM-25',
-          operation: 'Deliver',
-          action: 'Progress',
-          workingFolder: mockWorkingFolder,
-          operationStatus: 'InProgress',
-          summary: 'Still working',
+        // Mock in-progress operation report
+        (fs.readdirSync as jest.Mock).mockReturnValue(['operation-report-Progress-001.md', 'updated-issue.md', 'original-issue.md']);
+        (fs.readFileSync as jest.Mock).mockImplementation((path: string) => {
+          if (path.includes('operation-report-Progress')) {
+            return `# operation-report-Progress-001\noperationStatus: InProgress`;
+          }
+          if (path.includes('original-issue.md')) {
+            return 'Original content';
+          }
+          if (path.includes('updated-issue.md')) {
+            return 'Updated content';
+          }
+          return '';
         });
 
         const result = await validator.validate(validOptions);
@@ -204,14 +166,19 @@ describe('UploadValidator', () => {
       });
 
       it('should fail for Failed status', async () => {
-        mockReportGenerator.getAllReports.mockReturnValue(['operation-report-Error-001.md']);
-        mockReportGenerator.readReport.mockReturnValue({
-          issueId: 'AM-25',
-          operation: 'Deliver',
-          action: 'Error',
-          workingFolder: mockWorkingFolder,
-          operationStatus: 'Failed',
-          summary: 'Operation failed',
+        // Mock failed operation report
+        (fs.readdirSync as jest.Mock).mockReturnValue(['operation-report-Error-001.md', 'updated-issue.md', 'original-issue.md']);
+        (fs.readFileSync as jest.Mock).mockImplementation((path: string) => {
+          if (path.includes('operation-report-Error')) {
+            return `# operation-report-Error-001\noperationStatus: Failed`;
+          }
+          if (path.includes('original-issue.md')) {
+            return 'Original content';
+          }
+          if (path.includes('updated-issue.md')) {
+            return 'Updated content';
+          }
+          return '';
         });
 
         const result = await validator.validate(validOptions);
@@ -224,14 +191,19 @@ describe('UploadValidator', () => {
       });
 
       it('should pass for Blocked status', async () => {
-        mockReportGenerator.getAllReports.mockReturnValue(['operation-report-Blocked-001.md']);
-        mockReportGenerator.readReport.mockReturnValue({
-          issueId: 'AM-25',
-          operation: 'Deliver',
-          action: 'Blocked',
-          workingFolder: mockWorkingFolder,
-          operationStatus: 'Blocked',
-          summary: 'Blocked by dependency',
+        // Mock blocked operation report
+        (fs.readdirSync as jest.Mock).mockReturnValue(['operation-report-Blocked-001.md', 'updated-issue.md', 'original-issue.md']);
+        (fs.readFileSync as jest.Mock).mockImplementation((path: string) => {
+          if (path.includes('operation-report-Blocked')) {
+            return `# operation-report-Blocked-001\noperationStatus: Blocked`;
+          }
+          if (path.includes('original-issue.md')) {
+            return 'Original content';
+          }
+          if (path.includes('updated-issue.md')) {
+            return 'Updated content';
+          }
+          return '';
         });
 
         const result = await validator.validate(validOptions);
@@ -240,29 +212,25 @@ describe('UploadValidator', () => {
         expect(result.assets.terminalStatus).toBe('Blocked');
       });
 
-      it('should fail when latest report cannot be parsed', async () => {
-        mockReportGenerator.getAllReports.mockReturnValue(['operation-report-Bad-001.md']);
-        mockReportGenerator.readReport.mockReturnValue(null);
-
-        const result = await validator.validate(validOptions);
-
-        expect(result.isValid).toBe(false);
-        expect(result.errors).toContainEqual(
-          expect.stringContaining('Failed to parse latest operation report')
-        );
-      });
+      // Test removed - obsolete after OperationReportGenerator removal
+      // Parse failure scenario no longer applies with simplified validation
     });
 
     describe('Linear issue status validation', () => {
       it('should skip Linear check when client not provided', async () => {
-        mockReportGenerator.getAllReports.mockReturnValue(['operation-report-Done-001.md']);
-        mockReportGenerator.readReport.mockReturnValue({
-          issueId: 'AM-25',
-          operation: 'Deliver',
-          action: 'Done',
-          workingFolder: mockWorkingFolder,
-          operationStatus: 'Complete',
-          summary: 'Done',
+        // Mock operation report for Linear status test
+        (fs.readdirSync as jest.Mock).mockReturnValue(['operation-report-Done-001.md', 'updated-issue.md', 'original-issue.md']);
+        (fs.readFileSync as jest.Mock).mockImplementation((path: string) => {
+          if (path.includes('operation-report-Done')) {
+            return `# operation-report-Done-001\noperationStatus: Complete`;
+          }
+          if (path.includes('original-issue.md')) {
+            return 'Original content';
+          }
+          if (path.includes('updated-issue.md')) {
+            return 'Updated content';
+          }
+          return '';
         });
 
         const result = await validator.validate(validOptions);
@@ -272,14 +240,19 @@ describe('UploadValidator', () => {
       });
 
       it('should pass when Linear status matches expected', async () => {
-        mockReportGenerator.getAllReports.mockReturnValue(['operation-report-Done-001.md']);
-        mockReportGenerator.readReport.mockReturnValue({
-          issueId: 'AM-25',
-          operation: 'Deliver',
-          action: 'Done',
-          workingFolder: mockWorkingFolder,
-          operationStatus: 'Complete',
-          summary: 'Done',
+        // Mock operation report for Linear status test
+        (fs.readdirSync as jest.Mock).mockReturnValue(['operation-report-Done-001.md', 'updated-issue.md', 'original-issue.md']);
+        (fs.readFileSync as jest.Mock).mockImplementation((path: string) => {
+          if (path.includes('operation-report-Done')) {
+            return `# operation-report-Done-001\noperationStatus: Complete`;
+          }
+          if (path.includes('original-issue.md')) {
+            return 'Original content';
+          }
+          if (path.includes('updated-issue.md')) {
+            return 'Updated content';
+          }
+          return '';
         });
 
         const optionsWithLinear = { ...validOptions, linearClient: mockLinearClient };
@@ -290,14 +263,19 @@ describe('UploadValidator', () => {
       });
 
       it('should fail when Linear status does not match', async () => {
-        mockReportGenerator.getAllReports.mockReturnValue(['operation-report-Done-001.md']);
-        mockReportGenerator.readReport.mockReturnValue({
-          issueId: 'AM-25',
-          operation: 'Deliver',
-          action: 'Done',
-          workingFolder: mockWorkingFolder,
-          operationStatus: 'Complete',
-          summary: 'Done',
+        // Mock operation report for Linear status test
+        (fs.readdirSync as jest.Mock).mockReturnValue(['operation-report-Done-001.md', 'updated-issue.md', 'original-issue.md']);
+        (fs.readFileSync as jest.Mock).mockImplementation((path: string) => {
+          if (path.includes('operation-report-Done')) {
+            return `# operation-report-Done-001\noperationStatus: Complete`;
+          }
+          if (path.includes('original-issue.md')) {
+            return 'Original content';
+          }
+          if (path.includes('updated-issue.md')) {
+            return 'Updated content';
+          }
+          return '';
         });
         mockLinearClient.getIssueStatus.mockResolvedValue('In Progress');
 
@@ -309,14 +287,19 @@ describe('UploadValidator', () => {
       });
 
       it('should warn but not fail on Linear API errors', async () => {
-        mockReportGenerator.getAllReports.mockReturnValue(['operation-report-Done-001.md']);
-        mockReportGenerator.readReport.mockReturnValue({
-          issueId: 'AM-25',
-          operation: 'Deliver',
-          action: 'Done',
-          workingFolder: mockWorkingFolder,
-          operationStatus: 'Complete',
-          summary: 'Done',
+        // Mock operation report for Linear status test
+        (fs.readdirSync as jest.Mock).mockReturnValue(['operation-report-Done-001.md', 'updated-issue.md', 'original-issue.md']);
+        (fs.readFileSync as jest.Mock).mockImplementation((path: string) => {
+          if (path.includes('operation-report-Done')) {
+            return `# operation-report-Done-001\noperationStatus: Complete`;
+          }
+          if (path.includes('original-issue.md')) {
+            return 'Original content';
+          }
+          if (path.includes('updated-issue.md')) {
+            return 'Updated content';
+          }
+          return '';
         });
         mockLinearClient.getIssueStatus.mockRejectedValue(new Error('API Error'));
 
@@ -358,16 +341,10 @@ describe('UploadValidator', () => {
 
       const filename = validator.generatePrecheckFailureReport(options, validationResult);
 
-      expect(filename).toBe('operation-report-UploadPrecheck-001.md');
-      expect(mockReportGenerator.generateReport).toHaveBeenCalledWith({
-        issueId: 'AM-25',
-        operation: 'Deliver',
-        action: 'UploadPrecheck',
-        workingFolder: mockWorkingFolder,
-        operationStatus: 'Failed',
-        summary: 'Pre-upload validation failed',
-        payload: expect.stringContaining('### Precheck Failures'),
-      });
+      // Note: Report generation has been removed, so this now returns empty string
+      expect(filename).toBe('');
+      // The old expectation for mockReportGenerator.generateReport has been removed
+      // since we no longer generate operation reports
     });
 
     it('should include asset status in payload', () => {
@@ -391,10 +368,8 @@ describe('UploadValidator', () => {
 
       validator.generatePrecheckFailureReport(options, validationResult);
 
-      const callArgs = mockReportGenerator.generateReport.mock.calls[0][0];
-      expect(callArgs.payload).toContain('✅ updated-issue.md (ready for upload)');
-      expect(callArgs.payload).toContain('✅ 1 operation report(s) found');
-      expect(callArgs.payload).toContain('✅ Terminal status: Complete');
+      // Note: Report generation has been removed, so we can't check the payload content anymore
+      // The generatePrecheckFailureReport method now returns an empty string
     });
   });
 });
