@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     wget \
     procps \
+    faketime \
     # Dependencies for Chromium
     libglib2.0-0 \
     libnss3 \

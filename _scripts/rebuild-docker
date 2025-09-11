@@ -1,0 +1,49 @@
+#!/usr/bin/env zsh
+set -euo pipefail
+
+# Docker Rebuild Script
+# Rebuilds the Docker development container with clock synchronization
+# Usage: _scripts/rebuild-docker
+
+# Repo root
+REPO_PATH="$(cd "$(dirname "$0")/.." && pwd)"
+export REPO_PATH
+
+# Change to monorepo directory
+cd "$REPO_PATH"
+
+echo "🔧 Starting Docker container rebuild process..."
+echo ""
+
+# Step 1: Stop and remove existing containers
+echo "📦 Stopping and removing existing containers..."
+docker-compose -f docker-compose.yml -f docker-compose.claude.yml down
+echo "✅ Containers stopped and removed"
+echo ""
+
+# Step 2: Fix clock synchronization (macOS Docker Desktop time drift issue)
+echo "🕐 Synchronizing Docker clock with host..."
+if docker run --rm --privileged alpine hwclock -s 2>/dev/null; then
+    echo "✅ Clock synchronized successfully"
+else
+    echo "⚠️  Clock sync failed (may not be needed on this system)"
+fi
+echo ""
+
+# Step 3: Rebuild the Docker images
+echo "🔨 Building Docker images..."
+echo "  → Building base image..."
+docker-compose -f docker-compose.yml build
+echo "  → Building Claude image..."
+docker-compose -f docker-compose.yml -f docker-compose.claude.yml build
+echo "✅ Docker images built successfully"
+echo ""
+
+# Step 4: Start container in detached mode
+echo "🚀 Starting container in detached mode..."
+docker-compose -f docker-compose.yml -f docker-compose.claude.yml up -d
+echo "✅ Container started in background"
+echo ""
+
+echo "🎉 Docker rebuild complete!"
+echo "💡 Use 'aimedocker' to connect to the container"

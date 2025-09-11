@@ -18,6 +18,15 @@ if [ -d "/home/aimedev/.claude" ]; then
     chmod 600 /home/aimedev/.claude/.credentials.json 2>/dev/null || true
 fi
 
+# Check and install faketime if needed
+if ! command -v faketime &> /dev/null; then
+    echo "📦 Installing faketime for time manipulation testing..."
+    apt-get update -qq && apt-get install -y -qq faketime
+    echo "✓ Faketime installed successfully"
+else
+    echo "✓ Faketime is available"
+fi
+
 echo "✓ Docker container initialized"
 echo ""
 echo "If Claude is not authenticated, run: claude auth"
